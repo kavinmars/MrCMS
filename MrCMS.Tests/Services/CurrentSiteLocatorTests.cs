@@ -27,8 +27,8 @@ namespace MrCMS.Tests.Services
             var site2 = new Site { BaseUrl = "test2" };
             Session.Transact(session =>
                                  {
-                                     session.Save(site1);
-                                     session.Save(site2);
+                                     session.Add(site1);
+                                     session.Add(site2);
                                  });
             A.CallTo(() => _httpRequestBase.Url).Returns(new Uri("http://www.example.com/"));
 
@@ -42,8 +42,8 @@ namespace MrCMS.Tests.Services
             var site2 = new Site { BaseUrl = "www.example.com" };
             Session.Transact(session =>
                                  {
-                                     session.Save(site1);
-                                     session.Save(site2);
+                                     session.Add(site1);
+                                     session.Add(site2);
                                  });
             A.CallTo(() => _httpRequestBase.Url).Returns(new Uri("http://www.example.com/"));
 

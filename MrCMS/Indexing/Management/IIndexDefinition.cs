@@ -5,7 +5,7 @@ using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
-using NHibernate;
+using MrCMS.Helpers;
 
 namespace MrCMS.Indexing.Management
 {
@@ -69,18 +69,18 @@ namespace MrCMS.Indexing.Management
         /// <summary>
         /// Takes a Lucene document and converts it back to the indexed MrCMS entity
         /// </summary>
-        /// <param name="session">NHibernate session to facilitate MrCMS entity loading</param>
+        /// <param name="dbContext">NHibernate dbContext to facilitate MrCMS entity loading</param>
         /// <param name="document">Lucene document</param>
         /// <returns>MrCMS entity</returns>
-        T Convert(ISession session, Document document);
+        T Convert(IDbContext dbContext, Document document);
 
         /// <summary>
         /// Takes a list of Lucene documents and converts it back to a list of indexed MrCMS entities
         /// </summary>
-        /// <param name="session">NHibernate session to facilitate MrCMS entity loading</param>
+        /// <param name="dbContext">NHibernate dbContext to facilitate MrCMS entity loading</param>
         /// <param name="documents">Lucene documents</param>
         /// <returns>MrCMS entities</returns>
-        IEnumerable<T> Convert(ISession session, IEnumerable<Document> documents);
+        IEnumerable<T> Convert(IDbContext dbContext, IEnumerable<Document> documents);
 
         /// <summary>
         /// Declares the location of the folder within the file system where the index is stored

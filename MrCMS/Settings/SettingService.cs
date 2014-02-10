@@ -4,7 +4,6 @@ using MrCMS.Entities.Multisite;
 using MrCMS.Entities.Settings;
 using MrCMS.Helpers;
 using MrCMS.Website;
-using NHibernate;
 using Ninject;
 using System.Linq;
 
@@ -15,7 +14,7 @@ namespace MrCMS.Settings
     /// </summary>
     public partial class SettingService : ISettingService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
         private static IList<Setting> _allSettings;
         private IDictionary<string, KeyValuePair<int, string>> _allSettingsDictionary;
@@ -24,10 +23,11 @@ namespace MrCMS.Settings
         /// Ctor
         /// </summary>
         /// <param name="session">ISession for db access</param>
+        /// <param name="dbContext"></param>
         /// <param name="site"></param>
-        public SettingService(ISession session, Site site)
+        public SettingService(IDbContext dbContext, Site site)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
         }
 
@@ -38,7 +38,7 @@ namespace MrCMS.Settings
         /// <returns>Setting</returns>
         public virtual Setting GetSettingById(int settingId)
         {
-            return _session.Get<Setting>(settingId);
+            return _dbContext.Get<Setting>(settingId);
         }
 
         /// <summary>
@@ -99,13 +99,14 @@ namespace MrCMS.Settings
             key = key.Trim().ToLowerInvariant();
 
             Setting setting =
-                _session.QueryOver<Setting>().Where(s => s.Site == _site && s.Name == key).SingleOrDefault();
+                _dbContext.Set<Setting>().SingleOrDefault(s => s.Site == _site && s.Name == key);
             string valueStr = typeof(T).GetCustomTypeConverter().ConvertToInvariantString(value);
             if (setting != null)
             {
                 //update
                 setting.Value = valueStr;
                 setting.Site = _site;
+                _dbContext.Transact(session => session.Update(setting));
             }
             else
             {
@@ -117,8 +118,8 @@ namespace MrCMS.Settings
                     Site = _site
                 };
                 AllSettings.Add(setting);
+                _dbContext.Transact(session => session.Add(setting));
             }
-            _session.Transact(session => session.SaveOrUpdate(setting));
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace MrCMS.Settings
             if (setting == null)
                 throw new ArgumentNullException("setting");
 
-            _session.Transact(session => session.Delete(setting));
+            _dbContext.Transact(context => context.Delete(setting));
         }
 
         public void ResetSettingCache()
@@ -173,7 +174,7 @@ namespace MrCMS.Settings
 
         private IList<Setting> GetAllSettingForSite()
         {
-            return _session.QueryOver<Setting>().Cacheable().List();
+            return _dbContext.Set<Setting>().ToList();
         }
     }
 }

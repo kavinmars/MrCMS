@@ -1,8 +1,8 @@
 ﻿using System.Web.Mvc;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.Helpers;
 using MrCMS.Settings;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Settings
@@ -30,7 +30,7 @@ namespace MrCMS.Tests.Settings
         {
             var mailSettings = new MailSettings();
 
-            this.Invoking(tests => mailSettings.SetViewData(A.Fake<ISession>(), A.Fake<ViewDataDictionary>()))
+            this.Invoking(tests => mailSettings.SetViewData(A.Fake<IDbContext>(), A.Fake<ViewDataDictionary>()))
                 .ShouldNotThrow();
         }
     }

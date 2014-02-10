@@ -48,7 +48,7 @@ namespace MrCMS.Tests.Services.ImportExport
             var urlHistory = new UrlHistory { UrlSegment = "test" };
             var basicMappedWebpage = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage;
-            Session.Transact(session => session.Save(urlHistory));
+            Session.Transact(session => session.Add(urlHistory));
             _updateUrlHistoryService.Initialise();
             _updateUrlHistoryService.UrlHistories.Should().HaveCount(1);
 
@@ -63,7 +63,7 @@ namespace MrCMS.Tests.Services.ImportExport
             var urlHistory = new UrlHistory { UrlSegment = "test" };
             var basicMappedWebpage = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage;
-            Session.Transact(session => session.Save(urlHistory));
+            Session.Transact(session => session.Add(urlHistory));
             _updateUrlHistoryService.Initialise();
             basicMappedWebpage.Urls.Should().HaveCount(1);
 
@@ -79,9 +79,9 @@ namespace MrCMS.Tests.Services.ImportExport
             var basicMappedWebpage1 = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage1;
             var basicMappedWebpage2 = new BasicMappedWebpage { Urls = new List<UrlHistory> { } };
-            Session.Transact(session => session.Save(urlHistory));
-            Session.Transact(session => session.Save(basicMappedWebpage1));
-            Session.Transact(session => session.Save(basicMappedWebpage2));
+            Session.Transact(session => session.Add(urlHistory));
+            Session.Transact(session => session.Add(basicMappedWebpage1));
+            Session.Transact(session => session.Add(basicMappedWebpage2));
             _updateUrlHistoryService.Initialise();
             basicMappedWebpage1.Urls.Should().HaveCount(1);
             basicMappedWebpage2.Urls.Should().HaveCount(0);
@@ -100,9 +100,9 @@ namespace MrCMS.Tests.Services.ImportExport
             var basicMappedWebpage1 = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage1;
             var basicMappedWebpage2 = new BasicMappedWebpage { Urls = new List<UrlHistory> { } };
-            Session.Transact(session => session.Save(urlHistory));
-            Session.Transact(session => session.Save(basicMappedWebpage1));
-            Session.Transact(session => session.Save(basicMappedWebpage2));
+            Session.Transact(session => session.Add(urlHistory));
+            Session.Transact(session => session.Add(basicMappedWebpage1));
+            Session.Transact(session => session.Add(basicMappedWebpage2));
             _updateUrlHistoryService.Initialise();
             _updateUrlHistoryService.UrlHistories.Should().HaveCount(1);
 

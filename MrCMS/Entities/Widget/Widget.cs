@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web.Mvc;
-using Iesi.Collections.Generic;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
-using NHibernate;
 using MrCMS.Helpers;
+using Ninject;
 
 namespace MrCMS.Entities.Widget
 {
@@ -13,8 +12,8 @@ namespace MrCMS.Entities.Widget
     {
         protected Widget()
         {
-            ShownOn = new HashedSet<Webpage>();
-            HiddenOn = new HashedSet<Webpage>();
+            ShownOn = new HashSet<Webpage>();
+            HiddenOn = new HashSet<Webpage>();
         }
         public virtual LayoutArea LayoutArea { get; set; }
 
@@ -29,25 +28,27 @@ namespace MrCMS.Entities.Widget
         public virtual Webpage Webpage { get; set; }
         public virtual int DisplayOrder { get; set; }
 
+        public virtual string Name2 { get; set; }
+
         [DefaultValue(true)]
         [DisplayName("Show on child pages")]
         public virtual bool IsRecursive { get; set; }
 
         public virtual IList<PageWidgetSort> PageWidgetSorts { get; set; }
 	
-        public virtual object GetModel(ISession session)
+        public virtual object GetModel(IKernel kernel)
         {
             return this;
         }
 
-        public virtual Iesi.Collections.Generic.ISet<Webpage> HiddenOn { get; set; }
-        public virtual Iesi.Collections.Generic.ISet<Webpage> ShownOn { get; set; }
+        public virtual ISet<Webpage> HiddenOn { get; set; }
+        public virtual ISet<Webpage> ShownOn { get; set; }
 
-        public virtual void SetDropdownData(ViewDataDictionary viewData, ISession session) { }
+        public virtual void SetDropdownData(ViewDataDictionary viewData, IKernel kernel) { }
 
         public virtual bool HasProperties { get { return true; } }
 
-        public override void OnDeleting(ISession session)
+        public override void OnDeleting(IDbContext dbContext)
         {
             ShownOn.ForEach(webpage => webpage.ShownWidgets.Remove(this));
             HiddenOn.ForEach(webpage => webpage.HiddenWidgets.Remove(this));
@@ -56,7 +57,7 @@ namespace MrCMS.Entities.Widget
             {
                 Webpage.Widgets.Remove(this);
             }
-            base.OnDeleting(session);
+            base.OnDeleting(dbContext);
         }
     }
 }

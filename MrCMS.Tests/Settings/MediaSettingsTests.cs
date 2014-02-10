@@ -3,13 +3,13 @@ using System.Drawing;
 using System.Web.Mvc;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.Helpers;
 using MrCMS.Settings;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Settings
 {
-    public class MediaSettingsTests
+    public class MediaSettingsTests :InMemoryDatabaseTest
     {
         private readonly MediaSettings _mediaSettings;
 
@@ -89,7 +89,7 @@ namespace MrCMS.Tests.Settings
         public void MediaSettings_SetViewData_ShouldNotThrow()
         {
             this.Invoking(tests =>
-                          _mediaSettings.SetViewData(A.Fake<ISession>(), A.Fake<ViewDataDictionary>())).ShouldNotThrow();
+                          _mediaSettings.SetViewData(Session, A.Fake<ViewDataDictionary>())).ShouldNotThrow();
         }
 
     }

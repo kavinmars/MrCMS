@@ -2,9 +2,9 @@
 using Lucene.Net.Store.Azure;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Indexing.Querying
 {
@@ -15,9 +15,9 @@ namespace MrCMS.Indexing.Querying
         private static AzureDirectory _directory;
         private readonly IAzureFileSystem _azureFileSystem;
 
-        public AzureDirectorySearcher(Site currentSite, ISession session, TDefinition definition,
+        public AzureDirectorySearcher(Site currentSite, IDbContext dbContext, TDefinition definition,
                                       IAzureFileSystem azureFileSystem)
-            : base(currentSite, session, definition)
+            : base(currentSite, dbContext, definition)
         {
             _azureFileSystem = azureFileSystem;
         }

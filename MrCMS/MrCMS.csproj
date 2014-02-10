@@ -47,18 +47,17 @@
     <Reference Include="Elmah">
       <HintPath>..\packages\elmah.corelibrary.1.2.2\lib\Elmah.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.0.2\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.0.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="EPPlus">
       <HintPath>..\packages\EPPlus.3.1.3.3\lib\net35\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="FluentNHibernate, Version=1.3.0.733, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\FluentNHibernate.1.3.0.733\lib\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Iesi.Collections">
-      <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Lucene.Net">
       <HintPath>..\packages\Lucene.Net.3.0.3\lib\NET40\Lucene.Net.dll</HintPath>
@@ -139,13 +138,6 @@
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate, Version=3.3.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NHibernate.3.3.2.4000\lib\Net35\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Caches.SysCache2">
-      <HintPath>..\packages\NHibernate.Caches.SysCache2.3.2.0.4000\lib\Net35\NHibernate.Caches.SysCache2.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
@@ -161,6 +153,9 @@
     </Reference>
     <Reference Include="Owin.Security.Providers">
       <HintPath>..\packages\Owin.Security.Providers.1.2.1\lib\net45\Owin.Security.Providers.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpRepository.Repository">
+      <HintPath>..\packages\SharpRepository.Repository.1.4.6.0\lib\net40\SharpRepository.Repository.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -243,58 +238,7 @@
     <Compile Include="Apps\MrCMSApp.cs" />
     <Compile Include="Apps\MrCMSAppRegistrationContext.cs" />
     <Compile Include="Config\MrCMSConfigSection.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\AzureCacheAdapter.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\AzureCacheAdapterFactory.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\AzureCacheAdapterType.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\AzureCacheFactory.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\AzureCacheProvider.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\IAzureCacheFactory.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\ISerializationProvider.cs" />
-    <Compile Include="DbConfiguration\Caches\Azure\SerializationProvider.cs" />
-    <Compile Include="DbConfiguration\ConfigHelper.cs" />
-    <Compile Include="DbConfiguration\Configuration\DatabaseType.cs" />
-    <Compile Include="DbConfiguration\Configuration\SoftDeleteListener.cs" />
-    <Compile Include="DbConfiguration\Configuration\PostCommitEventListener.cs" />
-    <Compile Include="DbConfiguration\Configuration\SaveOrUpdateListener.cs" />
-    <Compile Include="DbConfiguration\Configuration\UpdateIndicesListener.cs" />
-    <Compile Include="DbConfiguration\Configuration\UrlHistoryListener.cs" />
-    <Compile Include="DbConfiguration\Conventions\AddIndexConvention.cs" />
-    <Compile Include="DbConfiguration\Conventions\CacheConvention.cs" />
-    <Compile Include="DbConfiguration\Conventions\DateTimeConvention.cs" />
-    <Compile Include="DbConfiguration\Conventions\DeletedFilterConvention.cs" />
-    <Compile Include="DbConfiguration\Conventions\ForeignKeyConvention.cs" />
-    <Compile Include="DbConfiguration\Conventions\HasManyConvention.cs" />
-    <Compile Include="DbConfiguration\Conventions\ReferencesConvention.cs" />
-    <Compile Include="DbConfiguration\Filters\NotDeletedFilter.cs" />
-    <Compile Include="DbConfiguration\LogOverride.cs" />
-    <Compile Include="DbConfiguration\Mapping\MrCMSMapClassAttribute.cs" />
-    <Compile Include="DbConfiguration\Mapping\MrCmsMappingConfiguration.cs" />
-    <Compile Include="DbConfiguration\NHibernateConfigurator.cs" />
-    <Compile Include="DbConfiguration\Overrides\DocumentOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\DocumentVersionOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\FormPropertyOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\LayoutAreaOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\LayoutOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\MediaCategoryOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\MediaFileOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\MessageTemplateOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\PageWidgetSortOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\QueuedMessageOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\SettingOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\SiteOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\UrlHistoryOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\UserOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\UserProfileDataOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\UserRoleOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\WebpageOverride.cs" />
-    <Compile Include="DbConfiguration\Overrides\WidgetOverride.cs" />
-    <Compile Include="DbConfiguration\Types\BaseImmutableUserType.cs" />
-    <Compile Include="DbConfiguration\Types\BinaryData.cs" />
-    <Compile Include="DbConfiguration\Types\DateTimeData.cs" />
-    <Compile Include="DbConfiguration\Types\LocalDateTimeData.cs" />
-    <Compile Include="DbConfiguration\Types\LocalNullableDateTimeData.cs" />
-    <Compile Include="DbConfiguration\Types\NullableDateTimeData.cs" />
-    <Compile Include="DbConfiguration\Types\VarCharMax.cs" />
+    <Compile Include="DataAccess\IDataContext.cs" />
     <Compile Include="Entities\ACL\ACLRole.cs" />
     <Compile Include="Entities\Assets\Activity.cs" />
     <Compile Include="Entities\Assets\ActivityType.cs" />
@@ -317,6 +261,19 @@
     <Compile Include="Entities\People\IBelongToUser.cs" />
     <Compile Include="Entities\People\UserProfileData.cs" />
     <Compile Include="Helpers\AuthConfigurationServiceExtensions.cs" />
+    <Compile Include="Helpers\DbContextFactory.cs" />
+    <Compile Include="Helpers\IDbConfiguration.cs" />
+    <Compile Include="Helpers\IDbContext.cs" />
+    <Compile Include="Helpers\IDbContextExtensions.cs" />
+    <Compile Include="Helpers\IDbContextFactory.cs" />
+    <Compile Include="Helpers\MrCMSDbContext.cs" />
+    <Compile Include="Helpers\StandardDbContext.cs" />
+    <Compile Include="Helpers\UnitOfWorkHelper.cs" />
+    <Compile Include="Migrations\201402082210338_InitialMigration.cs" />
+    <Compile Include="Migrations\201402082210338_InitialMigration.Designer.cs">
+      <DependentUpon>201402082210338_InitialMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Services\AuthConfigurationService.cs" />
     <Compile Include="Services\IAuthConfigurationService.cs" />
     <Compile Include="Settings\ThirdPartyAuthSettings.cs" />
@@ -682,7 +639,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201402082210338_InitialMigration.resx">
+      <DependentUpon>201402082210338_InitialMigration.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

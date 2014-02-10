@@ -1,9 +1,7 @@
-﻿using System;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using MrCMS.Entities.People;
+using MrCMS.Helpers;
 using MrCMS.Services;
-using NHibernate;
-using Ninject;
 
 namespace MrCMS.Website.Binders
 {
@@ -11,8 +9,8 @@ namespace MrCMS.Website.Binders
     {
         private readonly IPasswordManagementService _passwordManagementService;
 
-        public AddUserModelBinder(IPasswordManagementService passwordManagementService, ISession session)
-            : base(() => session)
+        public AddUserModelBinder(IPasswordManagementService passwordManagementService, IDbContext dbContext)
+            : base(() => dbContext)
         {
             _passwordManagementService = passwordManagementService;
         }

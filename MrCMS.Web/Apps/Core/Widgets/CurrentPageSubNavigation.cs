@@ -3,7 +3,7 @@ using System.Web.Mvc;
 using MrCMS.Entities.Widget;
 using MrCMS.Web.Apps.Core.Models;
 using MrCMS.Website;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Core.Widgets
 {
@@ -14,7 +14,7 @@ namespace MrCMS.Web.Apps.Core.Widgets
             get { return false; }
         }
 
-        public override object GetModel(ISession session)
+        public override object GetModel(IKernel kernel)
         {
             var navigationRecords =
                 CurrentRequestData.CurrentPage.PublishedChildren.Where(webpage => webpage.RevealInNavigation)

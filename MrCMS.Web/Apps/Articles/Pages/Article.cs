@@ -5,6 +5,7 @@ using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.People;
 using MrCMS.Web.Apps.Core.Pages;
 using MrCMS.Helpers;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Articles.Pages
 {
@@ -17,11 +18,11 @@ namespace MrCMS.Web.Apps.Articles.Pages
         [DisplayName("Author")]
         public virtual User User { get; set; }
 
-        public override void AdminViewData(ViewDataDictionary viewData, NHibernate.ISession session)
+        public override void AdminViewData(ViewDataDictionary viewData, IKernel kernel)
         {
-            base.AdminViewData(viewData, session);
-            viewData["users"] = session.QueryOver<User>()
-                                       .List()
+            base.AdminViewData(viewData, kernel);
+            viewData["users"] = kernel.Get<IDbContext>().Set<User>()
+                                       .ToList()
                                        .BuildSelectItemList(user => user.Name, user => user.Id.ToString(),
                                                             user => user == User, "Please select ...");
         }

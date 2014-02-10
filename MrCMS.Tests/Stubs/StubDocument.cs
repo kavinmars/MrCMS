@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using MrCMS.DbConfiguration.Mapping;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 
 namespace MrCMS.Tests.Stubs
 {
-    [MrCMSMapClass]
+    //[MrCMSMapClass]
     public class StubDocument : Document
     {
         public virtual void SetChildren(IList<Document> children)
@@ -22,7 +21,7 @@ namespace MrCMS.Tests.Stubs
             Versions = versions;
         }
     }
-    [MrCMSMapClass]
+    //[MrCMSMapClass]
     public class StubUniquePage : IUniquePage
     {
     }

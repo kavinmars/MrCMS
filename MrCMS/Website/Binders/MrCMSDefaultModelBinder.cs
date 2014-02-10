@@ -1,26 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Web.Mvc;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Website.Controllers;
-using NHibernate;
 
 namespace MrCMS.Website.Binders
 {
     public class MrCMSDefaultModelBinder : DefaultModelBinder
     {
-        private readonly Func<ISession> _session;
+        private readonly Func<IDbContext> _session;
 
-        public MrCMSDefaultModelBinder(Func<ISession> session)
+        public MrCMSDefaultModelBinder(Func<IDbContext> session)
         {
             _session = session;
         }
 
-        protected ISession Session
+        protected IDbContext Session
         {
             get { return _session.Invoke(); }
         }
@@ -41,10 +38,6 @@ namespace MrCMS.Website.Binders
                 bindingContext.ModelMetadata.Model = bindModel;
                 bindModel = base.BindModel(controllerContext, bindingContext);
                 var baseEntity = bindModel as SiteEntity;
-                if (baseEntity != null)
-                {
-                    baseEntity.CustomBinding(controllerContext, Session);
-                }
             }
             return bindModel;
         }

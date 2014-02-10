@@ -1,9 +1,10 @@
-﻿using FakeItEasy;
+﻿using System.Linq;
+using FakeItEasy;
 using FluentAssertions;
 using MrCMS.Entities.Messaging;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Tests.Stubs;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Services
@@ -22,11 +23,11 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void MessageTemplateService_Save_SavesAMessageTemplateToSession()
         {
-            var messageTemplate = new BasicMessageTemplate().GetInitialTemplate(A<ISession>._);
+            var messageTemplate = new BasicMessageTemplate().GetInitialTemplate(A<IDbContext>._);
 
             _messageTemplateService.Save(messageTemplate);
 
-            Session.QueryOver<MessageTemplate>().RowCount().Should().Be(1);
+            Session.Set<MessageTemplate>().Count().Should().Be(1);
         }
 
         [Fact]

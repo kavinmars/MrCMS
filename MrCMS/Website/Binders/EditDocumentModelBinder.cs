@@ -1,14 +1,14 @@
 using System.Web.Mvc;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Website.Binders
 {
     public class EditDocumentModelBinder : DocumentModelBinder
     {
-        public EditDocumentModelBinder(ISession session, IDocumentService documentService) : base(session, documentService)
+        public EditDocumentModelBinder(IDbContext dbContext, IDocumentService documentService) : base(dbContext, documentService)
         {
         }
 

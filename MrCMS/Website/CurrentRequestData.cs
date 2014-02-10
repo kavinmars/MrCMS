@@ -6,6 +6,7 @@ using System.IO;
 using System.Web;
 using System.Web.Hosting;
 using Elmah;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
@@ -18,6 +19,12 @@ namespace MrCMS.Website
 {
     public class CurrentRequestData
     {
+        public static UnitOfWork CurrentUnitOfWork
+        {
+            get { return (UnitOfWork)CurrentContext.Items["current.unit-of-work"]; }
+            set { CurrentContext.Items["current.unit-of-work"] = value; }
+        }
+
         public static ErrorSignal ErrorSignal
         {
             get { return (ErrorSignal)CurrentContext.Items["current.errorsignal"]; }

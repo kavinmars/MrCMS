@@ -1,6 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Common;
+using System.Data.Entity;
+using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Migrations;
+using System.Data.Entity.Migrations.Infrastructure;
+using System.Data.SQLite;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -11,19 +19,14 @@ using System.Threading;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Hosting;
-using FluentNHibernate.Cfg.Db;
 using MrCMS.Apps;
-using MrCMS.DbConfiguration;
-using MrCMS.DbConfiguration.Configuration;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
-using MrCMS.Events;
 using MrCMS.Helpers;
-using MrCMS.Services;
 using MrCMS.Website;
 using MySql.Data.MySqlClient;
-using NHibernate;
 using AuthorizationRuleCollection = System.Security.AccessControl.AuthorizationRuleCollection;
+using DbConfiguration = MrCMS.Helpers.DbConfiguration;
 
 namespace MrCMS.Installation
 {
@@ -319,51 +322,68 @@ namespace MrCMS.Installation
         }
 
         private void SetUpInitialData(InstallModel model, string connectionString, DatabaseType databaseType)
+        { 
+            DbConfiguration.Override = GetDbConnection(connectionString, databaseType);
+            
+            MigratorBase migrator = new DbMigrator(new DbMigrationsConfiguration
+                {
+                    MigrationsAssembly = GetType().Assembly,
+                    TargetDatabase = new DbConnectionInfo(connectionString,"System.Data.SqlClient"),
+                    AutomaticMigrationsEnabled = true,
+                    ContextType = typeof(MrCMSDbContext),
+                });
+
+            migrator.Update();
+            
+
+            DbConfiguration.Override = GetDbConnection(connectionString, databaseType);
+            var dbContextFactory = new DbContextFactory();
+
+            MrCMSDbContext mrCMSDbContext = dbContextFactory.Create();
+            var dbContext = new StandardDbContext(mrCMSDbContext);
+
+
+            var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
+            dbContext.Transact(s => s.Add(site));
+
+            MrCMSApp.InstallApps(dbContext, model, site);
+
+            SetupInitialTemplates(dbContext);
+            DbConfiguration.Override = null;
+        }
+
+        private static DbConnection GetDbConnection(string connectionString, DatabaseType databaseType)
         {
-            IPersistenceConfigurer connection;
+            DbConnection connection;
             switch (databaseType)
             {
                 case DatabaseType.Sqlite:
-                    connection = SQLiteConfiguration.Standard.ConnectionString(connectionString);
+                    connection = new SQLiteConnection(connectionString);
                     break;
                 case DatabaseType.MsSql:
-                    connection = MsSqlConfiguration.MsSql2008.ConnectionString(connectionString);
+                    connection = new SqlConnection(connectionString);
                     break;
                 case DatabaseType.MySQL:
-                    connection = MySQLConfiguration.Standard.ConnectionString(connectionString);
+                    connection = new MySqlConnection(connectionString);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("databaseType");
             }
-            var configurator = new NHibernateConfigurator
-                {
-                    CacheEnabled = true,
-                    PersistenceOverride = connection
-                };
-
-            ISessionFactory sessionFactory = configurator.CreateSessionFactory();
-            ISession session = sessionFactory.OpenFilteredSession();
-
-            var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
-            session.Transact(s => s.Save(site));
-
-            MrCMSApp.InstallApps(session, model, site);
-
-            SetupInitialTemplates(session);
+            return connection;
         }
 
-        private static void SetupInitialTemplates(ISession session)
+        private static void SetupInitialTemplates(IDbContext dbContext)
         {
-            session.Transact(s =>
+            dbContext.Transact(s =>
                                  {
                                      foreach (
                                          var type in TypeHelper.GetAllConcreteMappedClassesAssignableFrom<MessageTemplate>())
                                      {
-                                         if (s.CreateCriteria(type).List().Count == 0)
+                                         if (s.Set(type).Cast<MessageTemplate>().Any())
                                          {
                                              var messageTemplate = Activator.CreateInstance(type) as MessageTemplate;
                                              if (messageTemplate != null && messageTemplate.GetInitialTemplate(s) != null)
-                                                 s.Save(messageTemplate.GetInitialTemplate(s));
+                                                 s.Add(messageTemplate.GetInitialTemplate(s));
                                          }
                                      }
                                  });
@@ -741,6 +761,7 @@ namespace MrCMS.Installation
             }
             builder.PersistSecurityInfo = false;
             builder.MultipleActiveResultSets = true;
+            builder.TypeSystemVersion = "Latest";
             if (timeout > 0)
             {
                 builder.ConnectTimeout = timeout;

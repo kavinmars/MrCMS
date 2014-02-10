@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
 using MrCMS.Entities.Documents.Web;
@@ -29,29 +30,29 @@ namespace MrCMS.Tests.Services.ImportExport
         [Fact]
         public void ShouldNotReAddAnExistingDocument()
         {
-            Session.Transact(session => session.Save(new BasicMappedWebpage { UrlSegment = "test" }));
-            Session.QueryOver<Webpage>().RowCount().Should().Be(1);
+            Session.Transact(session => session.Add(new BasicMappedWebpage { UrlSegment = "test", Site = CurrentSite }));
+            Session.Set<Webpage>().Count().Should().Be(1);
 
             _importDocumentsService.ImportDocumentsFromDTOs(new HashSet<DocumentImportDTO>
                                                                 {
                                                                     new DocumentImportDTO{UrlSegment = "test"}
                                                                 });
 
-            Session.QueryOver<Webpage>().RowCount().Should().Be(1);
+            Session.Set<Webpage>().Count().Should().Be(1);
         }
 
         [Fact]
         public void ShouldUpdatePropertiesFromDTO()
         {
-            Session.Transact(session => session.Save(new BasicMappedWebpage { UrlSegment = "test", Name = "old" }));
-            Session.QueryOver<Webpage>().RowCount().Should().Be(1);
+            Session.Transact(session => session.Add(new BasicMappedWebpage { UrlSegment = "test", Site = CurrentSite, Name = "old" }));
+            Session.Set<Webpage>().Count().Should().Be(1);
 
             _importDocumentsService.ImportDocumentsFromDTOs(new HashSet<DocumentImportDTO>
                                                                 {
                                                                     new DocumentImportDTO{UrlSegment = "test", Name = "New"}
                                                                 });
 
-            Session.QueryOver<Webpage>().List()[0].Name.Should().Be("New");
+            Session.Set<Webpage>().ToList()[0].Name.Should().Be("New");
         }
 
         [Fact]

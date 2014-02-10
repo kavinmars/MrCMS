@@ -10,16 +10,14 @@ using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
-using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Settings
 {
     public class SiteSettingsOptionGenerator
     {
-        public virtual List<SelectListItem> GetErrorPageOptions(ISession session, Site site, int pageId)
+        public virtual List<SelectListItem> GetErrorPageOptions(IDbContext session, Site site, int pageId)
         {
-            var list = session.QueryOver<Webpage>().Where(webpage => webpage.Site == site && webpage.Parent == null).Cacheable().List();
+            var list = session.Set<Webpage>().Where(webpage => webpage.Site == site && webpage.Parent == null).ToList();
             return
                 list.Where(page => page.Published)
                          .BuildSelectItemList(
@@ -28,13 +26,12 @@ namespace MrCMS.Settings
                              page => page.Id == pageId, (string)null);
         }
 
-        public virtual List<SelectListItem> GetMediaCategoryOptions(ISession session, Site site, int categoryId)
+        public virtual List<SelectListItem> GetMediaCategoryOptions(IDbContext session, Site site, int categoryId)
         {
             var list =
-                session.QueryOver<MediaCategory>()
+                session.Set<MediaCategory>()
                        .Where(category => category.Site == site && category.Parent == null && !category.HideInAdminNav)
-                       .Cacheable()
-                       .List();
+                       .ToList();
             return
                 list.BuildSelectItemList(
                     category => category.Name,
@@ -42,12 +39,11 @@ namespace MrCMS.Settings
                     category => category.Id == categoryId, (string) null);
         }
 
-        public virtual List<SelectListItem> GetLayoutOptions(ISession session, Site site, int? selectedLayoutId)
+        public virtual List<SelectListItem> GetLayoutOptions(IDbContext dbContext, Site site, int? selectedLayoutId)
         {
-            return session.QueryOver<Layout>()
+            return dbContext.Set<Layout>()
                           .Where(layout => layout.Site == site)
-                          .Cacheable()
-                          .List()
+                          .ToList()
                           .BuildSelectItemList(
                               layout => layout.Name,
                               layout => layout.Id.ToString(CultureInfo.InvariantCulture),

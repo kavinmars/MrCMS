@@ -1,16 +1,16 @@
 ﻿using System;
+using MrCMS.Entities;
 using MrCMS.Helpers;
-using NHibernate;
 
 namespace MrCMS.Tasks
 {
     public class TaskStatusUpdater : ITaskStatusUpdater
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public TaskStatusUpdater(ISession session)
+        public TaskStatusUpdater(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void BeginExecution(IExecutableTask executableTask)
@@ -30,10 +30,10 @@ namespace MrCMS.Tasks
 
         private void SetStatus(IExecutableTask executableTask, Action<IHaveExecutionStatus> action)
         {
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
                                       action(executableTask.Entity);
-                                      session.Update(executableTask.Entity);
+                                      session.Update(executableTask.Entity as SystemEntity);
                                   });
         }
     }

@@ -1,12 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
-using FakeItEasy;
 using FluentAssertions;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Helpers;
 using MrCMS.Services;
-using MrCMS.Tests.Stubs;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Services
@@ -28,8 +24,8 @@ namespace MrCMS.Tests.Services
             var layoutArea = new LayoutArea {Layout = layout, AreaName = "Area.Name"};
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(layout);
-                                     session.SaveOrUpdate(layoutArea);
+                                     session.Add(layout);
+                                     session.Add(layoutArea);
                                  });
 
             var loadedArea = layoutAreaService.GetArea(layout, "Area.Name");
@@ -42,7 +38,7 @@ namespace MrCMS.Tests.Services
         {
             var layoutAreaService = _layoutAreaService;
             var layout = new Layout {Name = "Layout"};
-            Session.Transact(session => session.SaveOrUpdate(layout));
+            Session.Transact(session => session.Add(layout));
 
             var loadedArea = layoutAreaService.GetArea(layout, "Area.Name");
 
@@ -56,7 +52,7 @@ namespace MrCMS.Tests.Services
 
             _layoutAreaService.SaveArea(layoutArea);
 
-            Session.QueryOver<LayoutArea>().RowCount().Should().Be(1);
+            Session.Set<LayoutArea>().Should().HaveCount(1);
         }
 
         [Fact]
@@ -84,7 +80,7 @@ namespace MrCMS.Tests.Services
         public void LayoutAreaService_GetArea_ShouldReturnLayoutAreaForValidId()
         {
             var layoutArea = new LayoutArea();
-            Session.Transact(session => session.SaveOrUpdate(layoutArea));
+            Session.Transact(session => session.Add(layoutArea));
             var layoutAreaService = _layoutAreaService;
 
             var loadedLayoutArea = layoutAreaService.GetArea(layoutArea.Id);
@@ -96,11 +92,11 @@ namespace MrCMS.Tests.Services
         public void LayoutAreaService_DeleteArea_DeletesThePassedArea()
         {
             var layoutArea = new LayoutArea();
-            Session.Transact(session => session.Save(layoutArea));
+            Session.Transact(session => session.Add(layoutArea));
 
             _layoutAreaService.DeleteArea(layoutArea);
 
-            Session.QueryOver<LayoutArea>().RowCount().Should().Be(0);
+            Session.Set<LayoutArea>().Should().HaveCount(0);
         }
 
         [Fact]

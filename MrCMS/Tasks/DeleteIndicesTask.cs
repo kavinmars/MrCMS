@@ -1,14 +1,14 @@
 ﻿using MrCMS.Entities;
+using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
-using NHibernate;
 using Ninject;
 
 namespace MrCMS.Tasks
 {
     internal class DeleteIndicesTask<T> : IndexManagementTask<T> where T : SiteEntity
     {
-        public DeleteIndicesTask(ISession session, IKernel kernel)
-            : base(session, kernel)
+        public DeleteIndicesTask(IDbContext dbContext, IKernel kernel)
+            : base(dbContext, kernel)
         {
         }
 

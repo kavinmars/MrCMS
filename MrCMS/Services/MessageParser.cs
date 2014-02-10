@@ -1,6 +1,6 @@
-﻿using MrCMS.Entities.Messaging;
+﻿using System.Linq;
+using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
-using NHibernate;
 using MrCMS.Helpers;
 
 namespace MrCMS.Services
@@ -9,18 +9,18 @@ namespace MrCMS.Services
     {
         private readonly IMessageTemplateParser _messageTemplateParser;
         private readonly Site _site;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public MessageParser(IMessageTemplateParser messageTemplateParser, Site site, ISession session)
+        public MessageParser(IMessageTemplateParser messageTemplateParser, Site site, IDbContext dbContext)
         {
             _messageTemplateParser = messageTemplateParser;
             _site = site;
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public QueuedMessage GetMessage(T2 obj, string fromAddress = null, string fromName = null, string toAddress = null, string toName = null, string cc = null, string bcc = null)
         {
-            var template = _session.QueryOver<T>().Where(arg => arg.Site == _site).Cacheable().SingleOrDefault();
+            var template = _dbContext.Set<T>().FirstOrDefault(arg => arg.Site == _site);
             if (template == null)
                 return null;
 
@@ -41,7 +41,7 @@ namespace MrCMS.Services
         public void QueueMessage(QueuedMessage queuedMessage)
         {
             if (queuedMessage != null)
-                _session.Transact(session => session.Save(queuedMessage));
+                _dbContext.Transact(dbContext => dbContext.Add(queuedMessage));
         }
     }
 }

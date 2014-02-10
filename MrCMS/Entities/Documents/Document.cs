@@ -2,13 +2,10 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Iesi.Collections.Generic;
-using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Models;
 using MrCMS.Paging;
 using MrCMS.Services;
-using MrCMS.Helpers;
-using NHibernate;
 
 namespace MrCMS.Entities.Documents
 {
@@ -18,7 +15,7 @@ namespace MrCMS.Entities.Documents
         {
             Versions = new List<DocumentVersion>();
             Children = new List<Document>();
-            Tags = new HashedSet<Tag>();
+            Tags = new HashSet<Tag>();
         }
         [Required]
         [StringLength(255)]
@@ -33,7 +30,7 @@ namespace MrCMS.Entities.Documents
 
         public virtual IList<Document> Children { get; set; }
 
-        public virtual Iesi.Collections.Generic.ISet<Tag> Tags { get; set; }
+        public virtual ISet<Tag> Tags { get; set; }
 
         public virtual string TagList
         {
@@ -43,24 +40,6 @@ namespace MrCMS.Entities.Documents
         public virtual int ParentId { get { return Parent == null ? 0 : Parent.Id; } }
 
         public virtual string DocumentType { get { return GetType().Name; } }
-
-        /// <summary>
-        /// Called before a document is to be deleted
-        /// Place custom logic in here, or things that cannot be handled by NHibernate due to same table references
-        /// </summary>
-        public override void OnDeleting(ISession session)
-        {
-            if (Parent != null)
-            {
-                Parent.Children.Remove(this);
-            }
-            base.OnDeleting(session);
-        }
-
-        public virtual void OnSaving(ISession session)
-        {
-
-        }
 
         public virtual bool CanDelete
         {
@@ -78,8 +57,21 @@ namespace MrCMS.Entities.Documents
                        documentVersions, page, 10), Id);
         }
 
-        protected internal virtual void CustomInitialization(IDocumentService service, ISession session) { }
+        protected internal virtual void CustomInitialization(IDocumentService service, IDbContext dbContext) { }
 
         public virtual bool ShowInAdminNav { get { return true; } }
+
+        /// <summary>
+        /// Called before a document is to be deleted
+        /// Place custom logic in here, or things that cannot be handled by NHibernate due to same table references
+        /// </summary>
+        public override void OnDeleting(IDbContext dbContext)
+        {
+            if (Parent != null)
+            {
+                Parent.Children.Remove(this);
+            }
+            base.OnDeleting(dbContext);
+        }
     }
 }

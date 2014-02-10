@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,24 +9,22 @@ using MrCMS.Entities.Multisite;
 using MrCMS.Models;
 using MrCMS.Paging;
 using MrCMS.Settings;
-using NHibernate;
 using MrCMS.Helpers;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
     public class FileService : IFileService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly IFileSystem _fileSystem;
         private readonly IImageProcessor _imageProcessor;
         private readonly MediaSettings _mediaSettings;
         private readonly Site _currentSite;
         private readonly SiteSettings _siteSettings;
 
-        public FileService(ISession session, IFileSystem fileSystem,  IImageProcessor imageProcessor, MediaSettings mediaSettings, Site currentSite, SiteSettings siteSettings)
+        public FileService(IDbContext dbContext, IFileSystem fileSystem,  IImageProcessor imageProcessor, MediaSettings mediaSettings, Site currentSite, SiteSettings siteSettings)
         {
-            _session = session;
+            _dbContext = dbContext;
             _fileSystem = fileSystem;
             _imageProcessor = imageProcessor;
             _mediaSettings = mediaSettings;
@@ -75,10 +72,10 @@ namespace MrCMS.Services
             mediaFile.FileUrl = _fileSystem.SaveFile(stream, fileLocation, contentType);
 
             mediaCategory.Files.Add(mediaFile);
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
-                                      session.SaveOrUpdate(mediaFile);
-                                      session.SaveOrUpdate(mediaCategory);
+                                      session.AddOrUpdate(mediaFile);
+                                      session.AddOrUpdate(mediaCategory);
                                   });
             return GetUploadFilesResult(mediaFile);
         }
@@ -174,42 +171,44 @@ namespace MrCMS.Services
         {
             var resizedImage = new ResizedImage { Url = requestedImageFileUrl, MediaFile = file };
             file.ResizedImages.Add(resizedImage);
-            _session.Transact(session => session.Save(resizedImage));
+            _dbContext.Transact(session => session.Add(resizedImage));
         }
 
         public ViewDataUploadFilesResult[] GetFiles(MediaCategory mediaCategory)
         {
             return
-                _session.QueryOver<MediaFile>()
-                        .Where(file => file.MediaCategory == mediaCategory)
-                        .OrderBy(file => file.DisplayOrder)
-                        .Asc.Cacheable()
-                        .List()
-                        .Select(GetUploadFilesResult).ToArray();
+                _dbContext.Set<MediaFile>()
+                          .Where(file => file.MediaCategory == mediaCategory)
+                          .OrderBy(file => file.DisplayOrder).ToList()
+                          .Select(GetUploadFilesResult).ToArray();
         }
 
         public MediaFile GetFile(int id)
         {
-            return _session.Get<MediaFile>(id);
+            return _dbContext.Get<MediaFile>(id);
         }
 
         public IPagedList<MediaFile> GetFiles(int? mediaCategoryId, int page = 1)
         {
-            return _session.QueryOver<MediaFile>()
-                           .Where(x => x.MediaCategory.Id == mediaCategoryId)
-                           .OrderBy(x=>x.DisplayOrder).Desc
-                           .Paged(pageNumber:page, pageSize:_siteSettings.DefaultPageSize);
+            return _dbContext.Set<MediaFile>()
+                             .Where(x => x.MediaCategory.Id == mediaCategoryId)
+                             .OrderByDescending(x => x.DisplayOrder)
+                             .Paged(page);
         }
 
         public IPagedList<MediaFile> GetFilesForSearchPaged(MediaCategorySearchModel model)
         {
-            var query = _session.QueryOver<MediaFile>();
+            IQueryable<MediaFile> query = _dbContext.Set<MediaFile>();
             if (model.Id > 0)
                 query = query.Where(x => x.MediaCategory.Id == model.Id);
             if (model.SearchText != null)
-                query = query.Where(x => x.FileName.IsLike(model.SearchText, MatchMode.Anywhere) || x.Title.IsLike(model.SearchText, MatchMode.Anywhere) || x.Description.IsLike(model.SearchText, MatchMode.Anywhere));
+                query =
+                    query.Where(
+                        x =>
+                        x.FileName.Contains(model.SearchText) || x.Title.Contains(model.SearchText) ||
+                        x.Description.Contains(model.SearchText));
 
-            return query.OrderBy(x => x.DisplayOrder).Desc.Paged(model.Page, _siteSettings.DefaultPageSize);
+            return query.OrderByDescending(x => x.DisplayOrder).Paged(model.Page);
         }
 
         public void DeleteFile(MediaFile mediaFile)
@@ -226,12 +225,12 @@ namespace MrCMS.Services
             }
             _fileSystem.Delete(mediaFile.FileUrl);
 
-            _session.Transact(session => session.Delete(mediaFile));
+            _dbContext.Transact(session => session.Delete(mediaFile));
         }
 
         public void SaveFile(MediaFile mediaFile)
         {
-            _session.Transact(session => session.SaveOrUpdate(mediaFile));
+            _dbContext.Transact(session => session.AddOrUpdate(mediaFile));
         }
 
         public List<ImageSize> GetImageSizes()
@@ -246,21 +245,21 @@ namespace MrCMS.Services
 
         public FilesPagedResult GetFilesPaged(int? categoryId, bool imagesOnly, int page = 1)
         {
-            var queryOver = _session.QueryOver<MediaFile>().Where(file => file.Site == _currentSite);
+            var queryOver = _dbContext.Set<MediaFile>().Where(file => file.Site == _currentSite);
 
             if (categoryId.HasValue)
                 queryOver = queryOver.Where(file => file.MediaCategory.Id == categoryId);
 
             if (imagesOnly)
-                queryOver.Where(file => file.FileExtension.IsIn(MediaFile.ImageExtensions));
+                queryOver = queryOver.Where(file => MediaFile.ImageExtensions.Contains(file.FileExtension));
 
-            var mediaFiles = queryOver.OrderBy(file => file.CreatedOn).Desc.Paged(page, _siteSettings.DefaultPageSize);
+            var mediaFiles = queryOver.OrderByDescending(file => file.CreatedOn).Paged(page, _siteSettings.DefaultPageSize);
             return new FilesPagedResult(mediaFiles, mediaFiles.GetMetaData(), categoryId, imagesOnly);
         }
 
         public MediaFile GetFileByUrl(string value)
         {
-            return _session.QueryOver<MediaFile>().Where(file => file.FileUrl == value).Take(1).Cacheable().SingleOrDefault();
+            return _dbContext.Set<MediaFile>().FirstOrDefault(file => file.FileUrl == value);
         }
 
         public string GetFileUrl(string value)
@@ -296,7 +295,7 @@ namespace MrCMS.Services
 
         public void SetOrders(List<SortItem> items)
         {
-            _session.Transact(session => items.ForEach(item =>
+            _dbContext.Transact(session => items.ForEach(item =>
                                                            {
                                                                var mediaFile = session.Get<MediaFile>(item.Id);
                                                                mediaFile.DisplayOrder = item.Order;

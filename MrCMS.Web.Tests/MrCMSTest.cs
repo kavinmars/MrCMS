@@ -12,11 +12,13 @@ namespace MrCMS.Web.Tests
 {
     public abstract class MrCMSTest : IDisposable
     {
+        protected MockingKernel Kernel;
+
         protected MrCMSTest()
         {
-            var mockingKernel = new MockingKernel();
-            mockingKernel.Load(new ContextModule());
-            MrCMSApplication.OverrideKernel(mockingKernel);
+            Kernel = new MockingKernel();
+            Kernel.Load(new ContextModule());
+            MrCMSApplication.OverrideKernel(Kernel);
             CurrentRequestData.SiteSettings = new SiteSettings();
         }
 

@@ -18,8 +18,8 @@ namespace MrCMS.Tests.Services
             var doc2 = new BasicMappedWebpage { Name = "Different Name" };
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(doc1);
-                                     session.SaveOrUpdate(doc2);
+                                     session.Add(doc1);
+                                     session.Add(doc2);
                                  });
             var documentService = GetSearchService();
 
@@ -36,8 +36,8 @@ namespace MrCMS.Tests.Services
             var doc2 = new BasicMappedWebpage { Name = "Different Name" };
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(doc1);
-                                     session.SaveOrUpdate(doc2);
+                                     session.Add(doc1);
+                                     session.Add(doc2);
                                  });
             var documentService = GetSearchService();
 
@@ -56,9 +56,9 @@ namespace MrCMS.Tests.Services
             Session.Transact(session =>
                                  {
                                      doc1.Parent = doc2;
-                                     session.SaveOrUpdate(doc1);
-                                     session.SaveOrUpdate(doc2);
-                                     session.SaveOrUpdate(doc3);
+                                     session.Add(doc1);
+                                     session.Add(doc2);
+                                     session.Add(doc3);
                                  });
             var documentService = GetSearchService();
 
@@ -76,9 +76,9 @@ namespace MrCMS.Tests.Services
             Session.Transact(session =>
                                  {
                                      doc1.Parent = doc2;
-                                     session.SaveOrUpdate(doc1);
-                                     session.SaveOrUpdate(doc2);
-                                     session.SaveOrUpdate(doc3);
+                                     session.Add(doc1);
+                                     session.Add(doc2);
+                                     session.Add(doc3);
                                  });
             var documentService = GetSearchService();
 

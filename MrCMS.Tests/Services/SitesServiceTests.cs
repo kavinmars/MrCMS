@@ -28,7 +28,7 @@ namespace MrCMS.Tests.Services
         public void SitesService_GetAllSites_ReturnsPersistedSites()
         {
             var sites = Enumerable.Range(1, 10).Select(i => new Site { Name = "Site " + i }).ToList();
-            sites.ForEach(site => Session.Transact(session => session.Save(site)));
+            sites.ForEach(site => Session.Transact(session => session.Add(site)));
 
             var allSites = _siteService.GetAllSites();
 
@@ -39,7 +39,7 @@ namespace MrCMS.Tests.Services
         public void SitesService_AddSite_ShouldPersistSiteToSession()
         {
             var user = new User();
-            Session.Transact(session => session.Save(user));
+            Session.Transact(session => session.Add(user));
             CurrentRequestData.CurrentUser = user;
             var site = new Site();
             var options = new SiteCopyOptions();
@@ -47,7 +47,7 @@ namespace MrCMS.Tests.Services
             _siteService.AddSite(site, options);
 
             // Including CurrentSite from the base class
-            Session.QueryOver<Site>().RowCount().Should().Be(2);
+            Session.Set<Site>().Count().Should().Be(2);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace MrCMS.Tests.Services
 
             _siteService.AddSite(site, options);
 
-            Session.QueryOver<Site>().List().Should().Contain(site);
+            Session.Set<Site>().Should().Contain(site);
         }
 
 
@@ -66,24 +66,23 @@ namespace MrCMS.Tests.Services
         public void SitesService_SaveSite_UpdatesPassedSite()
         {
             var site = new Site();
-            Session.Transact(session => session.Save(site));
+            Session.Transact(session => session.Add(site));
             site.Name = "updated";
 
             _siteService.SaveSite(site);
 
-            Session.Evict(site);
-            Session.QueryOver<Site>().Where(s => s.Name == "updated").RowCount().Should().Be(1);
+            Session.Set<Site>().Count(s => s.Name == "updated").Should().Be(1);
         }
 
         [Fact]
         public void SitesService_DeleteSite_ShouldDeleteSiteFromSession()
         {
             var site = new Site();
-            Session.Transact(session => session.Save(site));
+            Session.Transact(session => session.Add(site));
 
             _siteService.DeleteSite(site);
 
-            Session.QueryOver<Site>().List().Should().NotContain(site);
+            Session.Set<Site>().Should().NotContain(site);
         }
 
         [Fact]
@@ -92,14 +91,14 @@ namespace MrCMS.Tests.Services
             _siteService.DeleteSite(CurrentSite);
 
             // Including CurrentSite from the base class
-            Session.QueryOver<Site>().RowCount().Should().Be(0);
+            Session.Set<Site>().Count().Should().Be(0);
         }
 
         [Fact]
         public void SitesService_GetSite_ReturnsResultFromSessionGetAsResult()
         {
             var site = new Site();
-            Session.Transact(session => session.Save(site));
+            Session.Transact(session => session.Add(site));
 
             _siteService.GetSite(site.Id).Should().Be(site);
         }

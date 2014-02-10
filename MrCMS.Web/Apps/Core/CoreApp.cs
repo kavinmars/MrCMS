@@ -1,26 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Web;
-using Iesi.Collections.Generic;
-using Microsoft.AspNet.Identity;
-using MrCMS.Apps;
-using MrCMS.Entities.Documents.Layout;
-using MrCMS.Entities.Documents.Media;
-using MrCMS.Entities.Documents.Web;
+﻿using MrCMS.Apps;
 using MrCMS.Entities.Multisite;
-using MrCMS.Entities.People;
-using MrCMS.Events;
 using MrCMS.Helpers;
 using MrCMS.Installation;
-using MrCMS.Services;
-using MrCMS.Settings;
-using MrCMS.Web.Apps.Core.Pages;
-using MrCMS.Web.Apps.Core.Widgets;
-using MrCMS.Website;
-using NHibernate;
 using Ninject;
 
 namespace MrCMS.Web.Apps.Core
@@ -44,9 +25,9 @@ namespace MrCMS.Web.Apps.Core
 
         }
 
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
+        protected override void OnInstallation(IDbContext dbContext, InstallModel model, Site site)
         {
-            CoreAppInstallation.Install(session, model, site);
+            CoreAppInstallation.Install(dbContext, model, site);
         }
 
         protected override void RegisterApp(MrCMSAppRegistrationContext context)

@@ -11,8 +11,6 @@ using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Indexing.Utils;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Indexing.Management
 {
@@ -28,22 +26,20 @@ namespace MrCMS.Indexing.Management
         {
             return new Term(Id.FieldName, entity.Id.ToString());
         }
-        public virtual T Convert(ISession session, Document document)
+        public virtual T Convert(IDbContext dbContext, Document document)
         {
-            return session.Get<T>(document.GetValue<int>(Id.FieldName));
+            return dbContext.Get<T>(document.GetValue<int>(Id.FieldName));
         }
-        public virtual IEnumerable<T> Convert(ISession session, IEnumerable<Document> documents)
+        public virtual IEnumerable<T> Convert(IDbContext dbContext, IEnumerable<Document> documents)
         {
             List<int> ids = documents.Select(document => document.GetValue<int>("id")).ToList();
             return
                 ids.Chunk(100)
                    .SelectMany(
                        ints =>
-                       session.QueryOver<T>()
-                              .Where(arg => arg.Id.IsIn(ints.ToList()))
-                              .Cacheable()
-                              .List()
-                              .OrderBy(arg => ids.IndexOf(arg.Id)));
+                       dbContext.Set<T>()
+                                .Where(arg => ints.Contains(arg.Id)).ToList()
+                                .OrderBy(arg => ids.IndexOf(arg.Id)));
         }
         public string GetLocation(Site currentSite)
         {

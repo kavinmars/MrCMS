@@ -1,7 +1,7 @@
 ﻿using MrCMS.Apps;
 using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
 using MrCMS.Installation;
-using NHibernate;
 using Ninject;
 
 namespace MrCMS.Web.Apps.Articles
@@ -18,7 +18,7 @@ namespace MrCMS.Web.Apps.Articles
             
         }
 
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
+        protected override void OnInstallation(IDbContext dbContext, InstallModel model, Site site)
         {
         }
 

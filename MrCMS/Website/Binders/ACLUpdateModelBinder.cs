@@ -1,13 +1,13 @@
-﻿using MrCMS.Models;
-using NHibernate;
+﻿using MrCMS.Helpers;
+using MrCMS.Models;
 using System.Linq;
 
 namespace MrCMS.Website.Binders
 {
     public class ACLUpdateModelBinder : MrCMSDefaultModelBinder
     {
-        public ACLUpdateModelBinder(ISession session)
-            : base(() => session)
+        public ACLUpdateModelBinder(IDbContext dbContext)
+            : base(() => dbContext)
         {
         }
 

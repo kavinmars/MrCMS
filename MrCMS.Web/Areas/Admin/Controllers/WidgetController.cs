@@ -10,7 +10,7 @@ using MrCMS.Services;
 using MrCMS.Website;
 using MrCMS.Website.Binders;
 using MrCMS.Website.Controllers;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {
@@ -18,13 +18,13 @@ namespace MrCMS.Web.Areas.Admin.Controllers
     {
         private readonly IDocumentService _documentService;
         private readonly IWidgetService _widgetService;
-        private readonly ISession _session;
+        private readonly IKernel _kernel;
 
-        public WidgetController(IDocumentService documentService, IWidgetService widgetService, ISession session)
+        public WidgetController(IDocumentService documentService, IWidgetService widgetService, IKernel kernel)
         {
             _documentService = documentService;
             _widgetService = widgetService;
-            _session = session;
+            _kernel = kernel;
         }
 
         [HttpGet]
@@ -56,7 +56,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
         [MrCMSTypeACL(typeof(Widget), TypeACLRule.Edit)]
         public ViewResultBase Edit_Get(Widget widget, string returnUrl = null)
         {
-            widget.SetDropdownData(ViewData, _session);
+            widget.SetDropdownData(ViewData,_kernel);
 
             if (!string.IsNullOrEmpty(returnUrl))
                 ViewData["return-url"] = Referrer;

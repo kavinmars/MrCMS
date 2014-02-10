@@ -5,13 +5,13 @@ using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Website.Binders
 {
     public class AddDocumentGetModelBinder : DocumentModelBinder
     {
-        public AddDocumentGetModelBinder(ISession session, IDocumentService documentService) : base(session, documentService)
+        public AddDocumentGetModelBinder(IDbContext dbContext, IDocumentService documentService)
+            : base(dbContext, documentService)
         {
         }
 
@@ -24,8 +24,8 @@ namespace MrCMS.Website.Binders
 
     public class AddDocumentModelBinder : DocumentModelBinder
     {
-        public AddDocumentModelBinder(ISession session, IDocumentService documentService)
-            : base(session, documentService)
+        public AddDocumentModelBinder(IDbContext dbContext, IDocumentService documentService)
+            : base(dbContext, documentService)
         {
         }
 
@@ -47,7 +47,7 @@ namespace MrCMS.Website.Binders
                 (document as Webpage).RevealInNavigation = true;
 
                 var pages = (document.Parent == null
-                                 ? Session.QueryOver<Webpage>().Where(webpage => webpage.Parent==null).Cacheable().List()
+                                 ? Session.Set<Webpage>().Where(webpage => webpage.Parent == null).ToList()
                                  : document.Parent.Children.OfType<Webpage>()).ToList();
                 document.DisplayOrder = pages.Any() ? pages.Max(x => x.DisplayOrder) + 1 : 0;
             }

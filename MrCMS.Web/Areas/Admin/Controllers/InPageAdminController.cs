@@ -1,15 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Web;
 using System.Web.Mvc;
 using MrCMS.ACL.Rules;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
-using MrCMS.Services;
 using MrCMS.Website;
 using MrCMS.Website.Controllers;
-using NHibernate;
 using System.Linq;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
@@ -17,11 +14,11 @@ namespace MrCMS.Web.Areas.Admin.Controllers
     [MrCMSACLRule(typeof (AdminBarACL), AdminBarACL.Show, ReturnEmptyResult = true)]
     public class InPageAdminController : MrCMSAdminController
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public InPageAdminController(ISession session)
+        public InPageAdminController(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public ActionResult InPageEditor(Webpage page)
@@ -37,7 +34,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
             var entityType = types.FirstOrDefault(t => t.Name == type);
             if (entityType == null)
                 return Json(new SaveResult(false, string.Format("Could not find entity type '{0}'", type)));
-            var entity = _session.Get(entityType, id);
+            var entity = _dbContext.Get(entityType, id);
             if (entity == null)
                 return
                     Json(new SaveResult(false,
@@ -56,7 +53,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
             }
 
             propertyInfo.SetValue(entity, content, null);
-            _session.Transact(session => session.SaveOrUpdate(entity));
+            _dbContext.Transact(session => session.AddOrUpdate(entity));
 
             return Json(new SaveResult());
         }
@@ -87,7 +84,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
             var entityType = types.FirstOrDefault(t => t.Name == type);
             if (entityType == null)
                 return string.Empty;
-            var entity = _session.Get(entityType, id);
+            var entity = _dbContext.Get(entityType, id);
             if (entity == null)
                 return string.Empty;
             var propertyInfo = entityType.GetProperties().FirstOrDefault(info => info.Name == property);
@@ -103,7 +100,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
             var entityType = types.FirstOrDefault(t => t.Name == type);
             if (entityType == null)
                 return string.Empty;
-            var entity = _session.Get(entityType, id);
+            var entity = _dbContext.Get(entityType, id);
             if (entity == null)
                 return string.Empty;
             var propertyInfo = entityType.GetProperties().FirstOrDefault(info => info.Name == property);

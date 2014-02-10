@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Services;
 using MrCMS.Tests.Stubs;
@@ -21,18 +22,18 @@ namespace MrCMS.Tests.Services
         {
             _urlHistoryService.Add(new UrlHistory {Webpage = new StubWebpage()});
 
-            Session.QueryOver<UrlHistory>().RowCount().Should().Be(1);
+            Session.Set<UrlHistory>().Count().Should().Be(1);
         }
 
         [Fact]
         public void UrlHistoryService_Delete_ShouldRemoveAPassedHistoryFromTheDb()
         {
             var urlHistory = new UrlHistory();
-            Session.Transact(session => session.Save(urlHistory));
+            Session.Transact(session => session.Add(urlHistory));
 
             _urlHistoryService.Delete(urlHistory);
 
-            Session.QueryOver<UrlHistory>().List().Should().NotContain(urlHistory);
+            Session.Set<UrlHistory>().ToList().Should().NotContain(urlHistory);
         }
     }
 }

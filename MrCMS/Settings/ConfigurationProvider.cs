@@ -5,7 +5,6 @@ using System.Reflection;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.Settings;
 using MrCMS.Helpers;
-using NHibernate;
 
 namespace MrCMS.Settings
 {

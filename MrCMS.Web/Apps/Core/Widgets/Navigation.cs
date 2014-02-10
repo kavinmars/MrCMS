@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Widget;
+using MrCMS.Helpers;
 using MrCMS.Web.Apps.Core.Models;
-using MrCMS.Website;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Core.Widgets
 {
@@ -17,15 +16,16 @@ namespace MrCMS.Web.Apps.Core.Widgets
             get { return false; }
         }
 
-        public override object GetModel(ISession session)
+        public override object GetModel(IKernel kernel)
         {
+            var dbContext = kernel.Get<IDbContext>();
             var navigationRecords =
-                GetPages(session, null).Where(webpage => webpage.Published).OrderBy(webpage => webpage.DisplayOrder)
+                GetPages(dbContext, null).Where(webpage => webpage.Published).OrderBy(webpage => webpage.DisplayOrder)
                        .Select(webpage => new NavigationRecord
                        {
                            Text = MvcHtmlString.Create(webpage.Name),
                            Url = MvcHtmlString.Create("/" + webpage.LiveUrlSegment),
-                           Children = GetPages(session, webpage)
+                           Children = GetPages(dbContext, webpage)
                                             .Select(webpage1 =>
                                                     new NavigationRecord
                                                     {
@@ -37,15 +37,14 @@ namespace MrCMS.Web.Apps.Core.Widgets
             return new NavigationList(navigationRecords.ToList());
         }
 
-        private IList<Webpage> GetPages(ISession session, Webpage parent)
+        private IList<Webpage> GetPages(IDbContext session, Webpage parent)
         {
-            var queryOver = session.QueryOver<Webpage>();
+            var queryOver = session.Set<Webpage>();
             queryOver = parent == null
                             ? queryOver.Where(webpage => webpage.Parent == null)
                             : queryOver.Where(webpage => webpage.Parent.Id == parent.Id);
             return queryOver.Where(
-                webpage => webpage.RevealInNavigation && webpage.Site.Id == Site.Id).Cacheable()
-                          .List();
+                webpage => webpage.RevealInNavigation && webpage.Site.Id == Site.Id).ToList();
         }
     }
 }

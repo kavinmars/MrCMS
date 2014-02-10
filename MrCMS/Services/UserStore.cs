@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using MrCMS.Entities.People;
 using System.Linq;
-using NHibernate;
 using MrCMS.Helpers;
 
 namespace MrCMS.Services
@@ -13,13 +12,13 @@ namespace MrCMS.Services
     public class UserStore : IUserLoginStore<User>, IUserClaimStore<User>, IUserRoleStore<User>
     {
         private readonly IUserService _userService;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly IRoleService _roleService;
 
-        public UserStore(IUserService userService, IRoleService roleService, ISession session)
+        public UserStore(IUserService userService, IRoleService roleService, IDbContext dbContext)
         {
             _userService = userService;
-            _session = session;
+            _dbContext = dbContext;
             _roleService = roleService;
         }
 
@@ -68,9 +67,9 @@ namespace MrCMS.Services
                             User = user
                         };
                     user.UserLogins.Add(userLogin);
-                    _session.Transact(session =>
+                    _dbContext.Transact(session =>
                         {
-                            session.Save(userLogin);
+                            session.Add(userLogin);
                             session.Update(user);
                         });
                 });
@@ -82,7 +81,7 @@ namespace MrCMS.Services
                 {
                     UserLogin userLogin = user.UserLogins.FirstOrDefault(l => l.ProviderKey == login.ProviderKey);
                     if (userLogin != null)
-                        _session.Transact(session =>
+                        _dbContext.Transact(session =>
                             {
                                 user.UserLogins.Remove(userLogin);
                                 session.Delete(userLogin);
@@ -106,15 +105,11 @@ namespace MrCMS.Services
         {
             return Task.Run(() =>
                 {
-                    UserLogin singleOrDefault =
-                        _session.QueryOver<UserLogin>()
-                                .Where(
-                                    userLogin =>
-                                    userLogin.ProviderKey == login.ProviderKey &&
-                                    userLogin.LoginProvider == login.LoginProvider)
-                                .SingleOrDefault();
+                    UserLogin firstOrDefault =
+                        _dbContext.Set<UserLogin>().FirstOrDefault(userLogin => userLogin.ProviderKey == login.ProviderKey &&
+                                                                                 userLogin.LoginProvider == login.LoginProvider);
 
-                    return singleOrDefault != null ? singleOrDefault.User : null;
+                    return firstOrDefault != null ? firstOrDefault.User : null;
                 });
         }
 
@@ -135,9 +130,9 @@ namespace MrCMS.Services
                 {
                     var userClaim = new UserClaim { Claim = claim.Type, Value = claim.Value, Issuer = claim.Issuer, User = user };
                     user.UserClaims.Add(userClaim);
-                    _session.Transact(session =>
+                    _dbContext.Transact(session =>
                         {
-                            session.Save(userClaim);
+                            session.Add(userClaim);
                             session.Update(user);
                         });
                 });
@@ -149,7 +144,7 @@ namespace MrCMS.Services
                 {
                     UserClaim singleOrDefault = user.UserClaims.SingleOrDefault(userClaim => userClaim.Claim == claim.Type && userClaim.Value == claim.Value && userClaim.Issuer == claim.Issuer);
                     if (singleOrDefault != null)
-                        _session.Transact(session =>
+                        _dbContext.Transact(session =>
                             {
                                 user.UserClaims.Remove(singleOrDefault);
                                 session.Delete(singleOrDefault);

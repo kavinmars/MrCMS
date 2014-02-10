@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Xml;
-using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
@@ -13,7 +11,6 @@ using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Models;
 using MrCMS.Website;
-using NHibernate;
 using Document = MrCMS.Entities.Documents.Document;
 
 namespace MrCMS.Services
@@ -21,13 +18,13 @@ namespace MrCMS.Services
     public class NavigationService : INavigationService
     {
         private readonly IDocumentService _documentService;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
 
-        public NavigationService(IDocumentService documentService, ISession session, Site site)
+        public NavigationService(IDocumentService documentService, IDbContext dbContext, Site site)
         {
             _documentService = documentService;
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
         }
 
@@ -44,11 +41,10 @@ namespace MrCMS.Services
                 CanAddChild = DocumentMetadataHelper.GetValidWebpageDocumentTypes(null).Any(),
             };
             tree.Children = GetNodes(tree,
-                                     _session.QueryOver<Webpage>()
+                                     _dbContext.Set<Webpage>()
                                              .Where(webpage => webpage.Parent == null && webpage.Site.Id == _site.Id)
-                                             .OrderBy(webpage => webpage.DisplayOrder).Asc
-                                             .Cacheable()
-                                             .List(), depth);
+                                             .OrderBy(webpage => webpage.DisplayOrder)
+                                             .ToList(), depth);
 
             return tree;
         }
@@ -65,11 +61,10 @@ namespace MrCMS.Services
                 CanAddChild = true,
             };
             tree.Children = GetNodes(tree,
-                                     _session.QueryOver<MediaCategory>()
+                                     _dbContext.Set<MediaCategory>()
                                              .Where(category => category.Parent == null && category.Site.Id == _site.Id)
-                                             .OrderBy(webpage => webpage.DisplayOrder).Asc
-                                             .Cacheable()
-                                             .List(), int.MaxValue);
+                                             .OrderBy(webpage => webpage.DisplayOrder)
+                                             .ToList(), int.MaxValue);
 
             return tree;
         }
@@ -87,11 +82,10 @@ namespace MrCMS.Services
             };
 
             tree.Children = GetNodes(tree,
-                                     _session.QueryOver<Layout>()
+                                     _dbContext.Set<Layout>()
                                              .Where(layout => layout.Parent == null && layout.Site.Id == _site.Id)
-                                             .OrderBy(webpage => webpage.DisplayOrder).Asc
-                                             .Cacheable()
-                                             .List(), int.MaxValue);
+                                             .OrderBy(webpage => webpage.DisplayOrder)
+                                             .ToList(), int.MaxValue);
             return tree;
         }
 
@@ -198,15 +192,15 @@ namespace MrCMS.Services
                 if (doc.ShowInAdminNav)
                 {
                     var documentMetadata = doc.GetMetadata();
-                    var queryOver = _session.QueryOver<T>().Where(arg => arg.Parent.Id == doc.Id);
+                    var queryOver = _dbContext.Set<T>().Where(arg => arg.Parent.Id == doc.Id);
 
-                    queryOver = queryOver.OrderBy(webpage => webpage.DisplayOrder).Asc;
+                    queryOver = queryOver.OrderBy(webpage => webpage.DisplayOrder);
 
                     var nodeType = GetNodeType(doc);
                     var isWebpage = doc is Webpage;
                     var siteTreeNode = new SiteTreeNode<T>
                     {
-                        Total = queryOver.Cacheable().RowCount(),
+                        Total = queryOver.Count(),
                         IconClass = documentMetadata == null ? "icon-file" : documentMetadata.IconClass,
                         Id = doc.Id,
                         ParentId = doc.Parent != null ? doc.Parent.Id : (int?)null,

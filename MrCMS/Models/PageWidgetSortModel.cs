@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MrCMS.DbConfiguration.Mapping;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Widget;
+using MrCMS.Helpers;
 
 namespace MrCMS.Models
 {

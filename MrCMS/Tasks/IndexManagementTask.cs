@@ -3,26 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using MrCMS.Entities;
 using MrCMS.Helpers;
 using MrCMS.Indexing;
 using MrCMS.Indexing.Management;
 using MrCMS.Services;
-using NHibernate;
 using Ninject;
 
 namespace MrCMS.Tasks
 {
     internal abstract class IndexManagementTask<T> : AdHocTask, ILuceneIndexTask where T : SiteEntity
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly IKernel _kernel;
 
-        protected IndexManagementTask(ISession session, IKernel kernel)
+        protected IndexManagementTask(IDbContext dbContext, IKernel kernel)
         {
-            _session = session;
+            _dbContext = dbContext;
             _kernel = kernel;
         }
 
@@ -67,7 +65,7 @@ namespace MrCMS.Tasks
 
         protected virtual T GetObject()
         {
-            return _session.Get(typeof(T), Id) as T;
+            return _dbContext.Get(typeof(T), Id) as T;
         }
 
         protected abstract void ExecuteLogic(IIndexManagerBase manager, T entity);

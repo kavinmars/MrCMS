@@ -7,9 +7,8 @@ using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
 using MrCMS.Models;
-using MrCMS.Paging;
-using NHibernate;
 
 namespace MrCMS.Services
 {
@@ -54,7 +53,7 @@ namespace MrCMS.Services
         bool UrlIsValidForWebpage(string url, int? id);
         bool UrlIsValidForWebpageUrlHistory(string url);
 
-        
+
         DocumentVersion GetDocumentVersion(int id);
         void RevertToVersion(DocumentVersion documentVersion);
     }
@@ -67,24 +66,19 @@ namespace MrCMS.Services
 
     public class UniquePageService : IUniquePageService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
 
-        public UniquePageService(ISession session,Site site)
+        public UniquePageService(IDbContext dbContext, Site site)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
         }
 
         public T GetUniquePage<T>()
             where T : Document, IUniquePage
         {
-            return
-                _session.QueryOver<T>()
-                        .Where(arg => arg.Site.Id == _site.Id)
-                        .Take(1)
-                        .Cacheable()
-                        .SingleOrDefault();
+            return _dbContext.Set<T>().FirstOrDefault(arg => arg.Site.Id == _site.Id);
         }
 
         public RedirectResult RedirectTo<T>(object routeValues = null) where T : Webpage, IUniquePage

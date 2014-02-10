@@ -1,13 +1,13 @@
 using System;
 using System.Web.Mvc;
-using NHibernate;
+using MrCMS.Helpers;
 
 namespace MrCMS.Website.Binders
 {
     public class NullableEntityModelBinder : MrCMSDefaultModelBinder
     {
-        public NullableEntityModelBinder(ISession session)
-            : base(() => session)
+        public NullableEntityModelBinder(IDbContext dbContext)
+            : base(() => dbContext)
         {
         }
 

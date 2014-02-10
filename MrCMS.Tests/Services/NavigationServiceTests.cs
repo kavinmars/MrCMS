@@ -84,10 +84,10 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(page1);
-                session.SaveOrUpdate(page2);
-                session.SaveOrUpdate(page3);
-                session.SaveOrUpdate(page4);
+                session.Add(page1);
+                session.Add(page2);
+                session.Add(page3);
+                session.Add(page4);
             });
 
             var navigationService = new NavigationService(new DocumentService(Session, null, new SiteSettings(), CurrentSite), Session, CurrentSite);
@@ -118,10 +118,10 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(category1);
-                session.SaveOrUpdate(category2);
-                session.SaveOrUpdate(category3);
-                session.SaveOrUpdate(category4);
+                session.Add(category1);
+                session.Add(category2);
+                session.Add(category3);
+                session.Add(category4);
             });
 
             var navigationService = new NavigationService(new DocumentService(Session, null, new SiteSettings { Site = CurrentSite }, CurrentSite), null, CurrentSite);
@@ -149,10 +149,10 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(layout1);
-                session.SaveOrUpdate(layout2);
-                session.SaveOrUpdate(layout3);
-                session.SaveOrUpdate(layout4);
+                session.Add(layout1);
+                session.Add(layout2);
+                session.Add(layout3);
+                session.Add(layout4);
             });
 
             var navigationService = new NavigationService(
@@ -193,10 +193,10 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(page1);
-                session.SaveOrUpdate(page2);
-                session.SaveOrUpdate(page3);
-                session.SaveOrUpdate(page4);
+                session.Add(page1);
+                session.Add(page2);
+                session.Add(page3);
+                session.Add(page4);
             });
 
             var navigationService = new NavigationService(new DocumentService(Session, null, new SiteSettings(), CurrentSite), Session, CurrentSite);

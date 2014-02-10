@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Website;
 using System.Linq;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
@@ -20,12 +20,12 @@ namespace MrCMS.Services
 
     public class IndexService : IIndexService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
 
-        public IndexService(ISession session, Site site)
+        public IndexService(IDbContext dbContext, Site site)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
         }
 
@@ -86,23 +86,46 @@ namespace MrCMS.Services
         {
             site = site ?? _site;
             var definitionType = TypeHelper.GetTypeByName(typeName);
-            var indexManagerBase = GetIndexManagerBase(definitionType, site);
+            Type iface =
+                definitionType.GetInterfaces()
+                              .FirstOrDefault(
+                                  type =>
+                                  type.IsGenericType && type.GetGenericTypeDefinition() == typeof (IIndexDefinition<>));
+            Type entityType = iface.GenericTypeArguments[0];
+            Type managerType = typeof (IIndexManager<,>).MakeGenericType(entityType, definitionType);
 
-            var list = _session.CreateCriteria(indexManagerBase.GetEntityType()).Add(Restrictions.Eq("Site.Id", site.Id)).List();
+            MethodInfo overload = typeof (IndexService).GetMethodExt("Reindex", typeof (Site));
+            if (overload != null)
+                overload.MakeGenericMethod(managerType, entityType, definitionType).Invoke(this, new object[] {site});
 
-            var listInstance =
-                Activator.CreateInstance(typeof(List<>).MakeGenericType(indexManagerBase.GetEntityType()));
-            var methodExt = listInstance.GetType().GetMethodExt("Add", indexManagerBase.GetEntityType());
-            foreach (var entity in list)
-            {
-                methodExt.Invoke(listInstance, new object[] { entity });
-            }
-            var concreteManagerType = typeof(IIndexManager<,>).MakeGenericType(indexManagerBase.GetEntityType(), indexManagerBase.GetIndexDefinitionType());
-            var methodInfo = concreteManagerType.GetMethodExt("ReIndex",
-                                                              typeof(IEnumerable<>).MakeGenericType(
-                                                                  indexManagerBase.GetEntityType()));
+            //var indexManagerBase = GetIndexManagerBase(definitionType, site);
+            
 
-            methodInfo.Invoke(indexManagerBase, new object[] { listInstance });
+            //var list = _dbContext.Set(indexManagerBase.GetEntityType()).Add(Restrictions.Eq("Site.Id", site.Id)).List();
+
+            //var listInstance =
+            //    Activator.CreateInstance(typeof(List<>).MakeGenericType(indexManagerBase.GetEntityType()));
+            //var methodExt = listInstance.GetType().GetMethodExt("Add", indexManagerBase.GetEntityType());
+            //foreach (var entity in list)
+            //{
+            //    methodExt.Invoke(listInstance, new object[] { entity });
+            //}
+            //var concreteManagerType = typeof(IIndexManager<,>).MakeGenericType(indexManagerBase.GetEntityType(), indexManagerBase.GetIndexDefinitionType());
+            //var methodInfo = concreteManagerType.GetMethodExt("ReIndex",
+            //                                                  typeof(IEnumerable<>).MakeGenericType(
+            //                                                      indexManagerBase.GetEntityType()));
+
+            //methodInfo.Invoke(indexManagerBase, new object[] { listInstance });
+        }
+
+        public void Reindex<T1, T2, T3>(Site site = null) where T1 : IndexManager<T2, T3> where T2 : SiteEntity where T3 : IIndexDefinition<T2>
+        {
+            site = site ?? _site;
+
+            //var indexManagerBase = GetIndexManagerBase(definitionType, site);
+
+            var list = _dbContext.Set<T2>().Where(arg => arg.Site == site).ToList();
+            MrCMSApplication.Get<T1>().ReIndex(list);
         }
 
         public void Optimise(string typeName, Site site = null)

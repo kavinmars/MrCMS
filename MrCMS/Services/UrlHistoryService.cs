@@ -1,38 +1,37 @@
 using System.Collections.Generic;
+using System.Linq;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 using MrCMS.Entities.Documents;
-using System.Linq;
+
 namespace MrCMS.Services
 {
     public class UrlHistoryService : IUrlHistoryService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public UrlHistoryService(ISession session)
+        public UrlHistoryService(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void Delete(UrlHistory urlHistory)
         {
-            _session.Transact(session => _session.Delete(urlHistory));
+            _dbContext.Transact(session => _dbContext.Delete(urlHistory));
         }
 
         public void Add(UrlHistory urlHistory)
         {
             urlHistory.Webpage.Urls.Add(urlHistory);
-            _session.Transact(session => session.Save(urlHistory));
+            _dbContext.Transact(session => session.Add(urlHistory));
         }
 
         public IEnumerable<UrlHistory> GetAllOtherUrls(Webpage document)
         {
-            var urlHistory = _session.QueryOver<UrlHistory>().Where(x => x.Webpage.Id != document.Id).Cacheable().List();
-            var urls = _session.QueryOver<Document>().Where(x => x.Id != document.Id).Cacheable().List();
+            var urlHistory = _dbContext.Set<UrlHistory>().Where(x => x.Webpage.Id != document.Id).ToList();
+            var urls = _dbContext.Set<Document>().Where(x => x.Id != document.Id).ToList();
             foreach (var url in urls)
             {
                 if (urlHistory.All(x => x.UrlSegment != url.UrlSegment))
@@ -40,16 +39,15 @@ namespace MrCMS.Services
             }
             return urlHistory;
         }
+
         public UrlHistory GetByUrlSegment(string url)
         {
-            return _session.QueryOver<UrlHistory>().Where(x => x.Site == CurrentRequestData.CurrentSite
-                && x.UrlSegment.IsInsensitiveLike(url, MatchMode.Exact)).SingleOrDefault();
+            return _dbContext.Set<UrlHistory>().FirstOrDefault(x => x.Site == CurrentRequestData.CurrentSite && x.UrlSegment.Contains(url));
         }
 
         public UrlHistory GetByUrlSegmentWithSite(string url, Site site, Webpage page)
         {
-            return _session.QueryOver<UrlHistory>().Where(x => x.Site == site && x.Webpage == page
-                && x.UrlSegment.IsInsensitiveLike(url, MatchMode.Exact)).SingleOrDefault();
+            return _dbContext.Set<UrlHistory>().FirstOrDefault(x => x.Site == site && x.Webpage == page && x.UrlSegment == url);
         }
     }
 }

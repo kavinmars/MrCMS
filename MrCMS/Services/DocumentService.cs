@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web.Mvc;
-using System.Web.Routing;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
@@ -15,21 +15,19 @@ using MrCMS.Helpers;
 using MrCMS.Models;
 using MrCMS.Settings;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
     public class DocumentService : IDocumentService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly IDocumentEventService _documentEventService;
         private readonly SiteSettings _siteSettings;
         private readonly Site _currentSite;
 
-        public DocumentService(ISession session, IDocumentEventService documentEventService, SiteSettings siteSettings, Site currentSite)
+        public DocumentService(IDbContext dbContext, IDocumentEventService documentEventService, SiteSettings siteSettings, Site currentSite)
         {
-            _session = session;
+            _dbContext = dbContext;
             _documentEventService = documentEventService;
             _siteSettings = siteSettings;
             _currentSite = currentSite;
@@ -37,14 +35,14 @@ namespace MrCMS.Services
 
         public void AddDocument<T>(T document) where T : Document
         {
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
                                       document.DisplayOrder = GetMaxParentDisplayOrder(document);
-                                      document.CustomInitialization(this, _session);
+                                      document.CustomInitialization(this, _dbContext);
                                       if (document.Parent != null)
                                           document.Parent.Children.Add(document);
-                                      session.SaveOrUpdate(document);
-                                      
+                                      session.AddOrUpdate(document);
+
                                   });
             _documentEventService.OnDocumentAdded(document);
         }
@@ -83,38 +81,41 @@ namespace MrCMS.Services
 
         public T GetDocument<T>(int id) where T : Document
         {
-            return _session.Get<T>(id);
+            return _dbContext.Get<T>(id);
         }
         public T SaveDocument<T>(T document) where T : Document
         {
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
             {
-                document.OnSaving(session);
-                session.SaveOrUpdate(document);
+                //document.OnSaving(session);
+                session.AddOrUpdate(document);
             });
             return document;
         }
 
         public IEnumerable<T> GetAllDocuments<T>() where T : Document
         {
-            return _session.QueryOver<T>().Where(arg => arg.Site == _currentSite).Cacheable().List();
+            return _dbContext.Set<T>().Where(arg => arg.Site == _currentSite).ToList();
         }
 
         public bool ExistAny(Type type)
         {
-            var uniqueResult =
-                _session.CreateCriteria(type)
-                        .Add(Restrictions.Eq(Projections.Property("Site.Id"), _currentSite.Id))
-                        .SetProjection(Projections.RowCount()).SetCacheable(true)
-                        .UniqueResult<int>();
-            return uniqueResult != 0;
+            MethodInfo methodInfo = typeof(DocumentService).GetMethodExt("ExistAny");
+            return (bool)methodInfo.MakeGenericMethod(type).Invoke(this, new object[] { });
         }
+
+        public bool ExistAny<T>() where T : Document
+        {
+            return _dbContext.Set<T>().Any(arg => arg.Site == _currentSite);
+        }
+
+
 
         public IEnumerable<T> GetDocumentsByParent<T>(T parent) where T : Document
         {
             IEnumerable<T> list = parent != null
                                       ? parent.Children.OfType<T>()
-                                      : _session.QueryOver<T>().Where(arg => arg.Parent == null).Cacheable().List();
+                                      : _dbContext.Set<T>().Where(arg => arg.Parent == null).ToList();
             list = list.Where(arg => arg.Site == _currentSite);
             return list;
         }
@@ -156,24 +157,15 @@ namespace MrCMS.Services
                 string defaultLayoutName = currentPage.GetMetadata().DefaultLayoutName;
                 if (!String.IsNullOrEmpty(defaultLayoutName))
                 {
-                    var layout =
-                        _session.QueryOver<Layout>()
-                                .Where(x => x.Name == defaultLayoutName)
-                                .Cacheable()
-                                .List()
-                                .FirstOrDefault();
+                    var layout = _dbContext.Set<Layout>().FirstOrDefault(x => x.Name == defaultLayoutName);
                     if (layout != null)
                         return layout;
                 }
             }
             var settingValue = _siteSettings.DefaultLayoutId;
 
-            return _session.Get<Layout>(settingValue) ??
-                   _session.QueryOver<Layout>()
-                           .Where(layout => layout.Site == currentPage.Site)
-                           .Take(1)
-                           .Cacheable()
-                           .SingleOrDefault();
+            return _dbContext.Get<Layout>(settingValue) ??
+                   _dbContext.Set<Layout>().FirstOrDefault(layout => layout.Site == currentPage.Site);
         }
 
         public void SetTags(string taglist, Document document)
@@ -209,22 +201,22 @@ namespace MrCMS.Services
 
         private Tag GetTag(string name)
         {
-            return _session.QueryOver<Tag>().Where(tag => tag.Name.IsLike(name, MatchMode.Exact)).Take(1).SingleOrDefault();
+            return _dbContext.Set<Tag>().FirstOrDefault(tag => tag.Name == name);
         }
 
         public void SetOrder(int documentId, int order)
         {
-            _session.Transact(session =>
+            _dbContext.Transact(dbContext =>
             {
-                var document = session.Get<Document>(documentId);
+                var document = dbContext.Get<Document>(documentId);
                 document.DisplayOrder = order;
-                session.SaveOrUpdate(document);
+                dbContext.AddOrUpdate(document);
             });
         }
 
         public void SetOrders(List<SortItem> items)
         {
-            _session.Transact(session => items.ForEach(item =>
+            _dbContext.Transact(session => items.ForEach(item =>
             {
                 var document = session.Get<Document>(item.Id);
                 document.DisplayOrder = item.Order;
@@ -234,27 +226,30 @@ namespace MrCMS.Services
 
         public bool AnyPublishedWebpages()
         {
-            return _session.QueryOver<Webpage>().Where(webpage => webpage.PublishOn != null && webpage.PublishOn <= DateTime.Now).Cacheable().RowCount() > 0;
+            return
+                _dbContext.Set<Webpage>().Any(webpage => webpage.PublishOn != null && webpage.PublishOn <= DateTime.Now);
         }
 
         public bool AnyWebpages()
         {
-            return _session.QueryOver<Webpage>().Cacheable().RowCount() > 0;
+            return _dbContext.Set<Webpage>().Any();
         }
 
         public IEnumerable<Webpage> GetWebPagesByParentIdForNav(int parentId)
         {
             return
-                _session.QueryOver<Webpage>().Where(
-                    x => x.Parent.Id == parentId && x.PublishOn != null && x.PublishOn <= DateTime.Now && x.PublishOn < DateTime.Now && x.RevealInNavigation).
-                    List();
+                _dbContext.Set<Webpage>().Where(
+                    x =>
+                    x.Parent.Id == parentId && x.PublishOn != null && x.PublishOn <= DateTime.Now &&
+                    x.PublishOn < DateTime.Now && x.RevealInNavigation).
+                           ToList();
         }
 
         public void DeleteDocument<T>(T document) where T : Document
         {
             if (document != null)
             {
-                _session.Transact(session =>
+                _dbContext.Transact(session =>
                 {
                     document.OnDeleting(session);
                     session.Delete(document);
@@ -281,7 +276,7 @@ namespace MrCMS.Services
 
         public void HideWidget(Webpage document, int widgetId)
         {
-            var widget = _session.Get<Widget>(widgetId);
+            var widget = _dbContext.Get<Widget>(widgetId);
 
             if (document == null || widget == null) return;
 
@@ -294,7 +289,7 @@ namespace MrCMS.Services
 
         public void ShowWidget(Webpage document, int widgetId)
         {
-            var widget = _session.Get<Widget>(widgetId);
+            var widget = _dbContext.Get<Widget>(widgetId);
 
             if (document == null || widget == null) return;
 
@@ -309,7 +304,7 @@ namespace MrCMS.Services
 
         public DocumentVersion GetDocumentVersion(int id)
         {
-            return _session.Get<DocumentVersion>(id);
+            return _dbContext.Get<DocumentVersion>(id);
         }
 
         public void SetParent(Document document, int? parentId)
@@ -377,15 +372,12 @@ namespace MrCMS.Services
 
         private UserRole GetRole(string name)
         {
-            return _session.QueryOver<UserRole>().Where(role => role.Name.IsInsensitiveLike(name, MatchMode.Exact)).SingleOrDefault();
+            return _dbContext.Set<UserRole>().FirstOrDefault(role => role.Name == name);
         }
 
         public T GetDocumentByUrl<T>(string url) where T : Document
         {
-            return _session.QueryOver<T>()
-                        .Where(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id)
-                        .Take(1).Cacheable()
-                        .SingleOrDefault();
+            return _dbContext.Set<T>().FirstOrDefault(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         public bool UrlIsValidForWebpage(string url, int? id)
@@ -424,7 +416,7 @@ namespace MrCMS.Services
 
             foreach (var metadata in validParentTypes)
             {
-                potentialParents.AddRange(_session.CreateCriteria(metadata.Type).SetCacheable(true).List<Webpage>());
+                potentialParents.AddRange(_dbContext.Set(metadata.Type).Cast<Webpage>());
             }
 
             var result = potentialParents.Distinct().Where(page => !page.ActivePages.Contains(webpage) && page.Site.Id == _currentSite.Id).OrderBy(x => x.Name)
@@ -441,7 +433,7 @@ namespace MrCMS.Services
         {
             if (parent > 0)
             {
-                var document = _session.Get<Document>(parent);
+                var document = _dbContext.Get<Document>(parent.GetValueOrDefault());
                 while (document != null)
                 {
                     yield return document;
@@ -453,12 +445,11 @@ namespace MrCMS.Services
         public Webpage GetHomePage()
         {
             return
-                _session.QueryOver<Webpage>()
+                _dbContext.Set<Webpage>()
+                .OrderBy(webpage => webpage.DisplayOrder)
                         .Where(
                             document =>
                             document.Site.Id == _currentSite.Id && document.Parent == null)
-                        .OrderBy(webpage => webpage.DisplayOrder).Asc
-                        .Cacheable().List()
                         .FirstOrDefault(webpage => webpage.Published);
         }
 
@@ -472,7 +463,7 @@ namespace MrCMS.Services
             {
                 versionProperty.SetValue(currentVersion, versionProperty.GetValue(previousVersion, null), null);
             }
-            _session.Transact(session => session.Update(currentVersion));
+            _dbContext.Transact(session => session.Update(currentVersion));
         }
 
         public bool UrlIsValidForMediaCategory(string url, int? id)
@@ -509,10 +500,7 @@ namespace MrCMS.Services
 
         public UrlHistory GetHistoryItemByUrl(string url)
         {
-            return _session.QueryOver<UrlHistory>()
-                        .Where(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id)
-                        .Take(1).Cacheable()
-                        .SingleOrDefault();
+            return _dbContext.Set<UrlHistory>().FirstOrDefault(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -522,10 +510,7 @@ namespace MrCMS.Services
         /// <returns>bool</returns>
         private bool MediaCategoryExists(string url)
         {
-            return _session.QueryOver<MediaCategory>()
-                        .Where(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id)
-                        .Cacheable()
-                        .RowCount() > 0;
+            return _dbContext.Set<MediaCategory>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -535,10 +520,7 @@ namespace MrCMS.Services
         /// <returns></returns>
         private bool LayoutExists(string url)
         {
-            return _session.QueryOver<Layout>()
-                        .Where(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id)
-                        .Cacheable()
-                        .RowCount() > 0;
+            return _dbContext.Set<Layout>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -548,10 +530,7 @@ namespace MrCMS.Services
         /// <returns>bool</returns>
         private bool WebpageExists(string url)
         {
-            return _session.QueryOver<Webpage>()
-                        .Where(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id)
-                        .Cacheable()
-                        .RowCount() > 0;
+            return _dbContext.Set<Webpage>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -561,13 +540,7 @@ namespace MrCMS.Services
         /// <returns>bool</returns>
         private bool ExistsInUrlHistory(string url)
         {
-            return
-                _session.QueryOver<UrlHistory>()
-                        .Where(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id)
-                        .Cacheable()
-                        .RowCount() > 0;
+            return _dbContext.Set<UrlHistory>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
-
-
     }
 }

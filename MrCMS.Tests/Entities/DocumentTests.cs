@@ -4,13 +4,10 @@ using FakeItEasy;
 using FluentAssertions;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Tests.Stubs;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Transform;
 using Xunit;
-using MrCMS.Helpers;
 using System.Linq;
 
 namespace MrCMS.Tests.Entities
@@ -45,7 +42,7 @@ namespace MrCMS.Tests.Entities
             var child = new StubDocument();
             doc.SetChildren(new List<Document> {child});
 
-            child.OnDeleting(A.Fake<ISession>());
+            child.OnDeleting(Session);
 
             doc.Children.Should().NotContain(child);
         }
@@ -76,29 +73,22 @@ namespace MrCMS.Tests.Entities
 
             Session.Transact(session =>
                 {
-                    session.Save(document1);
-                    session.Save(document2);
-                    session.Save(document3);
+                    session.Add(document1);
+                    session.Add(document2);
+                    session.Add(document3);
                 });
 
-            Webpage webpageAlias = null;
-            DocumentTypeCount countAlias = null;
             var list =
-                Session.QueryOver(()=>webpageAlias)
-                       .SelectList(
-                           builder =>
-                           builder.SelectGroup(() => webpageAlias.DocumentType)
-                                  .WithAlias(() => countAlias.DocumentType)
-                                  .SelectCount(() => webpageAlias.Id)
-                                  .WithAlias(() => countAlias.Total)
-                                  .SelectSubQuery(QueryOver.Of<Webpage>().Where(webpage => webpage.DocumentType == webpageAlias.DocumentType && (webpage.PublishOn == null || webpage.PublishOn > CurrentRequestData.Now)).ToRowCountQuery())
-                                  .WithAlias(() => countAlias.Unpublished))
-                       .TransformUsing(Transformers.AliasToBean<DocumentTypeCount>())
-                       .List<DocumentTypeCount>();
-
+                Session.Set<Webpage>()
+                       .GroupBy(webpage => webpage.DocumentType)
+                       .Select(webpages => new DocumentTypeCount
+                           {
+                               DocumentType = webpages.Key,
+                               Total = webpages.Count(),
+                               Unpublished = webpages.Count(webpage => !webpage.Published)
+                           });
             list.Should().HaveCount(2);
             list.Sum(count => count.Unpublished).Should().Be(2);
-
         }
     }
     public class DocumentTypeCount

@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using Elmah;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Paging;
 using MrCMS.Settings;
-using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Logging
 {
     public class LogService : ILogService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly SiteSettings _siteSettings;
 
-        public LogService(ISession session, SiteSettings siteSettings)
+        public LogService(IDbContext dbContext, SiteSettings siteSettings)
         {
-            _session = session;
+            _dbContext = dbContext;
             _siteSettings = siteSettings;
         }
 
@@ -28,33 +26,30 @@ namespace MrCMS.Logging
             if (log.Error == null)
                 log.Error = new Error();
             log.Guid = Guid.NewGuid();
-            _session.Transact(session => session.Save(log));
+            _dbContext.Transact(session => session.Add(log));
         }
 
         public IList<Log> GetAllLogEntries()
         {
-            return BaseQuery().Cacheable().List();
+            return BaseQuery().ToList();
         }
-
 
         public void DeleteAllLogs()
         {
-            _session.CreateQuery("delete Log l").ExecuteUpdate();
+            _dbContext.Database.ExecuteSqlCommand("delete Log l");
         }
 
         public void DeleteLog(Log log)
         {
-            _session.Transact(session => session.Delete(log));
+            _dbContext.Transact(session => session.Delete(log));
         }
 
         public List<SelectListItem> GetSiteOptions()
         {
-            var sites = _session.QueryOver<Site>().OrderBy(site => site.Name).Asc.List();
+            var sites = _dbContext.Set<Site>().OrderBy(site => site.Name).ToList();
             return sites.Count == 1
                        ? new List<SelectListItem>()
-                       : sites
-                             .BuildSelectItemList(site => site.Name, site => site.Id.ToString(),
-                                                  emptyItemText: "All sites");
+                       : sites.BuildSelectItemList(site => site.Name, site => site.Id.ToString(), emptyItemText: "All sites");
         }
 
         public IPagedList<Log> GetEntriesPaged(LogSearchQuery searchQuery)
@@ -67,14 +62,14 @@ namespace MrCMS.Logging
                 query =
                     query.Where(
                         log =>
-                        log.Message.IsInsensitiveLike(searchQuery.Message, MatchMode.Anywhere));
+                        log.Message.Contains(searchQuery.Message));
 
             if (!string.IsNullOrWhiteSpace(searchQuery.Detail))
-                query = query.Where(log => log.Detail.IsInsensitiveLike(searchQuery.Detail, MatchMode.Anywhere));
+                query = query.Where(log => log.Detail.Contains(searchQuery.Detail));
 
             if (searchQuery.SiteId.HasValue)
                 query = query.Where(log => log.Site.Id == searchQuery.SiteId);
-            
+
             if (searchQuery.From.HasValue)
                 query = query.Where(log => log.CreatedOn >= searchQuery.From);
             if (searchQuery.To.HasValue)
@@ -83,12 +78,11 @@ namespace MrCMS.Logging
             return query.Paged(searchQuery.Page, _siteSettings.DefaultPageSize);
         }
 
-        private IQueryOver<Log, Log> BaseQuery()
+        private IQueryable<Log> BaseQuery()
         {
             return
-                _session.QueryOver<Log>()
-                        .OrderBy(entry => entry.Id)
-                        .Desc;
+                _dbContext.Set<Log>()
+                          .OrderByDescending(entry => entry.Id);
         }
     }
 }

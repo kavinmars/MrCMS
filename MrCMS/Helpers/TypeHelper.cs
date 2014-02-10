@@ -4,14 +4,15 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using MrCMS.DbConfiguration.Mapping;
 using MrCMS.Entities;
 using MrCMS.Settings;
 using MrCMS.Website;
-using NHibernate.Proxy;
 
 namespace MrCMS.Helpers
 {
+    public class DoNotMapAttribute : Attribute
+    {
+    }
     public static class TypeHelper
     {
         private static List<Type> _alltypes;
@@ -94,7 +95,7 @@ namespace MrCMS.Helpers
             {
                 loadableTypes.AddRange(e.Types.Where(t => t != null));
             }
-            return loadableTypes.FindAll(type => !typeof(INHibernateProxy).IsAssignableFrom(type));
+            return loadableTypes; //.FindAll(type => !typeof(INHibernateProxy).IsAssignableFrom(type));
         }
         /// <summary>
         /// Search for a method by name and parameter types.  Unlike GetMethod(), does 'loose' matching on generic
@@ -202,11 +203,11 @@ namespace MrCMS.Helpers
 
         public static T Unproxy<T>(this T document) where T : SiteEntity
         {
-            var proxy = document as INHibernateProxy;
-            if (proxy != null)
-            {
-                return (T)proxy.HibernateLazyInitializer.GetImplementation();
-            }
+            //var proxy = document as INHibernateProxy;
+            //if (proxy != null)
+            //{
+            //    return (T)proxy.HibernateLazyInitializer.GetImplementation();
+            //}
 
             return (T)document;
         }

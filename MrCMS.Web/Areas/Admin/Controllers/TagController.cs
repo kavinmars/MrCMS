@@ -4,7 +4,6 @@ using MrCMS.Entities.Documents;
 using MrCMS.Models;
 using MrCMS.Services;
 using MrCMS.Website.Controllers;
-using NHibernate;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {

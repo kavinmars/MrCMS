@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Web.Mvc;
-using MrCMS.DbConfiguration.Configuration;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
@@ -12,6 +11,13 @@ using System.Linq;
 
 namespace MrCMS.Installation
 {
+    public enum DatabaseType
+    {
+        Auto,
+        Sqlite,
+        MsSql,
+        MySQL
+    }
     public class InstallModel
     {
         [AllowHtml]

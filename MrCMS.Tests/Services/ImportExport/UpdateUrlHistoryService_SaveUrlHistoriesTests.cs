@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Services.ImportExport;
@@ -19,14 +20,14 @@ namespace MrCMS.Tests.Services.ImportExport
         [Fact]
         public void AnyUnassignedUrlHistoriesAreDeleted()
         {
-            Session.Transact(session => session.Save(new UrlHistory { UrlSegment = "test", Webpage = null }));
+            Session.Transact(session => session.Add(new UrlHistory { UrlSegment = "test",  Webpage = null }));
             _updateUrlHistoryService.Initialise();
             _updateUrlHistoryService.UrlHistories.Should().HaveCount(1);
-            Session.QueryOver<UrlHistory>().RowCount().Should().Be(1);
+            Session.Set<UrlHistory>().Count().Should().Be(1);
 
             _updateUrlHistoryService.SaveUrlHistories();
 
-            Session.QueryOver<UrlHistory>().RowCount().Should().Be(0);
+            Session.Set<UrlHistory>().Count().Should().Be(0);
         }
     }
 }

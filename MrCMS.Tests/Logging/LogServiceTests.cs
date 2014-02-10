@@ -30,14 +30,14 @@ namespace MrCMS.Tests.Logging
             logs.Should().BeEquivalentTo(list);
         }
 
-        [Fact]
+        [Fact(Skip = "requires db support for in memory")]
         public void LogService_DeleteAllLogs_ShouldRemoveAllLogs()
         {
             var list = CreateLogList();
 
             _logService.DeleteAllLogs();
 
-            Session.QueryOver<Log>().RowCount().Should().Be(0);
+            Session.Set<Log>().Count().Should().Be(0);
         }
 
         [Fact]
@@ -47,14 +47,14 @@ namespace MrCMS.Tests.Logging
 
             _logService.DeleteLog(list[0]);
 
-            Session.QueryOver<Log>().List().Should().NotContain(list[0]);
+            Session.Set<Log>().Should().NotContain(list[0]);
         }
 
 
         private static List<Log> CreateLogList()
         {
             var logList = Enumerable.Range(1, 20).Select(i => new Log { Message = i.ToString(), Error = new Error() }).ToList();
-            logList.ForEach(log => Session.Transact(session => session.Save(log)));
+            logList.ForEach(log => Session.Transact(session => session.Add(log)));
             return logList;
         }
     }

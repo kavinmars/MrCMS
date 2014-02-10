@@ -1,11 +1,6 @@
-﻿using System;
-using System.Web;
-using System.Web.Routing;
+﻿using System.Web.Routing;
 using FakeItEasy;
-using MrCMS.Services;
-using MrCMS.Settings;
 using MrCMS.Website.Routing;
-using NHibernate;
 using Xunit;
 using FluentAssertions;
 

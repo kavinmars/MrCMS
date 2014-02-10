@@ -1,26 +1,25 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
 using MrCMS.Models;
 using MrCMS.Paging;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
     public class UserSearchService : IUserSearchService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public UserSearchService(ISession session)
+        public UserSearchService(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public List<SelectListItem> GetAllRoleOptions()
         {
-            var roles = _session.QueryOver<UserRole>().OrderBy(role => role.Name).Asc.Cacheable().List();
+            var roles = _dbContext.Set<UserRole>().OrderBy(role => role.Name).ToList();
 
             return roles.BuildSelectItemList(role => role.Name, role => role.Id.ToString(), emptyItemText: "Any role");
         }
@@ -28,19 +27,19 @@ namespace MrCMS.Services
 
         public IPagedList<User> GetUsersPaged(UserSearchQuery searchQuery)
         {
-            var query = _session.QueryOver<User>();
+            IQueryable<User> query = _dbContext.Set<User>();
 
             if (!string.IsNullOrWhiteSpace(searchQuery.Query))
                 query =
                     query.Where(
                         user =>
-                        user.Email.IsInsensitiveLike(searchQuery.Query, MatchMode.Anywhere) ||
-                        user.LastName.IsInsensitiveLike(searchQuery.Query, MatchMode.Anywhere) ||
-                        user.FirstName.IsInsensitiveLike(searchQuery.Query, MatchMode.Anywhere));
+                        user.Email.Contains(searchQuery.Query) ||
+                        user.LastName.Contains(searchQuery.Query) ||
+                        user.FirstName.Contains(searchQuery.Query));
             if (searchQuery.UserRoleId != null)
             {
-                UserRole role = null;
-                query = query.JoinAlias(user => user.Roles, () => role).Where(() => role.Id == searchQuery.UserRoleId);
+                UserRole role = _dbContext.Get<UserRole>(searchQuery.UserRoleId.Value);
+                query = query.Where(user => user.Roles.Contains(role));
             }
 
             return query.Paged(searchQuery.Page);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using MrCMS.Apps;
@@ -9,7 +8,7 @@ using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Website.Binders;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Website.Routing
 {
@@ -17,7 +16,7 @@ namespace MrCMS.Website.Routing
     {
         IControllerFactory OverridenControllerFactory { get; set; }
         IControllerFactory ControllerFactory { get; }
-        void SetViewData(Webpage webpage, Controller controller, ISession session);
+        void SetViewData(Webpage webpage, Controller controller, IKernel kernel);
         void SetFormData(Webpage webpage, Controller controller, NameValueCollection form);
         string GetActionName(Webpage webpage, string httpMethod);
         Controller GetController(RequestContext requestContext, Webpage webpage, string httpMethod);
@@ -49,11 +48,11 @@ namespace MrCMS.Website.Routing
         //    get { return Webpage == null ? null : Webpage.GetMetadata(); }
         //}
 
-        public void SetViewData(Webpage webpage, Controller controller, ISession session)
+        public void SetViewData(Webpage webpage, Controller controller, IKernel kernel)
         {
             if (controller.Request.HttpMethod == "GET" && webpage != null)
             {
-                webpage.UiViewData(controller.ViewData, session, controller.Request);
+                webpage.UiViewData(controller.ViewData, kernel, controller.Request);
             }
         }
 

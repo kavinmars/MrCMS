@@ -5,17 +5,16 @@ using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Services.ImportExport.DTOs;
-using NHibernate;
 
 namespace MrCMS.Services.ImportExport
 {
     public class UpdateUrlHistoryService : IUpdateUrlHistoryService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _session;
         private readonly Site _site;
         private HashSet<UrlHistory> _urlHistories;
 
-        public UpdateUrlHistoryService(ISession session, Site site)
+        public UpdateUrlHistoryService(IDbContext session, Site site)
         {
             _session = session;
             _site = site;
@@ -28,7 +27,7 @@ namespace MrCMS.Services.ImportExport
 
         public IUpdateUrlHistoryService Initialise()
         {
-            _urlHistories = new HashSet<UrlHistory>(_session.QueryOver<UrlHistory>().Where(history => history.Site == _site).List());
+            _urlHistories = new HashSet<UrlHistory>(_session.Set<UrlHistory>().Where(history => history.Site == _site));
             return this;
         }
 
@@ -59,14 +58,14 @@ namespace MrCMS.Services.ImportExport
 
         public void SaveUrlHistories()
         {
-            _session.Transact(session =>
+            _session.Transact(dbContext =>
                                   {
                                       foreach (var urlHistory in UrlHistories)
                                       {
                                           if (urlHistory.Webpage == null)
-                                              session.Delete(urlHistory);
+                                              dbContext.Delete(urlHistory);
                                           else
-                                              session.SaveOrUpdate(urlHistory);
+                                              dbContext.AddOrUpdate(urlHistory);
                                       }
                                   });
         }

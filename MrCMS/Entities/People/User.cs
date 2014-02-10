@@ -4,13 +4,10 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Mvc;
-using Iesi.Collections.Generic;
 using Microsoft.AspNet.Identity;
 using MrCMS.ACL;
-using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Helpers.Validation;
-using NHibernate;
 
 namespace MrCMS.Entities.People
 {
@@ -35,7 +32,7 @@ namespace MrCMS.Entities.People
         public User()
         {
             Guid = Guid.NewGuid();
-            Roles = new HashedSet<UserRole>();
+            Roles = new HashSet<UserRole>();
             UserProfileData = new List<UserProfileData>();
             UserLogins = new List<UserLogin>();
             UserClaims = new List<UserClaim>();
@@ -72,7 +69,7 @@ namespace MrCMS.Entities.People
         public virtual Guid? ResetPasswordGuid { get; set; }
         public virtual DateTime? ResetPasswordExpiry { get; set; }
 
-        public virtual Iesi.Collections.Generic.ISet<UserRole> Roles { get; set; }
+        public virtual ISet<UserRole> Roles { get; set; }
         protected internal virtual IList<UserProfileData> UserProfileData { get; set; }
 
         public virtual T Get<T>() where T : UserProfileData
@@ -96,13 +93,13 @@ namespace MrCMS.Entities.People
             get { return Roles != null && Roles.Any(role => role.Name == UserRole.Administrator); }
         }
 
-        public override void OnDeleting(ISession session)
-        {
-            base.OnDeleting(session);
-            foreach (var userRole in Roles)
-                userRole.Users.Remove(this);
-            Roles.Clear();
-        }
+        //public override void OnDeleting(ISession session)
+        //{
+        //    base.OnDeleting(session);
+        //    foreach (var userRole in Roles)
+        //        userRole.Users.Remove(this);
+        //    Roles.Clear();
+        //}
 
         public virtual bool CanAccess<T>(string operation, string type = null) where T : ACLRule, new()
         {

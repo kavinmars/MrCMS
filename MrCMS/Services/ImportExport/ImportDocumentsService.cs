@@ -5,13 +5,12 @@ using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Services.ImportExport.DTOs;
-using NHibernate;
 
 namespace MrCMS.Services.ImportExport
 {
     public class ImportDocumentsService : IImportDocumentsService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
         private readonly IIndexService _indexService;
         private readonly IUpdateTagsService _updateTagsService;
@@ -19,9 +18,9 @@ namespace MrCMS.Services.ImportExport
         private HashSet<Webpage> _webpages = new HashSet<Webpage>();
         private HashSet<UrlHistory> _urlHistories = new HashSet<UrlHistory>();
 
-        public ImportDocumentsService(ISession session, Site site, IIndexService indexService, IUpdateTagsService updateTagsService, IUpdateUrlHistoryService updateUrlHistoryService)
+        public ImportDocumentsService(IDbContext dbContext, Site site, IIndexService indexService, IUpdateTagsService updateTagsService, IUpdateUrlHistoryService updateUrlHistoryService)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
             _indexService = indexService;
             _updateTagsService = updateTagsService;
@@ -35,20 +34,20 @@ namespace MrCMS.Services.ImportExport
         public void ImportDocumentsFromDTOs(IEnumerable<DocumentImportDTO> items)
         {
             var dataTransferObjects = new HashSet<DocumentImportDTO>(items);
-            _webpages = new HashSet<Webpage>(_session.QueryOver<Webpage>().Where(webpage => webpage.Site == _site).List());
+            _webpages = new HashSet<Webpage>(_dbContext.Set<Webpage>().Where(webpage => webpage.Site == _site).ToList());
             _updateTagsService.Inititalise();
             _updateUrlHistoryService.Initialise();
             _urlHistories =
-                new HashSet<UrlHistory>(_session.QueryOver<UrlHistory>().Where(tag => tag.Site == _site).List());
+                new HashSet<UrlHistory>(_dbContext.Set<UrlHistory>().Where(tag => tag.Site == _site).ToList());
 
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
             {
                 foreach (var dataTransferObject in dataTransferObjects.OrderBy(o => GetHierarchyDepth(o, dataTransferObjects)).ThenBy(o => GetRootParentUrl(o,dataTransferObjects)))
                     ImportDocument(dataTransferObject);
 
                 _updateTagsService.SaveTags();
                 _updateUrlHistoryService.SaveUrlHistories();
-                _webpages.ForEach(session.SaveOrUpdate);
+                _webpages.ForEach(webpage => session.AddOrUpdate(webpage));
             });
             _indexService.InitializeAllIndices(_site);
         }

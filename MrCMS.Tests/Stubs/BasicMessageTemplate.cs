@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using MrCMS.DbConfiguration.Mapping;
+﻿using System.Collections.Generic;
 using MrCMS.Entities.Messaging;
-using MrCMS.Entities.People;
+using MrCMS.Helpers;
 using MrCMS.Services;
-using MrCMS.Settings;
-using MrCMS.Website;
-using NHibernate;
 
 namespace MrCMS.Tests.Stubs
 {
-    [MrCMSMapClass]
+    //[MrCMSMapClass]
     public class BasicMessageTemplate : MessageTemplate
     {
-        public override MessageTemplate GetInitialTemplate(ISession session)
+        public override MessageTemplate GetInitialTemplate(IDbContext dbContext)
         {
             return new BasicMessageTemplate()
             {

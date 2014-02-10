@@ -5,19 +5,20 @@ using MrCMS.Settings;
 using MrCMS.Website;
 using MrCMS.Website.Binders;
 using MrCMS.Website.Controllers;
-using NHibernate;
+using Ninject;
+using IDbContext = MrCMS.Helpers.IDbContext;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {
     public class SettingsController : MrCMSAdminController
     {
         private readonly IConfigurationProvider _configurationProvider;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public SettingsController(IConfigurationProvider configurationProvider, ISession session)
+        public SettingsController(IConfigurationProvider configurationProvider, IDbContext dbContext)
         {
             _configurationProvider = configurationProvider;
-            _session = session;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
@@ -25,7 +26,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
         public ViewResult Index()
         {
             var settings = _configurationProvider.GetAllSiteSettings().FindAll(arg => arg.RenderInSettings);
-            settings.ForEach(@base => @base.SetViewData(_session, ViewData));
+            settings.ForEach(@base => @base.SetViewData(_dbContext, ViewData));
             return View(settings);
         }
 

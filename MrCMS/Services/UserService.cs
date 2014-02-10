@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Web;
 using MrCMS.Entities;
 using MrCMS.Entities.People;
@@ -8,17 +10,15 @@ using MrCMS.Models;
 using MrCMS.Paging;
 using MrCMS.Settings;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
     public class UserService : IUserService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _session;
         private readonly SiteSettings _siteSettings;
 
-        public UserService(ISession session, SiteSettings siteSettings)
+        public UserService(IDbContext session, SiteSettings siteSettings)
         {
             _session = session;
             _siteSettings = siteSettings;
@@ -28,7 +28,7 @@ namespace MrCMS.Services
         {
             _session.Transact(session =>
                                   {
-                                      session.Save(user);
+                                      session.Add(user);
                                   });
         }
 
@@ -44,21 +44,22 @@ namespace MrCMS.Services
 
         public IPagedList<User> GetAllUsersPaged(int page)
         {
-            return _session.QueryOver<User>().Paged(page, _siteSettings.DefaultPageSize);
+            return _session.Set<User>().Paged(page, _siteSettings.DefaultPageSize);
         }
 
         public User GetUserByEmail(string email)
         {
             string trim = email.Trim();
-            return _session.QueryOver<User>().Where(user => user.Email == trim).Take(1).Cacheable().SingleOrDefault();
+            return _session.Set<User>().FirstOrDefault(user => user.Email == trim);
         }
 
         public User GetUserByResetGuid(Guid resetGuid)
         {
             return
-                _session.QueryOver<User>()
-                    .Where(user => user.ResetPasswordGuid == resetGuid && user.ResetPasswordExpiry >= CurrentRequestData.Now)
-                    .Cacheable().SingleOrDefault();
+                _session.Set<User>()
+                        .FirstOrDefault(
+                            user =>
+                            user.ResetPasswordGuid == resetGuid && user.ResetPasswordExpiry >= CurrentRequestData.Now);
         }
 
         public User GetCurrentUser(HttpContextBase context)
@@ -68,11 +69,7 @@ namespace MrCMS.Services
 
         public void DeleteUser(User user)
         {
-            _session.Transact(session =>
-                                  {
-                                      user.OnDeleting(session);
-                                      session.Delete(user);
-                                  });
+            _session.Transact(session => session.Delete(user));
         }
 
         /// <summary>
@@ -85,9 +82,9 @@ namespace MrCMS.Services
         {
             if (id.HasValue)
             {
-                return _session.QueryOver<User>().Where(u => u.Email == email && u.Id != id.Value).RowCount() == 0;
+                return !_session.Set<User>().Any(u => u.Email == email && u.Id != id.Value);
             }
-            return _session.QueryOver<User>().Where(u => u.Email == email).RowCount() == 0;
+            return !_session.Set<User>().Any(u => u.Email == email);
         }
 
         /// <summary>
@@ -96,7 +93,7 @@ namespace MrCMS.Services
         /// <returns></returns>
         public int ActiveUsers()
         {
-            return _session.QueryOver<User>().Where(x => x.IsActive).Cacheable().RowCount();
+            return _session.Set<User>().Count(x => x.IsActive);
         }
 
         /// <summary>
@@ -105,22 +102,23 @@ namespace MrCMS.Services
         /// <returns></returns>
         public int NonActiveUsers()
         {
-            return _session.QueryOver<User>().WhereNot(x => x.IsActive).Cacheable().RowCount();
+            return _session.Set<User>().Count(x => !x.IsActive);
         }
 
         public T Get<T>(User user) where T : SystemEntity, IBelongToUser
         {
-            return _session.QueryOver<T>().Where(arg => arg.User == user).Take(1).Cacheable().SingleOrDefault();
+            return _session.Set<T>().FirstOrDefault(arg => arg.User == user);
         }
 
         public IList<T> GetAll<T>(User user) where T : SystemEntity, IBelongToUser
         {
-            return _session.QueryOver<T>().Where(arg => arg.User == user).Cacheable().List();
+            return _session.Set<T>().Where(arg => arg.User == user).ToList();
         }
 
-        public IPagedList<T> GetPaged<T>(User user, QueryOver<T> query = null, int page = 1) where T : SystemEntity, IBelongToUser
+        public IPagedList<T> GetPaged<T>(User user, Expression<Func<T, bool>> query = null, int page = 1) where T : SystemEntity, IBelongToUser
         {
-            return _session.Paged(query ?? QueryOver.Of<T>(), page, _siteSettings.DefaultPageSize);
+            query = query ?? (arg => arg.User == user);
+            return _session.Set<T>().Where(query).Paged(page);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
 using MrCMS.Entities.Documents.Web;
@@ -49,11 +50,11 @@ namespace MrCMS.Tests.Services
 
             webpage.FormPostings = new List<FormPosting>() {posting};
 
-            Session.Transact(session => session.Save(posting));
+            Session.Transact(session => session.Add(posting));
 
             _formService.ClearFormData(webpage);
 
-            Session.QueryOver<FormPosting>().RowCount().Should().Be(0);
+            Session.Set<FormPosting>().Count().Should().Be(0);
         }
 
         [Fact]

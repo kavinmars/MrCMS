@@ -2,15 +2,13 @@
 using System.Web.Mvc;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
-using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Website.Binders
 {
     public class AddWidgetModelBinder : MrCMSDefaultModelBinder
     {
-        public AddWidgetModelBinder(ISession session)
-            : base(() => session)
+        public AddWidgetModelBinder(IDbContext dbContext)
+            : base(() => dbContext)
         {
         }
 

@@ -5,9 +5,9 @@ using Lucene.Net.Search;
 using Lucene.Net.Store;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Paging;
-using NHibernate;
 
 namespace MrCMS.Indexing.Querying
 {
@@ -16,14 +16,14 @@ namespace MrCMS.Indexing.Querying
         where TDefinition : IIndexDefinition<TEntity>
     {
         private readonly Site _site;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly TDefinition _definition;
         private IndexSearcher _indexSearcher;
 
-        protected Searcher(Site site, ISession session, TDefinition definition)
+        protected Searcher(Site site, IDbContext dbContext,  TDefinition definition)
         {
             _site = site;
-            _session = session;
+            _dbContext = dbContext;
             _definition = definition;
         }
 
@@ -34,7 +34,7 @@ namespace MrCMS.Indexing.Querying
             var topDocs = IndexSearcher.Search(query, filter, pageNumber * pageSize, sort ?? Sort.RELEVANCE);
 
             var entities =
-                Definition.Convert(_session,
+                Definition.Convert(_dbContext,
                                    topDocs.ScoreDocs.Skip((pageNumber - 1) * pageSize)
                                           .Take(pageSize)
                                           .Select(doc => IndexSearcher.Doc(doc.Doc)));
@@ -53,7 +53,7 @@ namespace MrCMS.Indexing.Querying
         {
             var topDocs = IndexSearcher.Search(query, filter, int.MaxValue, sort ?? Sort.RELEVANCE);
 
-            var entities = Definition.Convert(_session, topDocs.ScoreDocs.Select(doc => IndexSearcher.Doc(doc.Doc)));
+            var entities = Definition.Convert(_dbContext, topDocs.ScoreDocs.Select(doc => IndexSearcher.Doc(doc.Doc)));
 
             return entities.ToList();
         }

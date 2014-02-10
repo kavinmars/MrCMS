@@ -1,11 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
-using Iesi.Collections.Generic;
 using MrCMS.Entities.Documents;
 using MrCMS.Services;
 using MrCMS.Tests.Stubs;
-using NHibernate;
 using Xunit;
 using MrCMS.Helpers;
 
@@ -24,9 +23,9 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
                                  {
-                                     Session.SaveOrUpdate(tag1);
-                                     Session.SaveOrUpdate(tag2);
-                                     Session.SaveOrUpdate(tag3);
+                                     Session.Add(tag1);
+                                     Session.Add(tag2);
+                                     Session.Add(tag3);
                                  });
 
             Document document = new StubDocument { Site = CurrentSite };
@@ -40,15 +39,13 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void TagService_GetTags_ShouldReturnTheTagsOfAParent()
         {
-            var fakeSession = A.Fake<ISession>();
-
-            var tagService = new TagService(fakeSession);
+            var tagService = new TagService(Session);
             var tag1 = new Tag { Name = "tag-1", Site = CurrentSite };
 
-            Session.Transact(session => Session.SaveOrUpdate(tag1));
+            Session.Transact(session => Session.Add(tag1));
 
             var container = new FakeContainer { Site = CurrentSite };
-            container.SetTags(new HashedSet<Tag> { tag1 });
+            container.SetTags(new HashSet<Tag> { tag1 });
             var containerItem = new FakeContainerItem { Parent = container, Site = CurrentSite };
 
             tagService.GetTags(containerItem).Should().HaveCount(1);
@@ -60,7 +57,7 @@ namespace MrCMS.Tests.Services
 
         public class FakeContainer : Document
         {
-            public void SetTags(Iesi.Collections.Generic.ISet<Tag> tags)
+            public void SetTags(ISet<Tag> tags)
             {
                 Tags = tags;
             }

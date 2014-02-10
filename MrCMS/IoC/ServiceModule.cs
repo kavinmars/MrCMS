@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Common;
+using System.Data.SQLite;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Web;
@@ -12,9 +16,11 @@ using MrCMS.Entities.People;
 using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Indexing.Querying;
+using MrCMS.Installation;
 using MrCMS.Services;
 using MrCMS.Settings;
 using MrCMS.Website;
+using MySql.Data.MySqlClient;
 using Ninject.Extensions.Conventions;
 using Ninject.Modules;
 using Ninject.Web.Common;
@@ -92,6 +98,26 @@ namespace MrCMS.IoC
                         };
                     return userManager;
                 }).InRequestScope();
+            Kernel.Bind<DbConnection>().ToMethod(context =>
+                {
+                    ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings["mrcms"];
+                    return GetDbConnection(connectionStringSettings);
+                });
+        }
+
+        private DbConnection GetDbConnection(ConnectionStringSettings connectionStringSettings)
+        {
+            switch (connectionStringSettings.ProviderName)
+            {
+                case "System.Data.SQLite":
+                    return new SQLiteConnection(connectionStringSettings.ConnectionString);
+                case "System.Data.SqlClient":
+                    return new SqlConnection(connectionStringSettings.ConnectionString);
+                case "MySql.Data.MySqlClient":
+                    return new MySqlConnection(connectionStringSettings.ConnectionString);
+                default:
+                    throw new ArgumentOutOfRangeException("connectionStringSettings");
+            }
         }
 
         private bool UseAzureForLucene()

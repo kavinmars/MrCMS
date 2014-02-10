@@ -4,8 +4,8 @@ using System.Globalization;
 using System.Web.Mvc;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.Helpers;
 using MrCMS.Settings;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Settings
@@ -37,7 +37,7 @@ namespace MrCMS.Tests.Settings
         [Fact]
         public void SiteSettings_SetViewData_ShouldAssignTheResultOfSiteSettingsOptionGeneratorGetLayoutOptionsToDefaultLayoutOptionsViewData()
         {
-            var session = A.Fake<ISession>();
+            var session = A.Fake<IDbContext>();
             var viewDataDictionary = new ViewDataDictionary();
             var items = new List<SelectListItem>();
             A.CallTo(
@@ -54,7 +54,7 @@ namespace MrCMS.Tests.Settings
         public void SiteSettings_SetViewData_ShouldAssignTheResultOfSiteSettingsOptionGeneratorGetErrorPageOptionsTo403OptionsViewData()
         {
             _siteSettings.Error403PageId = 123;
-            var session = A.Fake<ISession>();
+            var session = A.Fake<IDbContext>();
             var viewDataDictionary = new ViewDataDictionary();
             var items = new List<SelectListItem>();
             A.CallTo(
@@ -71,7 +71,7 @@ namespace MrCMS.Tests.Settings
         public void SiteSettings_SetViewData_ShouldAssignTheResultOfSiteSettingsOptionGeneratorGetErrorPageOptionsTo404OptionsViewData()
         {
             _siteSettings.Error404PageId = 123;
-            var session = A.Fake<ISession>();
+            var session = A.Fake<IDbContext>();
             var viewDataDictionary = new ViewDataDictionary();
             var items = new List<SelectListItem>();
             A.CallTo(
@@ -88,7 +88,7 @@ namespace MrCMS.Tests.Settings
         public void SiteSettings_SetViewData_ShouldAssignTheResultOfSiteSettingsOptionGeneratorGetErrorPageOptionsTo500OptionsViewData()
         {
             _siteSettings.Error500PageId = 123;
-            var session = A.Fake<ISession>();
+            var session = A.Fake<IDbContext>();
             var viewDataDictionary = new ViewDataDictionary();
             var items = new List<SelectListItem>();
             A.CallTo(

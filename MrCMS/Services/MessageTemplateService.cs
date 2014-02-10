@@ -5,7 +5,6 @@ using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Website;
-using NHibernate;
 using System.Linq;
 using System;
 
@@ -13,13 +12,13 @@ namespace MrCMS.Services
 {
     public class MessageTemplateService : IMessageTemplateService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
         private readonly IMessageTemplateParser _messageTemplateParser;
 
-        public MessageTemplateService(ISession session, Site site, IMessageTemplateParser messageTemplateParser)
+        public MessageTemplateService(IDbContext dbContext, Site site, IMessageTemplateParser messageTemplateParser)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
             _messageTemplateParser = messageTemplateParser;
         }
@@ -27,7 +26,7 @@ namespace MrCMS.Services
         public List<MessageTemplateInfo> GetAllMessageTemplateTypesWithDetails()
         {
             var templates =
-                _session.QueryOver<MessageTemplate>().Where(template => template.Site == _site).Cacheable().List();
+                _dbContext.Set<MessageTemplate>().Where(template => template.Site == _site).ToList();
             var messageTemplateTypes = TypeHelper.GetAllConcreteMappedClassesAssignableFrom<MessageTemplate>();
             return messageTemplateTypes.Select(type =>
             {
@@ -56,7 +55,7 @@ namespace MrCMS.Services
                 var messageTemplate = Activator.CreateInstance(newType) as MessageTemplate;
                 if (messageTemplate != null)
                 {
-                    return messageTemplate.GetInitialTemplate(_session);
+                    return messageTemplate.GetInitialTemplate(_dbContext);
                 }
             }
             return null;
@@ -64,7 +63,7 @@ namespace MrCMS.Services
 
         public MessageTemplate Reset(MessageTemplate messageTemplate)
         {
-            var initialTemplate = messageTemplate.GetInitialTemplate(_session);
+            var initialTemplate = messageTemplate.GetInitialTemplate(_dbContext);
 
             messageTemplate.FromAddress = initialTemplate.FromAddress;
             messageTemplate.FromName = initialTemplate.FromName;
@@ -88,7 +87,7 @@ namespace MrCMS.Services
 
         public T Get<T>() where T : MessageTemplate
         {
-            return _session.QueryOver<T>().Where(arg => arg.Site == _site).Take(1).Cacheable().SingleOrDefault();
+            return _dbContext.Set<T>().SingleOrDefault(arg => arg.Site == _site);
         }
 
         public string GetPreview(MessageTemplate messageTemplate, int itemId)
@@ -98,13 +97,13 @@ namespace MrCMS.Services
             return parseGeneric.Invoke(_messageTemplateParser, new object[]
                                                                    {
                                                                        messageTemplate.Body,
-                                                                       _session.Get(messageTemplate.PreviewType, itemId)
+                                                                       _dbContext.Get(messageTemplate.PreviewType, itemId)
                                                                    }) as string;
         }
 
         public void Save(MessageTemplate messageTemplate)
         {
-            _session.Transact(session => session.SaveOrUpdate(messageTemplate));
+            _dbContext.Transact(session => session.AddOrUpdate(messageTemplate));
         }
     }
 

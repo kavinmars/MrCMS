@@ -7,30 +7,28 @@ using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Models;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
     public class TreeNavService : ITreeNavService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
 
-        public TreeNavService(ISession session, Site site)
+        public TreeNavService(IDbContext dbContext, Site site)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
         }
 
         public AdminTree GetWebpageNodes(int? id)
         {
             var adminTree = new AdminTree();
-            var query = _session.QueryOver<Webpage>().Where(x => x.Parent.Id == id && x.Site.Id == _site.Id);
+            var query = _dbContext.Set<Webpage>().Where(x => x.Parent.Id == id && x.Site.Id == _site.Id);
             int maxChildNodes = 1000;
             if (id.HasValue)
             {
-                var parent = _session.Get<Webpage>(id);
+                var parent = _dbContext.Get<Webpage>(id.GetValueOrDefault());
                 if (parent != null)
                 {
                     var metaData = parent.GetMetadata();
@@ -41,11 +39,11 @@ namespace MrCMS.Services
             else
             {
                 adminTree.IsRootRequest = true;
-                query = query.OrderBy(x => x.DisplayOrder).Asc;
+                query = query.OrderBy(x => x.DisplayOrder);
             }
 
-            var rowCount = query.Cacheable().RowCount();
-            query.Take(maxChildNodes).Cacheable().List().ForEach(doc =>
+            var rowCount = query.Count();
+            query.Take(maxChildNodes).ToList().ForEach(doc =>
                 {
                     var documentMetadata = doc.GetMetadata();
                     var node = new AdminTreeNode
@@ -76,31 +74,32 @@ namespace MrCMS.Services
             return adminTree;
         }
 
-        private static IQueryOver<Webpage, Webpage> ApplySort(DocumentMetadata metaData, IQueryOver<Webpage, Webpage> query)
+        private static IQueryable<Webpage> ApplySort(DocumentMetadata metaData, IQueryable<Webpage> query)
         {
             switch (metaData.SortBy)
             {
                 case SortBy.DisplayOrder:
-                    query = query.OrderBy(webpage => webpage.DisplayOrder).Asc;
+                    query = query.OrderBy(webpage => webpage.DisplayOrder);
                     break;
                 case SortBy.DisplayOrderDesc:
-                    query = query.OrderBy(webpage => webpage.DisplayOrder).Desc;
+                    query = query.OrderByDescending(webpage => webpage.DisplayOrder);
                     break;
                 case SortBy.PublishedOn:
                     query =
-                        query.OrderBy(Projections.Conditional(Restrictions.IsNull(Projections.Property<Webpage>(x => x.PublishOn)), Projections.Constant(1), Projections.Constant(0))).Desc.ThenBy(webpage => webpage.PublishOn)
-                             .Asc;
+                        query.OrderByDescending(webpage => webpage.PublishOn == null)
+                             .ThenBy(webpage => webpage.PublishOn);
                     break;
                 case SortBy.PublishedOnDesc:
                     query =
-                        query.OrderBy(Projections.Conditional(Restrictions.IsNull(Projections.Property<Webpage>(x=>x.PublishOn)), Projections.Constant(1), Projections.Constant(0))).Desc.ThenBy(webpage => webpage.PublishOn)
-                             .Desc;
+                    query =
+                        query.OrderByDescending(webpage => webpage.PublishOn == null)
+                             .ThenByDescending(webpage => webpage.PublishOn);
                     break;
                 case SortBy.CreatedOn:
-                    query = query.OrderBy(webpage => webpage.CreatedOn).Asc;
+                    query = query.OrderBy(webpage => webpage.CreatedOn);
                     break;
                 case SortBy.CreatedOnDesc:
-                    query = query.OrderBy(webpage => webpage.CreatedOn).Desc;
+                    query = query.OrderByDescending(webpage => webpage.CreatedOn);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -126,11 +125,10 @@ namespace MrCMS.Services
                 adminTree.IsRootRequest = true;
             }
             var query =
-                _session.QueryOver<T>()
+                _dbContext.Set<T>()
                         .Where(x => x.Parent.Id == id && x.Site.Id == _site.Id)
                         .OrderBy(x => x.DisplayOrder)
-                        .Asc.Cacheable()
-                        .List();
+                        .ToList();
             query.ForEach(doc =>
                 {
                     var node = new AdminTreeNode

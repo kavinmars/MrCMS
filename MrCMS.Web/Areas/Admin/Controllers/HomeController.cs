@@ -1,15 +1,11 @@
-﻿using System;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
-using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Web.Areas.Admin.Models;
 using MrCMS.Website;
 using MrCMS.Website.Controllers;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Transform;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {
@@ -17,32 +13,27 @@ namespace MrCMS.Web.Areas.Admin.Controllers
     {
         private readonly ICurrentSiteLocator _currentSiteLocator;
         private readonly IUserService _userServices;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public HomeController(ICurrentSiteLocator currentSiteLocator, IUserService userServices, ISession session)
+        public HomeController(ICurrentSiteLocator currentSiteLocator, IUserService userServices, IDbContext dbContext)
         {
             _currentSiteLocator = currentSiteLocator;
             _userServices = userServices;
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public ActionResult Index()
         {
-            WebpageStats countAlias = null;
-            Webpage webpageAlias = null;
             var currentSite = _currentSiteLocator.GetCurrentSite();
-            var list = _session.QueryOver(() => webpageAlias)
-                .Where(x => x.Site == currentSite)
-                       .SelectList(
-                           builder =>
-                           builder.SelectGroup(() => webpageAlias.DocumentType)
-                                  .WithAlias(() => countAlias.DocumentType)
-                                  .SelectCount(() => webpageAlias.Id)
-                                  .WithAlias(() => countAlias.NumberOfPages)
-                                  .SelectSubQuery(QueryOver.Of<Webpage>().Where(webpage => webpage.Site == currentSite && webpage.DocumentType == webpageAlias.DocumentType && (webpage.PublishOn == null || webpage.PublishOn > CurrentRequestData.Now)).ToRowCountQuery())
-                                  .WithAlias(() => countAlias.NumberOfUnPublishedPages))
-                       .TransformUsing(Transformers.AliasToBean<WebpageStats>())
-                       .List<WebpageStats>();
+            var list = _dbContext.Set<Webpage>()
+                                 .Where(x => x.Site == currentSite)
+                                 .GroupBy(webpage => webpage.DocumentType)
+                                 .Select(webpages => new WebpageStats
+                                     {
+                                         DocumentType = webpages.Key,
+                                         NumberOfPages = webpages.Count(),
+                                         NumberOfUnPublishedPages = webpages.Count(webpage => !webpage.Published)
+                                     }).ToList();
 
             var model = new Dashboard
                             {

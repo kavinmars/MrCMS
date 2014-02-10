@@ -1,18 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Web;
-using MrCMS.DbConfiguration;
-using MrCMS.DbConfiguration.Configuration;
-using MrCMS.Helpers;
-using NHibernate;
-using Ninject;
-using Ninject.Modules;
-using Ninject.Parameters;
-using Ninject.Web.Common;
-
 namespace MrCMS.IoC
 {
-    public class NHibernateModule : NinjectModule
+    /*public class NHibernateModule : NinjectModule
     {
         public NHibernateModule(NHibernateConfigurator configurator, bool forWebsite = true, Func<ISessionFactory> getSessionFactory = null, Func<ISession> getSession = null)
         {
@@ -49,5 +37,5 @@ namespace MrCMS.IoC
                     InThreadScope();
             }
         }
-    }
+    }*/
 }

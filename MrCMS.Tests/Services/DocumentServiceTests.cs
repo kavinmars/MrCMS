@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elmah;
 using FakeItEasy;
-using Iesi.Collections.Generic;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
-using MrCMS.Entities.People;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Settings;
 using MrCMS.Tests.Stubs;
 using MrCMS.Website;
-using NHibernate;
 using Xunit;
 using FluentAssertions;
 
@@ -39,7 +35,7 @@ namespace MrCMS.Tests.Services
         {
             _documentService.AddDocument(new BasicMappedWebpage { Site = CurrentSite });
 
-            Session.QueryOver<Document>().RowCount().Should().Be(1);
+            Session.Set<Document>().Count().Should().Be(1);
         }
 
 
@@ -63,7 +59,7 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_GetAllDocuments_ShouldReturnAListOfAllDocumentsOfTheSpecifiedType()
         {
-            Enumerable.Range(1, 10).ForEach(i => Session.Transact(session => session.SaveOrUpdate(new BasicMappedWebpage { Name = "Page " + i })));
+            Enumerable.Range(1, 10).ForEach(i => Session.Transact(session => session.Add(new BasicMappedWebpage { Name = "Page " + i, Site = CurrentSite })));
 
             var allDocuments = _documentService.GetAllDocuments<BasicMappedWebpage>();
 
@@ -76,9 +72,9 @@ namespace MrCMS.Tests.Services
             Enumerable.Range(1, 10).ForEach(i =>
                                          Session.Transact(
                                              session =>
-                                             session.SaveOrUpdate(i % 2 == 0
-                                                                      ? (Document)new BasicMappedWebpage { Name = "Page " + i }
-                                                                      : new Layout { Name = "Layout " + i }
+                                             session.Add(i % 2 == 0
+                                                                      ? (Document)new BasicMappedWebpage { Name = "Page " + i, Site = CurrentSite}
+                                                                      : new Layout { Name = "Layout " + i, Site = CurrentSite }
                                                  )));
 
             var allDocuments = _documentService.GetAllDocuments<BasicMappedWebpage>();
@@ -91,7 +87,7 @@ namespace MrCMS.Tests.Services
         public void DocumentService_GetDocumentByUrl_ReturnsTheDocumentWithTheSpecifiedUrl()
         {
             var textPage = new BasicMappedWebpage { UrlSegment = "test-page", Site = CurrentSite };
-            Session.Transact(session => session.SaveOrUpdate(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             var document = _documentService.GetDocumentByUrl<BasicMappedWebpage>("test-page");
 
@@ -103,7 +99,7 @@ namespace MrCMS.Tests.Services
         {
             Site site = new Site();
             var textPage = new BasicMappedWebpage { UrlSegment = "test-page", Site = site };
-            Session.Transact(session => session.SaveOrUpdate(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             var document = _documentService.GetDocumentByUrl<Layout>("test-page");
 
@@ -116,7 +112,7 @@ namespace MrCMS.Tests.Services
             Site site = new Site();
             var textPage = new BasicMappedWebpage { Name = "Test Page", UrlSegment = "test-page", Site = site };
 
-            Session.Transact(session => session.SaveOrUpdate(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             var documentUrl = _documentService.GetDocumentUrl("Nested Page", textPage, true);
 
@@ -128,7 +124,7 @@ namespace MrCMS.Tests.Services
             Site site = new Site();
             var textPage = new BasicMappedWebpage { Name = "Test Page", UrlSegment = "test-page", Site = site };
 
-            Session.Transact(session => session.SaveOrUpdate(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             var documentUrl = _documentService.GetDocumentUrl("Nested Page", textPage, false);
 
@@ -149,9 +145,9 @@ namespace MrCMS.Tests.Services
                                    };
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(parent);
-                session.SaveOrUpdate(textPage);
-                session.SaveOrUpdate(existingPage);
+                session.Add(parent);
+                session.Add(textPage);
+                session.Add(existingPage);
             });
 
             var documentUrl = _documentService.GetDocumentUrl("Nested Page", textPage, true);
@@ -180,10 +176,10 @@ namespace MrCMS.Tests.Services
                                    };
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(parent);
-                session.SaveOrUpdate(textPage);
-                session.SaveOrUpdate(existingPage);
-                session.SaveOrUpdate(existingPage2);
+                session.Add(parent);
+                session.Add(textPage);
+                session.Add(existingPage);
+                session.Add(existingPage2);
             });
 
             var documentUrl = _documentService.GetDocumentUrl("Nested Page", textPage, true);
@@ -258,14 +254,14 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(textPage);
-                                     session.SaveOrUpdate(tag1);
-                                     session.SaveOrUpdate(tag2);
+                                     session.Add(textPage);
+                                     session.Add(tag1);
+                                     session.Add(tag2);
                                  });
 
             _documentService.SetTags(textPage.TagList, textPage);
 
-            Session.QueryOver<Tag>().RowCount().Should().Be(2);
+            Session.Set<Tag>().Count().Should().Be(2);
         }
         [Fact]
         public void DocumentService_SetTags_ShouldNotReaddSetTags()
@@ -278,9 +274,9 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
             {
-                session.SaveOrUpdate(textPage);
-                session.SaveOrUpdate(tag1);
-                session.SaveOrUpdate(tag2);
+                session.Add(textPage);
+                session.Add(tag1);
+                session.Add(tag2);
             });
 
             _documentService.SetTags(textPage.TagList, textPage);
@@ -299,9 +295,9 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(textPage);
-                                     session.SaveOrUpdate(tag1);
-                                     session.SaveOrUpdate(tag2);
+                                     session.Add(textPage);
+                                     session.Add(tag1);
+                                     session.Add(tag2);
                                  });
 
             _documentService.SetTags("test 1", textPage);
@@ -313,7 +309,7 @@ namespace MrCMS.Tests.Services
         public void DocumentService_SetTags_ShouldAssignDocumentToTag()
         {
             var textPage = new BasicMappedWebpage();
-            Session.Transact(session => session.SaveOrUpdate(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             _documentService.SetTags("test 1", textPage);
 
@@ -335,9 +331,9 @@ namespace MrCMS.Tests.Services
 
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(textPage);
-                                     session.SaveOrUpdate(tag1);
-                                     session.SaveOrUpdate(tag2);
+                                     session.Add(textPage);
+                                     session.Add(tag1);
+                                     session.Add(tag2);
                                  });
 
             _documentService.SetTags("test 1", textPage);
@@ -371,7 +367,7 @@ namespace MrCMS.Tests.Services
         {
             var textPage = new BasicMappedWebpage();
 
-            Session.Transact(session => session.SaveOrUpdate(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             _documentService.SetOrder(textPage.Id, 2);
 
@@ -417,13 +413,11 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_HideWidget_AddsAWidgetToTheHiddenWidgetsListIfItIsNotInTheShownList()
         {
-            var widgetService = new WidgetService(Session);
-
-            var textPage = new BasicMappedWebpage { ShownWidgets = new HashedSet<Widget>(), HiddenWidgets = new HashedSet<Widget>() };
+            var textPage = new BasicMappedWebpage { ShownWidgets = new HashSet<Widget>(), HiddenWidgets = new HashSet<Widget>() };
             _documentService.SaveDocument(textPage);
 
             var textWidget = new BasicMappedWidget();
-            widgetService.SaveWidget(textWidget);
+            Session.Add(textWidget);
 
             _documentService.HideWidget(textPage, textWidget.Id);
 
@@ -433,15 +427,13 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_HideWidget_RemovesAWidgetFromTheShownListIfItIsIncluded()
         {
-            var widgetService = new WidgetService(Session);
-
             var textWidget = new BasicMappedWidget();
-            widgetService.SaveWidget(textWidget);
+            Session.Add(textWidget);
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashedSet<Widget> { textWidget },
-                HiddenWidgets = new HashedSet<Widget>()
+                ShownWidgets = new HashSet<Widget> { textWidget },
+                HiddenWidgets = new HashSet<Widget>()
             };
             _documentService.SaveDocument(textPage);
 
@@ -453,15 +445,13 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_HideWidget_DoesNothingIfTheWidgetIdIsInvalid()
         {
-            var widgetService = new WidgetService(Session);
-
             var textWidget = new BasicMappedWidget();
-            widgetService.SaveWidget(textWidget);
+            Session.Add(textWidget);
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashedSet<Widget> { textWidget },
-                HiddenWidgets = new HashedSet<Widget>()
+                ShownWidgets = new HashSet<Widget> { textWidget },
+                HiddenWidgets = new HashSet<Widget>()
             };
             _documentService.SaveDocument(textPage);
 
@@ -474,13 +464,11 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_ShowWidget_AddsAWidgetToTheShownWidgetsListIfItIsNotInTheHiddenList()
         {
-            var widgetService = new WidgetService(Session);
-
-            var textPage = new BasicMappedWebpage { ShownWidgets = new HashedSet<Widget>(), HiddenWidgets = new HashedSet<Widget>() };
+            var textPage = new BasicMappedWebpage { ShownWidgets = new HashSet<Widget>(), HiddenWidgets = new HashSet<Widget>() };
             _documentService.SaveDocument(textPage);
 
             var textWidget = new BasicMappedWidget();
-            widgetService.SaveWidget(textWidget);
+            Session.Add(textWidget);
 
             _documentService.ShowWidget(textPage, textWidget.Id);
 
@@ -490,15 +478,13 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_ShowWidget_RemovesAWidgetFromTheHiddenListIfItIsIncluded()
         {
-            var widgetService = new WidgetService(Session);
-
             var textWidget = new BasicMappedWidget();
-            widgetService.SaveWidget(textWidget);
+            Session.Add(textWidget);
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashedSet<Widget>(),
-                HiddenWidgets = new HashedSet<Widget> { textWidget }
+                ShownWidgets = new HashSet<Widget>(),
+                HiddenWidgets = new HashSet<Widget> { textWidget }
             };
             _documentService.SaveDocument(textPage);
 
@@ -510,16 +496,13 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_ShowWidget_DoesNothingIfTheWidgetIdIsInvalid()
         {
-            
-            var widgetService = new WidgetService(Session);
-
             var textWidget = new BasicMappedWidget();
-            widgetService.SaveWidget(textWidget);
+            Session.Add(textWidget);
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashedSet<Widget>(),
-                HiddenWidgets = new HashedSet<Widget> { textWidget }
+                ShownWidgets = new HashSet<Widget>(),
+                HiddenWidgets = new HashSet<Widget> { textWidget }
             };
             _documentService.SaveDocument(textPage);
 
@@ -531,11 +514,9 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_PublishNow_UnpublishedWebpageWillGetPublishedOnValue()
         {
-            
-
             var textPage = new BasicMappedWebpage();
 
-            Session.Transact(session => session.Save(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             _documentService.PublishNow(textPage);
 
@@ -545,12 +526,12 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_PublishNow_PublishedWebpageShouldNotChangeValue()
         {
-            
+
 
             var publishOn = CurrentRequestData.Now.AddDays(-1);
             var textPage = new BasicMappedWebpage { PublishOn = publishOn };
 
-            Session.Transact(session => session.Save(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             _documentService.PublishNow(textPage);
 
@@ -564,7 +545,7 @@ namespace MrCMS.Tests.Services
             var publishOn = CurrentRequestData.Now.AddDays(-1);
             var textPage = new BasicMappedWebpage { PublishOn = publishOn };
 
-            Session.Transact(session => session.Save(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             _documentService.Unpublish(textPage);
 
@@ -575,18 +556,18 @@ namespace MrCMS.Tests.Services
         public void DocumentService_DeleteDocument_ShouldCallSessionDelete()
         {
             var textPage = new BasicMappedWebpage();
-            Session.Transact(session => session.Save(textPage));
+            Session.Transact(session => session.Add(textPage));
 
             _documentService.DeleteDocument(textPage);
 
-            Session.QueryOver<Webpage>().RowCount().Should().Be(0);
+            Session.Set<Webpage>().Count().Should().Be(0);
         }
 
         [Fact]
         public void DocumentService_GetDocumentVersion_GetsTheVersionWithTheRequestedId()
         {
             var documentVersion = new DocumentVersion();
-            Session.Transact(session => session.Save(documentVersion));
+            Session.Transact(session => session.Add(documentVersion));
 
             var version = _documentService.GetDocumentVersion(documentVersion.Id);
 
@@ -598,7 +579,7 @@ namespace MrCMS.Tests.Services
         {
             for (int i = 0; i < 4; i++)
             {
-                Session.Transact(session => session.Save(new StubWebpage { DisplayOrder = i, Site = CurrentSite }));
+                Session.Transact(session => session.Add(new StubWebpage { DisplayOrder = i, Site = CurrentSite }));
             }
 
             var stubDocument = new StubWebpage { Site = CurrentSite };

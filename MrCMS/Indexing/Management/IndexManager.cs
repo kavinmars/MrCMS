@@ -10,17 +10,16 @@ using System.Linq;
 using MrCMS.Events;
 using MrCMS.Helpers;
 using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Indexing.Management
 {
     public static class IndexManager
     {
-        public static void EnsureIndexesExist(ISession session, Site site)
+        public static void EnsureIndexesExist(IDbContext dbContext, Site site)
         {
-            var service = new IndexService(session, site);
+            var service = new IndexService(dbContext, site);
             DocumentMetadataHelper.OverrideExistAny =
-                new DocumentService(session,
+                new DocumentService(dbContext,
                                     new DocumentEventService(new List<IOnDocumentDeleted>(),
                                                              new List<IOnDocumentUnpublished>(),
                                                              new List<IOnDocumentAdded>()), null, site).ExistAny;

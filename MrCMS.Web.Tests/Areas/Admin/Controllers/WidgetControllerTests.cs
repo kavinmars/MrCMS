@@ -3,17 +3,15 @@ using FakeItEasy;
 using FluentAssertions;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Multisite;
-using MrCMS.Models;
 using MrCMS.Services;
 using MrCMS.Web.Apps.Core.Pages;
 using MrCMS.Web.Apps.Core.Widgets;
 using MrCMS.Web.Areas.Admin.Controllers;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Web.Tests.Areas.Admin.Controllers
 {
-    public class WidgetControllerTests
+    public class WidgetControllerTests : MrCMSTest
     {
         private static IWidgetService _widgetService;
         private static IDocumentService _documentService;
@@ -22,7 +20,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         public void WidgetController_EditGet_ShouldReturnThePassedWidget()
         {
             WidgetController widgetController = GetWidgetController();
-            var textWidget = new TextWidget {Site = new Site()};
+            var textWidget = new TextWidget { Site = new Site() };
 
             ViewResultBase result = widgetController.Edit_Get(textWidget);
 
@@ -33,7 +31,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         public void WidgetController_EditPost_ShouldCallSaveWidgetOnTheWidgetService()
         {
             WidgetController widgetController = GetWidgetController();
-            var textWidget = new TextWidget {LayoutArea = new LayoutArea()};
+            var textWidget = new TextWidget { LayoutArea = new LayoutArea() };
 
             widgetController.Edit(textWidget);
 
@@ -44,7 +42,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         public void WidgetController_EditPost_ShouldByDefaultRedirectToLayoutIndex()
         {
             WidgetController widgetController = GetWidgetController();
-            var textWidget = new TextWidget {LayoutArea = new LayoutArea {Id = 1}};
+            var textWidget = new TextWidget { LayoutArea = new LayoutArea { Id = 1 } };
 
             ActionResult result = widgetController.Edit(textWidget);
 
@@ -106,7 +104,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         public void WidgetController_DeletePost_NullReturnUrlWebpageSetRedirectsToEditWebpage()
         {
             WidgetController widgetController = GetWidgetController();
-            var textWidget = new TextWidget {Webpage = new TextPage {Id = 1}};
+            var textWidget = new TextWidget { Webpage = new TextPage { Id = 1 } };
 
             var result = widgetController.Delete(textWidget, null).As<RedirectToRouteResult>();
 
@@ -119,7 +117,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         public void WidgetController_DeletePost_NullReturnUrlLayoutAreaIdSetRedirectsToEditLayoutArea()
         {
             WidgetController widgetController = GetWidgetController();
-            var textWidget = new TextWidget {LayoutArea = new LayoutArea {Id = 1}};
+            var textWidget = new TextWidget { LayoutArea = new LayoutArea { Id = 1 } };
 
             var result = widgetController.Delete(textWidget, null).As<RedirectToRouteResult>();
 
@@ -132,7 +130,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         public void WidgetController_DeletePost_ReturnUrlContainsWidgetEditIgnoreReturnUrl()
         {
             WidgetController widgetController = GetWidgetController();
-            var textWidget = new TextWidget {Id = 1, LayoutArea = new LayoutArea {Id = 1}};
+            var textWidget = new TextWidget { Id = 1, LayoutArea = new LayoutArea { Id = 1 } };
 
             var result = widgetController.Delete(textWidget, "/widget/edit/1").As<RedirectToRouteResult>();
 
@@ -154,17 +152,17 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         //{
         //    WidgetController widgetController = GetWidgetController();
         //    var layoutArea = new LayoutArea();
-            
+
         //    var result = widgetController.Add(layoutArea, "return-url");
 
         //    result.Model.Should().BeOfType<AddWidgetModel>();
         //}
 
-        private static WidgetController GetWidgetController()
+        private WidgetController GetWidgetController()
         {
             _documentService = A.Fake<IDocumentService>();
             _widgetService = A.Fake<IWidgetService>();
-            return new WidgetController(_documentService, _widgetService, A.Fake<ISession>()) {ReferrerOverride = "http://www.example.com/"};
+            return new WidgetController(_documentService, _widgetService, Kernel) { ReferrerOverride = "http://www.example.com/" };
         }
     }
 }

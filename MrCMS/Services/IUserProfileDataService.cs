@@ -1,5 +1,4 @@
 ﻿using MrCMS.Entities.People;
-using NHibernate;
 using MrCMS.Helpers;
 
 namespace MrCMS.Services
@@ -13,30 +12,30 @@ namespace MrCMS.Services
 
     public class UserProfileDataService : IUserProfileDataService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public UserProfileDataService(ISession session)
+        public UserProfileDataService(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void Add<T>(T data) where T : UserProfileData
         {
             var user = data.User;
             if (user != null) user.UserProfileData.Add(data);
-            _session.Transact(session => session.Save(data));
+            _dbContext.Transact(session => session.Add(data));
         }
 
         public void Update<T>(T data) where T : UserProfileData
         {
-            _session.Transact(session => session.Update(data));
+            _dbContext.Transact(session => session.Update(data));
         }
 
         public void Delete<T>(T data) where T : UserProfileData
         {
             var user = data.User;
             if (user != null) user.UserProfileData.Remove(data);
-            _session.Transact(session => session.Delete(data));
+            _dbContext.Transact(session => session.Delete(data));
         }
     }
 }

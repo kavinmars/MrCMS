@@ -9,12 +9,13 @@ using MrCMS.Services;
 using MrCMS.Web.Apps.Core.Models;
 using MrCMS.Web.Apps.Core.Pages;
 using MrCMS.Website;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Core.Widgets
 {
     public class UserLinks : Widget
     {
-        public override object GetModel(NHibernate.ISession session)
+        public override object GetModel(IKernel kernel)
         {
             var navigationRecords = new List<NavigationRecord>();
             var uniquePageService = MrCMSApplication.Get<IUniquePageService>();

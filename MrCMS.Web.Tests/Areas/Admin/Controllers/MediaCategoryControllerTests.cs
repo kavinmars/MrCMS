@@ -138,25 +138,6 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
         }
 
         [Fact]
-        public void MediaCategoryController_View_ShouldRedirectToEditWithTheSameId()
-        {
-            ActionResult actionResult = _mediaCategoryController.Show(new MediaCategory { Id = 1 });
-
-            actionResult.Should().BeOfType<RedirectToRouteResult>();
-            actionResult.As<RedirectToRouteResult>().RouteValues["action"].Should().Be("Edit");
-            actionResult.As<RedirectToRouteResult>().RouteValues["id"].Should().Be(1);
-        }
-
-        [Fact]
-        public void MediaCategoryController_View_IncorrectCategoryIdRedirectsToIndex()
-        {
-            ActionResult actionResult = _mediaCategoryController.Show(null);
-
-            actionResult.Should().BeOfType<RedirectToRouteResult>();
-            actionResult.As<RedirectToRouteResult>().RouteValues["action"].Should().Be("Index");
-        }
-
-        [Fact]
         public void MediaCategoryController_Upload_ShouldReturnAPartialView()
         {
             ActionResult result = _mediaCategoryController.Upload(new MediaCategory());

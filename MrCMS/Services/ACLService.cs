@@ -5,19 +5,18 @@ using MrCMS.ACL;
 using MrCMS.Entities.ACL;
 using MrCMS.Helpers;
 using MrCMS.Models;
-using NHibernate;
 
 namespace MrCMS.Services
 {
     public class ACLService : IACLService
     {
         private readonly IRoleService _roleService;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public ACLService(IRoleService roleService, ISession session)
+        public ACLService(IRoleService roleService, IDbContext dbContext)
         {
             _roleService = roleService;
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public ACLModel GetACLModel()
@@ -34,7 +33,7 @@ namespace MrCMS.Services
 
         public void UpdateACL(List<ACLUpdateRecord> model)
         {
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
             {
                 foreach (var aclUpdateRecord in model)
                 {
@@ -52,7 +51,7 @@ namespace MrCMS.Services
                     {
                         var newRole = new ACLRole { UserRole = role, Name = aclUpdateRecord.Key };
                         role.ACLRoles.Add(newRole);
-                        session.Save(newRole);
+                        session.Add(newRole);
                     }
                 }
             });

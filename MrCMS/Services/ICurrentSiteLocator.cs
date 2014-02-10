@@ -3,7 +3,8 @@ using System.Configuration;
 using System.Linq;
 using System.Web;
 using MrCMS.Entities.Multisite;
-using NHibernate;
+using MrCMS.Helpers;
+using System.Data.Entity;
 
 namespace MrCMS.Services
 {
@@ -14,12 +15,12 @@ namespace MrCMS.Services
 
     public class CurrentSiteLocator : ICurrentSiteLocator
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly HttpRequestBase _requestBase;
         private Site _currentSite;
-        public CurrentSiteLocator(ISession session, HttpRequestBase requestBase)
+        public CurrentSiteLocator(IDbContext dbContext, HttpRequestBase requestBase)
         {
-            _session = session;
+            _dbContext = dbContext;
             _requestBase = requestBase;
         }
 
@@ -33,14 +34,14 @@ namespace MrCMS.Services
             var appSetting = ConfigurationManager.AppSettings["debugSiteId"];
 
             int id;
-            return int.TryParse(appSetting, out id) ? _session.Get<Site>(id) : null;
+            return int.TryParse(appSetting, out id) ? _dbContext.Get<Site>(id) : null;
         }
 
         private Site GetSiteFromRequest()
         {
             var authority = _requestBase.Url.Authority;
 
-            var allSites = _session.QueryOver<Site>().Fetch(s => s.RedirectedDomains).Eager.Cacheable().List();
+            var allSites = _dbContext.Set<Site>().Include(s => s.RedirectedDomains).ToList();
             var redirectedDomains = allSites.SelectMany(s => s.RedirectedDomains).ToList();
             var site = allSites.FirstOrDefault(s => s.BaseUrl != null && s.BaseUrl.Equals(authority, StringComparison.OrdinalIgnoreCase));
             if (site == null)

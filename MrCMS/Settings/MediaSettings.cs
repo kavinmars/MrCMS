@@ -2,10 +2,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Web.Mvc;
-using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
 using MrCMS.Models;
-using NHibernate;
-using Ninject;
 
 namespace MrCMS.Settings
 {
@@ -152,9 +150,9 @@ namespace MrCMS.Settings
         public virtual int DefaultCategory { get; set; }
 
         private readonly SiteSettingsOptionGenerator _siteSettingsOptionGenerator = new SiteSettingsOptionGenerator();
-        public override void SetViewData(ISession session, ViewDataDictionary viewDataDictionary)
+        public override void SetViewData(IDbContext dbContext, ViewDataDictionary viewDataDictionary)
         {
-            viewDataDictionary["DefaultCategoryOptions"] = _siteSettingsOptionGenerator.GetMediaCategoryOptions(session, Site, DefaultCategory);
+            viewDataDictionary["DefaultCategoryOptions"] = _siteSettingsOptionGenerator.GetMediaCategoryOptions(dbContext, Site, DefaultCategory);
         }
     }
 }

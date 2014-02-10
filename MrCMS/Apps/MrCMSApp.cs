@@ -9,8 +9,6 @@ using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
 using MrCMS.Installation;
 using System.Linq;
-using NHibernate;
-using NHibernate.Cfg;
 using Ninject;
 
 namespace MrCMS.Apps
@@ -103,10 +101,19 @@ namespace MrCMS.Apps
             AllApps.ForEach(app => app.RegisterServices(kernel));
         }
 
-        public static void InstallApps(ISession session, InstallModel model, Site site)
+        public static void InstallApps(IDbContext dbContext, InstallModel model, Site site)
         {
-            AllApps.OrderBy(app => app.InstallOrder).ForEach(app => app.OnInstallation(session, model, site));
+            AllApps.OrderBy(app => app.InstallOrder).ForEach(app => app.OnInstallation(dbContext, model, site));
         }
+
+        //public static void AppendAllAppConfiguration(Configuration configuration)
+        //{
+        //    AllApps.ForEach(app => app.AppendConfiguration(configuration));
+        //}
+
+        //protected virtual void AppendConfiguration(Configuration configuration) { }
+
+        protected abstract void OnInstallation(IDbContext dbContext, InstallModel model, Site site);
 
         private static List<MrCMSApp> AllApps
         {
@@ -116,14 +123,7 @@ namespace MrCMS.Apps
                                                         .Select(type => ((MrCMSApp)Activator.CreateInstance(type))).ToList();
             }
         }
-
-        public static void AppendAllAppConfiguration(Configuration configuration)
-        {
-            AllApps.ForEach(app => app.AppendConfiguration(configuration));
-        }
-
-        protected virtual void AppendConfiguration(Configuration configuration) { }
-
+        
         protected virtual int InstallOrder { get { return 10; } }
 
         public static IEnumerable<string> AppNames { get { return AllApps.Select(app => app.AppName); } }
@@ -131,6 +131,5 @@ namespace MrCMS.Apps
 
         protected abstract void RegisterServices(IKernel kernel);
 
-        protected abstract void OnInstallation(ISession session, InstallModel model, Site site);
     }
 }

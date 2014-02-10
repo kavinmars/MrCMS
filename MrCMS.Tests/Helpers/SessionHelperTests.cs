@@ -1,5 +1,5 @@
-﻿using MrCMS.Tests.Stubs;
-using NHibernate.Criterion;
+﻿using System.Linq;
+using MrCMS.Tests.Stubs;
 using Xunit;
 using MrCMS.Helpers;
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace MrCMS.Tests.Helpers
         {
             var stubWebpage = new StubWebpage();
 
-            this.Invoking(tests => Session.Transact(session => session.Transact(iSession => iSession.Save(stubWebpage))))
+            this.Invoking(tests => Session.Transact(session => session.Transact(iSession => iSession.Add(stubWebpage))))
                 .ShouldNotThrow();
         }
 
@@ -24,11 +24,11 @@ namespace MrCMS.Tests.Helpers
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    session.Save(new StubWebpage { Name = i.ToString() });
+                    session.Add(new StubWebpage { Name = i.ToString() });
                 }
             });
 
-            var pagedList = Session.QueryOver<StubWebpage>().OrderBy(webpage => webpage.Id).Asc.Paged(4, 10);
+            var pagedList = Session.Set<StubWebpage>().OrderBy(webpage => webpage.Id).Paged(4, 10);
 
             pagedList.TotalItemCount.Should().Be(100);
             pagedList.Count.Should().Be(10);
@@ -43,11 +43,11 @@ namespace MrCMS.Tests.Helpers
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    session.Save(new StubWebpage { Name = i.ToString() });
+                    session.Add(new StubWebpage { Name = i.ToString() });
                 }
             });
 
-            var pagedList = Session.Paged(QueryOver.Of<StubWebpage>().OrderBy(webpage => webpage.Id).Asc, 4, 10);
+            var pagedList = Session.Set<StubWebpage>().Paged(4, 10);
 
             pagedList.TotalItemCount.Should().Be(100);
             pagedList.Count.Should().Be(10);

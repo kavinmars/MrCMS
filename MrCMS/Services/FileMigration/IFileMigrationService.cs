@@ -5,7 +5,6 @@ using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Settings;
-using NHibernate;
 
 namespace MrCMS.Services.FileMigration
 {
@@ -23,22 +22,22 @@ namespace MrCMS.Services.FileMigration
         private readonly FileSystem _fileSystem;
         private readonly FileSystemSettings _fileSystemSettings;
         private readonly ImageProcessor _imageProcessor;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
         private Dictionary<MediaFile, string> _filesToUpdate;
 
-        public FileMigrationService(Site site, ISession session, FileSystem fileSystem, AzureFileSystem azureFileSystem,
+        public FileMigrationService(Site site, IDbContext dbContext, FileSystem fileSystem, AzureFileSystem azureFileSystem,
                                     FileSystemSettings fileSystemSettings, IConfigurationProvider configurationProvider,
                                     FileMigrationSettings fileMigrationSettings)
         {
             _site = site;
-            _session = session;
+            _dbContext = dbContext;
             _fileSystem = fileSystem;
             _azureFileSystem = azureFileSystem;
             _fileSystemSettings = fileSystemSettings;
             _configurationProvider = configurationProvider;
             _fileMigrationSettings = fileMigrationSettings;
-            _imageProcessor = new ImageProcessor(_session, _fileSystem, null);
+            _imageProcessor = new ImageProcessor(_dbContext, _fileSystem, null);
         }
 
         public void MigrateFilesToAzure(int numberOfFiles = 100)
@@ -48,7 +47,7 @@ namespace MrCMS.Services.FileMigration
 
             PrimeFileMigrationSettings();
 
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
                                       _filesToUpdate = new Dictionary<MediaFile, string>();
                                       foreach (string file in _fileMigrationSettings.FilesToMigrateList.Take(numberOfFiles))
@@ -77,9 +76,9 @@ namespace MrCMS.Services.FileMigration
                 foreach (var resizedImage in resizedImages)
                 {
                     pair.Key.ResizedImages.Remove(resizedImage);
-                    _session.Delete(resizedImage);
+                    _dbContext.Delete(resizedImage);
                 }
-                _session.Update(pair.Key);
+                _dbContext.Update(pair.Key);
             }
         }
 

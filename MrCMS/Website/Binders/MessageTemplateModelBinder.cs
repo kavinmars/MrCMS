@@ -1,5 +1,5 @@
+using MrCMS.Helpers;
 using MrCMS.Services;
-using NHibernate;
 
 namespace MrCMS.Website.Binders
 {
@@ -7,8 +7,8 @@ namespace MrCMS.Website.Binders
     {
         protected readonly IMessageTemplateService MessageTemplateService;
 
-        protected MessageTemplateModelBinder(ISession session, IMessageTemplateService messageTemplateService)
-            : base(() => session)
+        protected MessageTemplateModelBinder(IDbContext dbContext, IMessageTemplateService messageTemplateService)
+            : base(() => dbContext)
         {
             this.MessageTemplateService = messageTemplateService;
         }

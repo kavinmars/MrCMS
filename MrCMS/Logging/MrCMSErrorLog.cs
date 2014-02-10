@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections;
-using Elmah;
-using MrCMS.DbConfiguration.Types;
-using MrCMS.Entities.Multisite;
-using MrCMS.Website;
-using NHibernate;
-using MrCMS.Helpers;
 using System.Linq;
+using Elmah;
+using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
+using MrCMS.Website;
 
 namespace MrCMS.Logging
 {
     public class MrCMSErrorLog : ErrorLog, IDisposable
     {
-        private ISession _session;
+        private IDbContext _dbContext;
 
         public override string Name
         {
@@ -25,24 +23,24 @@ namespace MrCMS.Logging
         public MrCMSErrorLog(IDictionary config)
         {
             if (CurrentRequestData.DatabaseIsInstalled)
-                _session = MrCMSApplication.Get<ISessionFactory>().OpenFilteredSession();
+                _dbContext = MrCMSApplication.Get<IDbContext>();
         }
 
         public override string Log(Error error)
         {
             var newGuid = Guid.NewGuid();
 
-            if (_session != null)
+            if (_dbContext != null)
             {
                 var log = new Log
                               {
-                                  Error = BinaryData.CanSerialize(error) ? error : new Error(),
+                                  //Error = BinaryData.CanSerialize(error) ? error : new Error(),
                                   Guid = newGuid,
                                   Message = error.Message,
                                   Detail = error.Detail,
-                                  Site = _session.Get<Site>(CurrentRequestData.CurrentSite.Id)
+                                  Site = _dbContext.Get<Site>(CurrentRequestData.CurrentSite.Id)
                               };
-                _session.Transact(session => session.Save(log));
+                _dbContext.Transact(session => session.Add(log));
             }
 
             return newGuid.ToString();
@@ -56,9 +54,9 @@ namespace MrCMS.Logging
                 throw new ArgumentOutOfRangeException("pageSize", pageSize, null);
 
             var errorLogEntries =
-                _session.QueryOver<Log>()
+                _dbContext.Set<Log>()
+                        .OrderByDescending(entry => entry.CreatedOn)
                         .Where(entry => entry.Type == LogEntryType.Error)
-                        .OrderBy(entry => entry.CreatedOn).Desc
                         .Paged(pageIndex + 1, pageSize);
             errorLogEntries.ForEach(entry =>
                                     errorEntryList.Add(new ErrorLogEntry(this, entry.Guid.ToString(), entry.Error)));
@@ -80,7 +78,7 @@ namespace MrCMS.Logging
 
             try
             {
-                var logEntry = _session.QueryOver<Log>().Where(entry => entry.Guid == guid).Cacheable().SingleOrDefault();
+                var logEntry = _dbContext.Set<Log>().FirstOrDefault(entry => entry.Guid == guid);
                 return new ErrorLogEntry(this, id, logEntry.Error);
             }
             finally
@@ -106,12 +104,12 @@ namespace MrCMS.Logging
             {
                 if (disposing)
                 {
-                    if (_session != null)
-                        _session.Dispose();
+                    if (_dbContext != null)
+                        _dbContext.Dispose();
                 }
 
                 // Indicate that the instance has been disposed.
-                _session = null;
+                _dbContext = null;
                 _disposed = true;
             }
         }

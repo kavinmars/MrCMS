@@ -4,12 +4,10 @@ using MrCMS.Entities;
 using MrCMS.Paging;
 using MrCMS.Settings;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Helpers
 {
-    public static class SessionHelper
+   /* public static class SessionHelper
     {
         public static ISession OpenFilteredSession(this ISessionFactory sessionFactory)
         {
@@ -76,5 +74,5 @@ namespace MrCMS.Helpers
     {
         Descending,
         Ascending
-    }
+    }*/
 }

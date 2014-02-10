@@ -5,7 +5,6 @@ using FluentAssertions;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Services;
 using MrCMS.Settings;
-using NHibernate;
 using Xunit;
 using MrCMS.Helpers;
 using System.Linq;
@@ -28,7 +27,7 @@ namespace MrCMS.Tests.Services
                 <ArgumentNullException>();
         }
 
-        private FileService GetFileService(ISession session = null, IFileSystem fileSystem = null)
+        private FileService GetFileService(IFileSystem fileSystem = null)
         {
             _fileSystem = A.Fake<IFileSystem>();
 
@@ -45,7 +44,7 @@ namespace MrCMS.Tests.Services
                                     Site = CurrentSite
                                 };
             _siteSettings = new SiteSettings();
-            return new FileService(session ?? Session, fileSystem ?? _fileSystem,
+            return new FileService(Session, fileSystem ?? _fileSystem,
                                    A.Fake<IImageProcessor>(), _mediaSettings, CurrentSite, _siteSettings);
         }
 
@@ -55,10 +54,10 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             fileService.AddFile(GetDefaultStream(), "test.txt", "text/plain", 0, mediaCategory);
 
-            Session.QueryOver<MediaFile>().RowCount().Should().Be(1);
+            Session.Set<MediaFile>().Count().Should().Be(1);
         }
 
         private static MediaCategory GetDefaultMediaCategory()
@@ -72,7 +71,7 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             var mediaFile = fileService.AddFile(GetDefaultStream(), "test-file.txt", null, 0, mediaCategory);
 
             mediaFile.name.Should().Be("test-file.txt");
@@ -84,7 +83,7 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             var mediaFile = fileService.AddFile(GetDefaultStream(), "test.txt", "text/plain", 0, mediaCategory);
 
             mediaFile.Type.Should().Be("text/plain");
@@ -96,7 +95,7 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             var mediaFile = fileService.AddFile(GetDefaultStream(), "test.txt", "text/plain", 1234, mediaCategory);
 
             mediaFile.size.Should().Be(1234);
@@ -108,7 +107,7 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             Stream stream = GetDefaultStream();
 
             fileService.AddFile(stream, "test.txt", "text/plain", 1234, mediaCategory);
@@ -123,7 +122,7 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             Stream stream = new MemoryStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             A.CallTo(() => _fileSystem.SaveFile(stream, "1/test-category/test.txt", "text/plain"))
              .Returns("/content/upload/1/test-category/test.txt");
@@ -140,7 +139,7 @@ namespace MrCMS.Tests.Services
             var fileService = GetFileService();
 
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
 
             fileService.AddFile(GetDefaultStream(), "test1.txt", "text/plain", 1234, mediaCategory);
 
@@ -156,7 +155,7 @@ namespace MrCMS.Tests.Services
         public void FileService_AddFile_CallsSaveToFileSystemOfIFileSystem()
         {
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
 
             Stream stream = GetDefaultStream();
 
@@ -171,7 +170,7 @@ namespace MrCMS.Tests.Services
         public void FileService_GetFiles_ShouldReturnFilesWhichHaveTheCorrectMediaCategoryId()
         {
             var mediaCategory = GetDefaultMediaCategory();
-            Session.Transact(session => session.SaveOrUpdate(mediaCategory));
+            Session.Transact(session => session.Add(mediaCategory));
             var file1 = new MediaFile { MediaCategory = mediaCategory, FileUrl = "/test1.txt" };
             var file2 = new MediaFile { MediaCategory = mediaCategory, FileUrl = "/test2.txt" };
             var file3 = new MediaFile { FileUrl = "/test3.txt" };
@@ -179,9 +178,9 @@ namespace MrCMS.Tests.Services
             mediaCategory.Files.Add(file2);
             Session.Transact(session =>
                                  {
-                                     session.SaveOrUpdate(file1);
-                                     session.SaveOrUpdate(file2);
-                                     session.SaveOrUpdate(file3);
+                                     session.Add(file1);
+                                     session.Add(file2);
+                                     session.Add(file3);
                                  });
             var fileService = GetFileService();
 
@@ -197,12 +196,13 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void FileService_GetFile_ShouldCallSessionGetById()
         {
-            var session = A.Fake<ISession>();
-            var fileService = GetFileService(session);
+            var fileService = GetFileService();
+            var file = new MediaFile();
+            Session.Transact(context => context.Add(file));
 
             var mediaFile = fileService.GetFile(1);
 
-            A.CallTo(() => session.Get<MediaFile>(1)).MustHaveHappened();
+            mediaFile.Should().Be(file);
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace MrCMS.Tests.Services
                                 {
                                     FileUrl = fileUrl
                                 };
-            Session.Transact(session => session.Save(mediaFile));
+            Session.Transact(session => session.Add(mediaFile));
 
             var fileByLocation = fileService.GetFileByUrl(fileUrl);
 
@@ -225,13 +225,12 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void FileService_SaveFile_CallsSessionSaveOrUpdateOnThePassedFile()
         {
-            var session = A.Fake<ISession>();
-            var fileService = GetFileService(session);
+            var fileService = GetFileService();
             var mediaFile = new MediaFile();
 
             fileService.SaveFile(mediaFile);
 
-            A.CallTo(() => session.SaveOrUpdate(mediaFile)).MustHaveHappened();
+            Session.Set<MediaFile>().Should().Contain(mediaFile);
         }
     }
 }

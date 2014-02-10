@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -14,7 +13,6 @@ using MrCMS.Settings;
 using MrCMS.Tests.Stubs;
 using MrCMS.Website;
 using MrCMS.Website.Routing;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Website.Routing
@@ -23,7 +21,6 @@ namespace MrCMS.Tests.Website.Routing
     {
         private SiteSettings siteSettings;
         private IDocumentService documentService;
-        private ISession session;
         private RequestContext requestContext;
         private IControllerManager controllerManager;
         private SEOSettings seoSettings;
@@ -420,12 +417,11 @@ namespace MrCMS.Tests.Website.Routing
         private MrCMSHttpHandler GetMrCMSHttpHandler()
         {
             requestContext = A.Fake<RequestContext>();
-            session = A.Fake<ISession>();
             siteSettings = A.Fake<SiteSettings>();
             seoSettings = A.Fake<SEOSettings>();
             documentService = A.Fake<IDocumentService>();
             controllerManager = A.Fake<IControllerManager>();
-            var mrCMSHttpHandler = new MrCMSHttpHandler(session, documentService, controllerManager, siteSettings, seoSettings);
+            var mrCMSHttpHandler = new MrCMSHttpHandler(Kernel, documentService, controllerManager, siteSettings, seoSettings);
             mrCMSHttpHandler.SetRequestContext(requestContext);
             return mrCMSHttpHandler;
         }

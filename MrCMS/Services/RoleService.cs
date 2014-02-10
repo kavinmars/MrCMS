@@ -1,43 +1,40 @@
+using System;
 using System.Collections.Generic;
-using MrCMS.Entities.Documents;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
 using MrCMS.Models;
-using NHibernate;
-using NHibernate.Criterion;
 using System.Linq;
 
 namespace MrCMS.Services
 {
     public class RoleService : IRoleService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public RoleService(ISession session)
+        public RoleService(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void SaveRole(UserRole role)
         {
-            _session.Transact(session => session.SaveOrUpdate(role));
+            _dbContext.Transact(session => session.AddOrUpdate(role));
         }
 
         public IEnumerable<UserRole> GetAllRoles()
         {
-            return _session.QueryOver<UserRole>().Cacheable().List();
+            return _dbContext.Set<UserRole>();
         }
 
         public UserRole GetRoleByName(string name)
         {
-            return _session.QueryOver<UserRole>().Where(role => role.Name.IsLike(name, MatchMode.Exact)).Cacheable().
-                                SingleOrDefault();
+            return _dbContext.Set<UserRole>().FirstOrDefault(role => role.Name == name);
         }
 
         public void DeleteRole(UserRole role)
         {
             if (!role.IsAdmin)
-                _session.Transact(session => session.Delete(role));
+                _dbContext.Transact(session => session.Delete(role));
         }
 
         public bool IsOnlyAdmin(User user)
@@ -50,7 +47,12 @@ namespace MrCMS.Services
 
         public IEnumerable<AutoCompleteResult> Search(string term)
         {
-            var userRoles = _session.QueryOver<UserRole>().Where(x => x.Name.IsInsensitiveLike(term, MatchMode.Start)).List();
+            IQueryable<UserRole> queryable = _dbContext.Set<UserRole>();
+
+            if (!string.IsNullOrWhiteSpace(term))
+                queryable = queryable.Where(x => x.Name.StartsWith(term, StringComparison.OrdinalIgnoreCase));
+
+            var userRoles = queryable .ToList();
             return
                 userRoles.Select(
                     tag =>
@@ -64,7 +66,7 @@ namespace MrCMS.Services
 
         public UserRole GetRole(int id)
         {
-            return _session.Get<UserRole>(id);
+            return _dbContext.Get<UserRole>(id);
         }
     }
 }

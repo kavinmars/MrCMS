@@ -2,33 +2,32 @@
 using System.Linq;
 using MrCMS.Helpers;
 using MrCMS.Website;
-using NHibernate;
 
 namespace MrCMS.Tasks
 {
     public class TaskQueuer : ITaskQueuer
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public TaskQueuer(ISession session)
+        public TaskQueuer(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public IList<QueuedTask> GetPendingQueuedTasks()
         {
-            return _session.Transact(session =>
+            return _dbContext.Transact(session =>
                                          {
                                              var queuedTasks =
-                                                 session.QueryOver<QueuedTask>()
+                                                 session.Set<QueuedTask>()
                                                         .Where(task => task.Status == TaskExecutionStatus.Pending)
-                                                        .List();
+                                                        .ToList();
 
                                              foreach (var task in queuedTasks)
                                              {
                                                  task.Status = TaskExecutionStatus.AwaitingExecution;
                                                  task.QueuedAt = CurrentRequestData.Now;
-                                                 _session.Update(task);
+                                                 _dbContext.Update(task);
                                              }
                                              return queuedTasks;
                                          });
@@ -36,10 +35,10 @@ namespace MrCMS.Tasks
 
         public IList<ScheduledTask> GetPendingScheduledTasks()
         {
-            return _session.Transact(session =>
+            return _dbContext.Transact(session =>
                                          {
                                              var scheduledTasks =
-                                                 _session.QueryOver<ScheduledTask>().List()
+                                                 _dbContext.Set<ScheduledTask>().ToList()
                                                          .Where(task =>
                                                              task.Status == TaskExecutionStatus.Pending &&
                                                              (task.LastComplete < CurrentRequestData.Now.AddSeconds(-task.EveryXSeconds) ||
@@ -48,7 +47,7 @@ namespace MrCMS.Tasks
                                              foreach (var task in scheduledTasks)
                                              {
                                                  task.Status = TaskExecutionStatus.AwaitingExecution;
-                                                 _session.Update(task);
+                                                 _dbContext.Update(task);
                                              }
                                              return scheduledTasks;
                                          });

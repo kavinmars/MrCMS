@@ -1,10 +1,8 @@
 ﻿using System;
-using FakeItEasy;
+using System.Linq;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.Settings;
 using MrCMS.Settings;
-using MrCMS.Website;
-using NHibernate;
 using Xunit;
 using FluentAssertions;
 using MrCMS.Helpers;
@@ -24,7 +22,7 @@ namespace MrCMS.Tests.Settings
         public void SettingService_GetSettingById_LoadsFromSession()
         {
             var setting = new Setting();
-            Session.Transact(session => session.Save(setting));
+            Session.Transact(session => session.Add(setting));
 
             var settingById = _settingService.GetSettingById(1);
 
@@ -35,11 +33,11 @@ namespace MrCMS.Tests.Settings
         public void SettingService_DeleteSetting_CallsSessionDelete()
         {
             var setting = new Setting();
-            Session.Transact(session => session.Save(setting));
+            Session.Transact(session => session.Add(setting));
 
             _settingService.DeleteSetting(setting);
 
-            Session.QueryOver<Setting>().RowCount().Should().Be(0);
+            Session.Set<Setting>().Count().Should().Be(0);
         }
 
         [Fact]
@@ -52,20 +50,20 @@ namespace MrCMS.Tests.Settings
         public void SettingService_SetSetting_AddsANewSettingToTheSession()
         {
             var site = new Site();
-            Session.Transact(session => session.Save(site));
+            Session.Transact(session => session.Add(site));
 
             _settingService.SetSetting("test", "value");
 
-            Session.QueryOver<Setting>().List().Should().HaveCount(1);
+            Session.Set<Setting>().Should().HaveCount(1);
         }
 
         [Fact]
         public void SettingService_SetSettingShouldUpdateExistingSetting()
         {
-            Session.Transact(session => session.Save(new Setting { Name = "test", Value = "value", Site = CurrentSite }));
+            Session.Transact(session => session.Add(new Setting { Name = "test", Value = "value", Site = CurrentSite }));
             _settingService.SetSetting("test", "value2");
 
-            var settings = Session.QueryOver<Setting>().List();
+            var settings = Session.Set<Setting>().ToList();
 
             settings.Should().HaveCount(1);
             settings[0].Name.Should().Be("test");
@@ -88,9 +86,9 @@ namespace MrCMS.Tests.Settings
         public void SettingService_GetSettingByKey_ReturnsTheSettingsObjectWithTheValidKey()
         {
             var setting1 = new Setting { Name = "test", Value = "value", Site = CurrentSite };
-            Session.Transact(session => session.Save(setting1));
+            Session.Transact(session => session.Add(setting1));
             var setting2 = new Setting { Name = "test2", Value = "value2", Site = CurrentSite };
-            Session.Transact(session => session.Save(setting2));
+            Session.Transact(session => session.Add(setting2));
 
             _settingService.GetSettingByKey("test2").Should().Be(setting2);
         }
@@ -105,7 +103,7 @@ namespace MrCMS.Tests.Settings
         public void SettingService_GetSettingByKey_ReturnsNullIfTheKeyDoesNotExist()
         {
             var setting1 = new Setting { Name = "test", Value = "value", Site = CurrentSite };
-            Session.Transact(session => session.Save(setting1));
+            Session.Transact(session => session.Add(setting1));
 
             _settingService.GetSettingByKey("test2").Should().Be(null);
         }
@@ -120,9 +118,9 @@ namespace MrCMS.Tests.Settings
         public void SettingService_GetSettingValueByKey_ReturnsValueForSetting()
         {
             var setting1 = new Setting { Name = "test", Value = "value", Site = CurrentSite };
-            Session.Transact(session => session.Save(setting1));
+            Session.Transact(session => session.Add(setting1));
             var setting2 = new Setting { Name = "test2", Value = "value2", Site = CurrentSite };
-            Session.Transact(session => session.Save(setting2));
+            Session.Transact(session => session.Add(setting2));
 
             _settingService.GetSettingValueByKey("test2", "default").Should().Be("value2");
         }
@@ -131,7 +129,7 @@ namespace MrCMS.Tests.Settings
         public void SettingService_GetSettingValueByKey_DefaultWhenKeyDoesNotExist()
         {
             var setting1 = new Setting { Name = "test", Value = "value", Site = CurrentSite };
-            Session.Transact(session => session.Save(setting1));
+            Session.Transact(session => session.Add(setting1));
 
             _settingService.GetSettingValueByKey("test2", "default").Should().Be("default");
         }

@@ -13,13 +13,11 @@ using MrCMS.Helpers;
 using MrCMS.Models;
 using MrCMS.Paging;
 using MrCMS.Services;
-using MrCMS.Settings;
 using MrCMS.Web.Apps.Core.Pages;
 using MrCMS.Web.Areas.Admin.Controllers;
 using MrCMS.Web.Areas.Admin.Models;
 using MrCMS.Web.Tests.Stubs;
 using MrCMS.Website;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Web.Tests.Areas.Admin.Controllers
@@ -28,7 +26,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
     {
         private readonly IDocumentService documentService;
         private readonly IFormService formService;
-        private readonly ISession session;
+        private readonly IDbContext session;
         private readonly WebpageController webpageController;
         private readonly Site _site = new Site();
 
@@ -37,8 +35,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
             CurrentRequestData.CurrentUser = new User();
             documentService = A.Fake<IDocumentService>();
             formService = A.Fake<IFormService>();
-            session = A.Fake<ISession>();
-            webpageController = new WebpageController(documentService, formService, session, _site)
+            webpageController = new WebpageController(documentService, formService, Kernel, _site)
             {
                 RouteDataMock = new RouteData()
             };

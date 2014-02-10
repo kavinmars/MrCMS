@@ -4,13 +4,11 @@ using System.Security.Principal;
 using System.Web;
 using FakeItEasy;
 using FluentAssertions;
-using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Settings;
 using MrCMS.Website;
-using NHibernate;
 using Xunit;
 
 namespace MrCMS.Tests.Services
@@ -18,45 +16,42 @@ namespace MrCMS.Tests.Services
     public class UserServiceTests : InMemoryDatabaseTest
     {
         private UserService _userService;
-        private ISession _session;
         private readonly SiteSettings _siteSettings;
 
         public UserServiceTests()
         {
-            _session = Session;
             _siteSettings = new SiteSettings();
-            _userService = new UserService(_session,_siteSettings);
+            _userService = new UserService(Session,_siteSettings);
         }
 
         [Fact]
         public void UserService_AddUser_SavesAUserToSession()
         {
-            _session = A.Fake<ISession>();
-            _userService = new UserService(_session, _siteSettings);
+            _userService = new UserService(Session, _siteSettings);
             var user = new User();
 
             _userService.AddUser(user);
 
-            A.CallTo(() => _session.Save(user)).MustHaveHappened();
+            Session.Set<User>().Should().Contain(user);
         }
 
         [Fact]
         public void UserService_SaveUser_UpdatesAUser()
         {
-            _session = A.Fake<ISession>();
-            _userService = new UserService(_session, _siteSettings);
+            _userService = new UserService(Session, _siteSettings);
             var user = new User();
+            Session.Transact(context => context.Add(user));
 
             _userService.SaveUser(user);
 
-            A.CallTo(() => _session.Update(user)).MustHaveHappened();
+            Session.Set<User>().Should().Contain(user);
         }
 
         [Fact]
         public void UserService_GetUser_ShouldReturnCorrectUser()
         {
             var user = new User { FirstName = "Test", LastName = "User" };
-            Session.Transact(session => session.SaveOrUpdate(user));
+            Session.Transact(session => session.Add(user));
 
             var loadedUser = _userService.GetUser(user.Id);
 
@@ -76,7 +71,7 @@ namespace MrCMS.Tests.Services
         {
             Enumerable.Range(1, 15).ForEach(
                 i =>
-                Session.Transact(session => session.SaveOrUpdate(new User { FirstName = "Test " + i, LastName = "User" })));
+                Session.Transact(session => session.Add(new User { FirstName = "Test " + i, LastName = "User" })));
 
             var users = _userService.GetAllUsersPaged(1);
 
@@ -94,9 +89,9 @@ namespace MrCMS.Tests.Services
         public void UserService_GetUserByEmail_WithValidEmailReturnsTheCorrectUser()
         {
             var user = new User { FirstName = "Test", LastName = "User", Email = "test@example.com" };
-            Session.Transact(session => Session.Save(user));
+            Session.Transact(session => Session.Add(user));
             var user2 = new User { FirstName = "Test", LastName = "User2", Email = "test2@example.com" };
-            Session.Transact(session => Session.Save(user2));
+            Session.Transact(session => Session.Add(user2));
 
             _userService.GetUserByEmail("test2@example.com").Should().Be(user2);
         }
@@ -119,7 +114,7 @@ namespace MrCMS.Tests.Services
                 ResetPasswordGuid = resetPasswordGuid,
                 ResetPasswordExpiry = CurrentRequestData.Now.AddDays(-2)
             };
-            Session.Transact(session => Session.Save(user));
+            Session.Transact(session => Session.Add(user));
 
             _userService.GetUserByResetGuid(resetPasswordGuid).Should().BeNull();
         }
@@ -136,7 +131,7 @@ namespace MrCMS.Tests.Services
                 ResetPasswordGuid = resetPasswordGuid,
                 ResetPasswordExpiry = CurrentRequestData.Now.AddDays(1)
             };
-            Session.Transact(session => Session.Save(user));
+            Session.Transact(session => Session.Add(user));
 
             _userService.GetUserByResetGuid(resetPasswordGuid).Should().Be(user);
         }
@@ -165,7 +160,7 @@ namespace MrCMS.Tests.Services
                 LastName = "User",
                 Email = "test@example.com",
             };
-            Session.Transact(session => Session.Save(user));
+            Session.Transact(session => Session.Add(user));
 
             _userService.GetCurrentUser(httpContextBase).Should().Be(user);
         }
@@ -174,23 +169,11 @@ namespace MrCMS.Tests.Services
         public void UserService_DeleteUser_ShouldRemoveAUser()
         {
             var user = new User();
-            Session.Transact(session => session.Save(user));
+            Session.Transact(session => session.Add(user));
 
             _userService.DeleteUser(user);
 
-            Session.QueryOver<User>().RowCount().Should().Be(0);
-        }
-
-        [Fact]
-        public void UserService_DeleteUser_ShouldCallOnDeleteOnTheUser()
-        {
-            var user = A.Fake<User>();
-            _session = A.Fake<ISession>();
-            _userService = new UserService(_session, _siteSettings);
-
-            _userService.DeleteUser(user);
-
-            A.CallTo(() => user.OnDeleting(_session)).MustHaveHappened();
+            Session.Set<User>().Count().Should().Be(0);
         }
 
         [Fact]
@@ -198,9 +181,9 @@ namespace MrCMS.Tests.Services
         {
             Enumerable.Range(1, 10)
                       .Select(i => new User {IsActive = true})
-                      .ForEach(user => Session.Transact(session => session.Save(user)));
+                      .ForEach(user => Session.Transact(session => session.Add(user)));
             Enumerable.Range(1, 5).Select(i =>  new User {IsActive = false})
-                      .ForEach(user => Session.Transact(session => session.Save(user)));
+                      .ForEach(user => Session.Transact(session => session.Add(user)));
 
             _userService.ActiveUsers().Should().Be(10);
         }
@@ -210,9 +193,9 @@ namespace MrCMS.Tests.Services
         {
             Enumerable.Range(1, 10)
                       .Select(i => new User {IsActive = true})
-                      .ForEach(user => Session.Transact(session => session.Save(user)));
+                      .ForEach(user => Session.Transact(session => session.Add(user)));
             Enumerable.Range(1, 5).Select(i =>  new User {IsActive = false})
-                      .ForEach(user => Session.Transact(session => session.Save(user)));
+                      .ForEach(user => Session.Transact(session => session.Add(user)));
 
             _userService.NonActiveUsers().Should().Be(5);
         }
@@ -226,7 +209,7 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void UserService_IsUniqueEmail_ShouldReturnFalseIfThereIsAnotherUserWithTheSameEmail()
         {
-            Session.Transact(session => session.Save(new User {Email = "test@example.com"}));
+            Session.Transact(session => session.Add(new User {Email = "test@example.com"}));
             _userService.IsUniqueEmail("test@example.com").Should().BeFalse();
         }
 
@@ -234,7 +217,7 @@ namespace MrCMS.Tests.Services
         public void UserService_IsUniqueEmail_ShouldReturnTrueIfTheIdPassedAlongWithTheSavedEmailIsThatOfTheSameUser()
         {
             var user = new User {Email = "test@example.com"};
-            Session.Transact(session => session.Save(user));
+            Session.Transact(session => session.Add(user));
             _userService.IsUniqueEmail("test@example.com",user.Id).Should().BeTrue();
         }
     }

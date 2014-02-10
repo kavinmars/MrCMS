@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -14,8 +15,7 @@ using MrCMS.Services;
 using MrCMS.Website;
 using MrCMS.Helpers;
 using System.Linq;
-using NHibernate;
-using NHibernate.Criterion;
+using Ninject;
 
 namespace MrCMS.Entities.Documents.Web
 {
@@ -25,6 +25,10 @@ namespace MrCMS.Entities.Documents.Web
         {
             InheritFrontEndRolesFromParent = true;
             Urls = new List<UrlHistory>();
+            ShownWidgets = new HashSet<Widget.Widget>();
+            HiddenWidgets = new HashSet<Widget.Widget>();
+            Widgets = new List<Widget.Widget>();
+            FrontEndAllowedRoles = new HashSet<UserRole>();
         }
         private Layout.Layout _layout;
 
@@ -77,8 +81,8 @@ namespace MrCMS.Entities.Documents.Web
             get { return _layout ?? (_layout = Layout ?? MrCMSApplication.Get<IDocumentService>().GetDefaultLayout(this)); }
         }
 
-        public virtual Iesi.Collections.Generic.ISet<Widget.Widget> ShownWidgets { get; set; }
-        public virtual Iesi.Collections.Generic.ISet<Widget.Widget> HiddenWidgets { get; set; }
+        public virtual ISet<Widget.Widget> ShownWidgets { get; set; }
+        public virtual ISet<Widget.Widget> HiddenWidgets { get; set; }
 
         public virtual IList<Widget.Widget> Widgets { get; set; }
 
@@ -149,7 +153,7 @@ namespace MrCMS.Entities.Documents.Web
 
         [DisplayName("Same as parent")]
         public virtual bool InheritFrontEndRolesFromParent { get; set; }
-        public virtual Iesi.Collections.Generic.ISet<UserRole> FrontEndAllowedRoles { get; set; }
+        public virtual ISet<UserRole> FrontEndAllowedRoles { get; set; }
 
         [DisplayName("Roles")]
         public virtual string FrontEndRoles
@@ -204,15 +208,13 @@ namespace MrCMS.Entities.Documents.Web
         /// <param name="pageNum"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public virtual IPagedList<T> PagedChildren<T>(QueryOver<T> query = null, int pageNum = 1, int pageSize = 10) where T : Webpage
+        public virtual IPagedList<T> PagedChildren<T>(Expression<Func<T,bool>> query = null, int pageNum = 1, int pageSize = 10) where T : Webpage
         {
             query = query ??
-                    QueryOver.Of<T>()
-                             .Where(a => a.Parent == this && a.PublishOn != null && a.PublishOn <= CurrentRequestData.Now)
-                             .ThenBy(arg => arg.PublishOn)
-                             .Desc;
+                    (arg => arg.Parent == this && arg.PublishOn != null && arg.PublishOn <= CurrentRequestData.Now);
+                            
 
-            return MrCMSApplication.Get<ISession>().Paged(query, pageNum, pageSize);
+            return MrCMSApplication.Get<IDbContext>().Set<T>().Where(query).Paged(pageNum, pageSize);
         }
 
         public virtual string GetPageTitle()
@@ -225,11 +227,8 @@ namespace MrCMS.Entities.Documents.Web
             return this.GetMetadata().ValidChildrenTypes.Any();
         }
         
-        public override void CustomBinding(ControllerContext controllerContext, ISession session)
-        {
-        }
 
-        public virtual void AdminViewData(ViewDataDictionary viewData, ISession session)
+        public virtual void AdminViewData(ViewDataDictionary viewData, IKernel kernel)
         {
         }
 
@@ -237,7 +236,7 @@ namespace MrCMS.Entities.Documents.Web
         {
         }
 
-        public virtual void UiViewData(ViewDataDictionary viewData, ISession session, HttpRequestBase request)
+        public virtual void UiViewData(ViewDataDictionary viewData, IKernel kernel, HttpRequestBase request)
         {
         }
 

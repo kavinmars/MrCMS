@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
-using MrCMS.DbConfiguration.Mapping;
-using MrCMS.Entities.Documents;
-using MrCMS.Entities.Documents.Web;
+﻿using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 
 namespace MrCMS.Web.Areas.Admin.Models
 {

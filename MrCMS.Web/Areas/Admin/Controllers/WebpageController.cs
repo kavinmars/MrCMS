@@ -11,20 +11,20 @@ using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Website;
 using MrCMS.Website.Binders;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {
     public class WebpageController : BaseDocumentController<Webpage>
     {
         private readonly IFormService _formService;
-        private readonly ISession _session;
+        private readonly IKernel _kernel;
 
-        public WebpageController(IDocumentService documentService, IFormService formService, ISession session, Site site)
+        public WebpageController(IDocumentService documentService, IFormService formService, IKernel kernel, Site site)
             : base(documentService, site)
         {
             _formService = formService;
-            _session = session;
+            _kernel = kernel;
         }
 
         public override ActionResult Add([IoCModelBinder(typeof(AddDocumentModelBinder))] Webpage doc)
@@ -57,7 +57,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
                                        .ToList();
             ViewData["DocumentTypes"] = documentTypeDefinitions;
 
-            doc.AdminViewData(ViewData, _session);
+            doc.AdminViewData(ViewData, _kernel);
 
             var documentMetadata = doc.GetMetadata();
             if (documentMetadata != null)

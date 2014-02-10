@@ -1,36 +1,38 @@
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Services
 {
     public class WidgetService : IWidgetService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
+        private readonly IKernel _kernel;
 
-        public WidgetService(ISession session)
+        public WidgetService(IDbContext dbContext,IKernel kernel)
         {
-            _session = session;
+            _dbContext = dbContext;
+            _kernel = kernel;
         }
 
         public T GetWidget<T>(int id) where T : Widget
         {
-            return _session.Get<T>(id);
+            return _dbContext.Get<T>(id);
         }
 
         public void SaveWidget(Widget widget)
         {
-            _session.Transact(session => session.SaveOrUpdate(widget));
+            _dbContext.Transact(session => session.AddOrUpdate(widget));
         }
 
         public object GetModel(Widget widget)
         {
-            return widget.GetModel(_session);
+            return widget.GetModel(_kernel);
         }
 
         public void DeleteWidget(Widget widget)
         {
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                 {
                     widget.OnDeleting(session);
                     session.Delete(widget);
@@ -39,8 +41,7 @@ namespace MrCMS.Services
 
         public Widget AddWidget(Widget widget)
         {
-            _session.Transact(session => session.SaveOrUpdate(widget));
-            return widget;
+            return _dbContext.Transact(session => session.AddOrUpdate(widget));
         }
     }
 }

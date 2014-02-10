@@ -2,8 +2,8 @@
 using Lucene.Net.Store;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
+using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
-using NHibernate;
 using Directory = Lucene.Net.Store.Directory;
 
 namespace MrCMS.Indexing.Querying
@@ -14,8 +14,8 @@ namespace MrCMS.Indexing.Querying
     {
         private static FSDirectory _directory;
 
-        public FSDirectorySearcher(Site currentSite, ISession session, TDefinition definition)
-            : base(currentSite, session, definition)
+        public FSDirectorySearcher(Site currentSite, IDbContext dbContext, TDefinition definition)
+            : base(currentSite, dbContext, definition)
         {
         }
 

@@ -1,12 +1,12 @@
 using System;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using System.Web.SessionState;
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Settings;
-using NHibernate;
 
 namespace MrCMS.Website.Routing
 {
@@ -29,13 +29,13 @@ namespace MrCMS.Website.Routing
 
     public class MrCMSAspxHttpHandler : ErrorHandlingHttpHandler
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly SiteSettings _siteSettings;
 
-        public MrCMSAspxHttpHandler(ISession session, IDocumentService documentService, IControllerManager controllerManager, SiteSettings siteSettings)
+        public MrCMSAspxHttpHandler(IDbContext dbContext, IDocumentService documentService, IControllerManager controllerManager, SiteSettings siteSettings)
             : base(documentService, controllerManager)
         {
-            _session = session;
+            _dbContext = dbContext;
             _siteSettings = siteSettings;
         }
 
@@ -53,11 +53,9 @@ namespace MrCMS.Website.Routing
         private void ProcessRequest(HttpContextWrapper context)
         {
             var urlHistory =
-                _session.QueryOver<UrlHistory>()
-                        .Where(history => history.UrlSegment == Data && history.Site.Id == _siteSettings.Site.Id)
-                        .Take(1)
-                        .Cacheable()
-                        .SingleOrDefault();
+                _dbContext.Set<UrlHistory>()
+                          .FirstOrDefault(
+                              history => history.UrlSegment == Data && history.Site.Id == _siteSettings.Site.Id);
             if (urlHistory != null && urlHistory.Webpage != null)
             {
                 context.Response.RedirectPermanent("~/" + urlHistory.Webpage.LiveUrlSegment);

@@ -1,45 +1,44 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using MrCMS.Helpers;
 using MrCMS.Paging;
-using NHibernate;
+using System.Linq;
 
 namespace MrCMS.Tasks
 {
     public class TaskManager : ITaskManager
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public TaskManager(ISession session)
+        public TaskManager(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public List<ScheduledTask> GetAllScheduledTasks()
         {
-            return _session.QueryOver<ScheduledTask>().Cacheable().List().ToList();
+            return _dbContext.Set<ScheduledTask>().ToList();
         }
 
         public IPagedList<QueuedTask> GetQueuedTask(QueuedTaskSearchQuery searchQuery)
         {
-            var queryOver = _session.QueryOver<QueuedTask>();
+            var queryOver = _dbContext.Set<QueuedTask>();
 
-            return queryOver.OrderBy(task => task.CreatedOn).Desc.Paged(searchQuery.Page);
+            return queryOver.OrderByDescending(task => task.CreatedOn).Paged(searchQuery.Page);
         }
 
         public void Add(ScheduledTask scheduledTask)
         {
-            _session.Transact(session => session.Save(scheduledTask));
+            _dbContext.Transact(session => session.Add(scheduledTask));
         }
 
         public void Update(ScheduledTask scheduledTask)
         {
-            _session.Transact(session => session.Update(scheduledTask));
+            _dbContext.Transact(session => session.Update(scheduledTask));
         }
 
         public void Delete(ScheduledTask scheduledTask)
         {
-            _session.Transact(session => session.Delete(scheduledTask));
+            _dbContext.Transact(session => session.Delete(scheduledTask));
         }
     }
 }

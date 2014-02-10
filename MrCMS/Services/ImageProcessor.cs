@@ -6,20 +6,21 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using MrCMS.Entities.Documents.Media;
+using MrCMS.Helpers;
 using MrCMS.Settings;
-using NHibernate;
+
 
 namespace MrCMS.Services
 {
     public class ImageProcessor : IImageProcessor
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly IFileSystem _fileSystem;
         private readonly MediaSettings _mediaSettings;
 
-        public ImageProcessor(ISession session, IFileSystem fileSystem, MediaSettings mediaSettings)
+        public ImageProcessor(IDbContext dbContext, IFileSystem fileSystem, MediaSettings mediaSettings)
         {
-            _session = session;
+            _dbContext = dbContext;
             _fileSystem = fileSystem;
             _mediaSettings = mediaSettings;
         }
@@ -33,10 +34,8 @@ namespace MrCMS.Services
                 imageUrl = imageUrl.Remove(lastIndexOf - 1, resizePart.Length + 1);
             }
             var fileByLocation =
-                _session.QueryOver<MediaFile>()
-                        .Where(file => file.FileUrl == imageUrl)
-                        .Cacheable()
-                        .List().FirstOrDefault();
+                _dbContext.Set<MediaFile>()
+                          .FirstOrDefault(file => file.FileUrl == imageUrl);
 
             return fileByLocation;
         }

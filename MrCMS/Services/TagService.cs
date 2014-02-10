@@ -1,22 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
-using Iesi.Collections.Generic;
 using MrCMS.Entities.Documents;
 using MrCMS.Helpers;
 using MrCMS.Models;
 using MrCMS.Website;
-using NHibernate;
-using NHibernate.Criterion;
 
 namespace MrCMS.Services
 {
     public class TagService : ITagService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public TagService(ISession session)
+        public TagService(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public IEnumerable<AutoCompleteResult> Search(Document document, string term)
@@ -24,7 +21,7 @@ namespace MrCMS.Services
             var tags = GetTags(document);
 
             return
-                _session.QueryOver<Tag>().Where(x => x.Site == document.Site && x.Name.IsInsensitiveLike(term, MatchMode.Start)).List().Select(
+                _dbContext.Set<Tag>().Where(x => x.Site == document.Site && x.Name.StartsWith(term)).ToList().Select(
                     tag =>
                     new AutoCompleteResult
                         {
@@ -36,7 +33,7 @@ namespace MrCMS.Services
 
         public IEnumerable<Tag> GetTags(Document document)
         {
-            Iesi.Collections.Generic.ISet<Tag> parentCategories = new HashedSet<Tag>();
+            ISet<Tag> parentCategories = new HashSet<Tag>();
 
             if (document != null)
             {
@@ -49,12 +46,12 @@ namespace MrCMS.Services
 
         public Tag GetByName(string name)
         {
-            return _session.QueryOver<Tag>().Where(x => x.Site == CurrentRequestData.CurrentSite
-                && x.Name.IsInsensitiveLike(name, MatchMode.Exact)).SingleOrDefault();
+            return _dbContext.Set<Tag>().FirstOrDefault(x => x.Site == CurrentRequestData.CurrentSite
+                                                             && x.Name == name);
         }
         public void Add(Tag tag)
         {
-            _session.Transact(session => session.Save(tag));
+            _dbContext.Transact(session => session.Add(tag));
         }
     }
 }

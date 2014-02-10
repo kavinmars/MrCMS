@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Web;
 using FakeItEasy;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.People;
-using MrCMS.Models;
 using MrCMS.Services;
 using MrCMS.Settings;
-using MrCMS.Tasks;
-using MrCMS.Web.Apps.Core.MessageTemplates;
-using MrCMS.Web.Apps.Core.Models;
-using MrCMS.Web.Apps.Core.Services;
 using MrCMS.Website;
 using Xunit;
 using FluentAssertions;
-using System.Linq;
 
 namespace MrCMS.Tests.Services
 {
-    public class ResetPasswordServiceTests : InMemoryDatabaseTest
+   /* public class ResetPasswordServiceTests : InMemoryDatabaseTest
     {
         private readonly SiteSettings _siteSettings;
         private readonly MailSettings _mailSettings;
@@ -170,5 +163,5 @@ namespace MrCMS.Tests.Services
                                                                                        Email = "test@example.com"
                                                                                    }));
         }
-    }
+    }*/
 }

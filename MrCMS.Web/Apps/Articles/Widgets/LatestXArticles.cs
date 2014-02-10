@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MrCMS.Entities.Widget;
-using MrCMS.Services;
+using MrCMS.Helpers;
 using MrCMS.Web.Apps.Articles.Pages;
 using MrCMS.Website;
-using MrCMS.Helpers;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Articles.Widgets
 {
@@ -13,7 +13,7 @@ namespace MrCMS.Web.Apps.Articles.Widgets
         public virtual int NumberOfArticles { get; set; }
         public virtual ArticleList RelatedNewsList { get; set; }
 
-        public override object GetModel(NHibernate.ISession session)
+        public override object GetModel(IKernel kernel)
         {
             if (RelatedNewsList == null)
                 return null;
@@ -21,22 +21,20 @@ namespace MrCMS.Web.Apps.Articles.Widgets
 
             return new LatestXArticlesViewModel
                        {
-                           Articles = session.QueryOver<Article>()
+                           Articles = kernel.Get<IDbContext>().Set<Article>()
                                            .Where(article => article.Parent.Id == RelatedNewsList.Id && article.PublishOn != null && article.PublishOn <= CurrentRequestData.Now)
                                            .Take(NumberOfArticles)
-                                           .Cacheable()
-                                           .List(),
+                                           .ToList(),
                            Title = this.Name
                        };
 
         }
 
-        public override void SetDropdownData(System.Web.Mvc.ViewDataDictionary viewData, NHibernate.ISession session)
+        public override void SetDropdownData(System.Web.Mvc.ViewDataDictionary viewData, IKernel kernel)
         {
-            viewData["newsList"] = session.QueryOver<ArticleList>()
+            viewData["newsList"] = kernel.Get<IDbContext>().Set<ArticleList>()
                                                 .Where(article => article.PublishOn != null && article.PublishOn <= CurrentRequestData.Now)
-                                                .Cacheable()
-                                                .List()
+                                                .ToList()
                                                 .BuildSelectItemList(item => item.Name,
                                                                      item => item.Id.ToString(),
                                                                      emptyItemText: "Please select news list");

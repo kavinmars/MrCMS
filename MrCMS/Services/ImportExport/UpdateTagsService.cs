@@ -6,19 +6,18 @@ using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Services.ImportExport.DTOs;
-using NHibernate;
 
 namespace MrCMS.Services.ImportExport
 {
     public class UpdateTagsService : IUpdateTagsService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly Site _site;
         private HashSet<Tag> _tags;
 
-        public UpdateTagsService(ISession session, Site site)
+        public UpdateTagsService(IDbContext dbContext, Site site)
         {
-            _session = session;
+            _dbContext = dbContext;
             _site = site;
         }
 
@@ -29,7 +28,7 @@ namespace MrCMS.Services.ImportExport
 
         public IUpdateTagsService Inititalise()
         {
-            _tags = new HashSet<Tag>(_session.QueryOver<Tag>().Where(tag => tag.Site == _site).List());
+            _tags = new HashSet<Tag>(_dbContext.Set<Tag>());
             return this;
         }
 
@@ -61,7 +60,7 @@ namespace MrCMS.Services.ImportExport
 
         public void SaveTags()
         {
-            _session.Transact(session => Tags.ForEach(session.SaveOrUpdate));
+            _dbContext.Transact(dbContext => Tags.ForEach(tag => dbContext.AddOrUpdate(tag)));
         }
     }
 }

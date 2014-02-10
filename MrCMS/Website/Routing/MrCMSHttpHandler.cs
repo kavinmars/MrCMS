@@ -6,10 +6,11 @@ using System.Web.Routing;
 using System.Web.SessionState;
 using MrCMS.Apps;
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Settings;
 using MrCMS.Website.Optimization;
-using NHibernate;
+using Ninject;
 
 namespace MrCMS.Website.Routing
 {
@@ -67,20 +68,21 @@ namespace MrCMS.Website.Routing
 
     public sealed class MrCMSHttpHandler : ErrorHandlingHttpHandler
     {
+        private readonly IKernel _kernel;
         private readonly IDocumentService _documentService;
         private readonly SiteSettings _siteSettings;
         private readonly SEOSettings _seoSettings;
         private Webpage _webpage;
         private bool _webpageLookedUp;
-        private readonly ISession _session;
+        //private readonly IDbContext _dbContext;
         private readonly IControllerManager _controllerManager;
 
 
-        public MrCMSHttpHandler(ISession session, IDocumentService documentService, IControllerManager controllerManager,
+        public MrCMSHttpHandler(IKernel kernel, IDocumentService documentService, IControllerManager controllerManager,
                                 SiteSettings siteSettings, SEOSettings seoSettings)
             : base(documentService, controllerManager)
         {
-            _session = session;
+            _kernel = kernel;
             _documentService = documentService;
             _controllerManager = controllerManager;
             _siteSettings = siteSettings;
@@ -115,7 +117,7 @@ namespace MrCMS.Website.Routing
 
             var controller = _controllerManager.GetController(RequestContext, Webpage, context.Request.HttpMethod);
 
-            _controllerManager.SetViewData(Webpage, controller, _session);
+            _controllerManager.SetViewData(Webpage, controller, _kernel);
 
             _controllerManager.SetFormData(Webpage, controller, context.Request.Form);
 

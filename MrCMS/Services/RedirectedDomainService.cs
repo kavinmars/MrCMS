@@ -1,30 +1,29 @@
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
-using NHibernate;
 
 namespace MrCMS.Services
 {
     public class RedirectedDomainService : IRedirectedDomainService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public RedirectedDomainService(ISession session)
+        public RedirectedDomainService(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void Save(RedirectedDomain domain)
         {
             if (domain.Site != null)
                 domain.Site.RedirectedDomains.Add(domain);
-            _session.Transact(session => session.Save(domain));
+            _dbContext.Transact(dbContext => dbContext.Add(domain));
         }
 
         public void Delete(RedirectedDomain domain)
         {
             if (domain.Site != null)
                 domain.Site.RedirectedDomains.Remove(domain);
-            _session.Transact(session => session.Delete(domain));
+            _dbContext.Transact(dbContext => dbContext.Delete(domain));
         }
     }
 }

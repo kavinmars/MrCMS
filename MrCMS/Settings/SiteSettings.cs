@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Net;
 using System.Web.Mvc;
-using NHibernate;
+using MrCMS.Helpers;
 
 namespace MrCMS.Settings
 {
@@ -107,15 +107,15 @@ namespace MrCMS.Settings
             }
         }
 
-        public override void SetViewData(ISession session, ViewDataDictionary viewDataDictionary)
+        public override void SetViewData(IDbContext dbContext, ViewDataDictionary viewDataDictionary)
         {
-            viewDataDictionary["DefaultLayoutOptions"] = SiteSettingsOptionGenerator.GetLayoutOptions(session, Site,
+            viewDataDictionary["DefaultLayoutOptions"] = SiteSettingsOptionGenerator.GetLayoutOptions(dbContext, Site,
                                                                                                        DefaultLayoutId);
-            viewDataDictionary["403Options"] = SiteSettingsOptionGenerator.GetErrorPageOptions(session, Site,
+            viewDataDictionary["403Options"] = SiteSettingsOptionGenerator.GetErrorPageOptions(dbContext, Site,
                                                                                                 Error403PageId);
-            viewDataDictionary["404Options"] = SiteSettingsOptionGenerator.GetErrorPageOptions(session, Site,
+            viewDataDictionary["404Options"] = SiteSettingsOptionGenerator.GetErrorPageOptions(dbContext, Site,
                                                                                                 Error404PageId);
-            viewDataDictionary["500Options"] = SiteSettingsOptionGenerator.GetErrorPageOptions(session, Site,
+            viewDataDictionary["500Options"] = SiteSettingsOptionGenerator.GetErrorPageOptions(dbContext, Site,
                                                                                                 Error500PageId);
             viewDataDictionary["Themes"] = SiteSettingsOptionGenerator.GetThemeNames(ThemeName);
 

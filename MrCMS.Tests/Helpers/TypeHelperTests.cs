@@ -7,7 +7,6 @@ using MrCMS.Helpers;
 using MrCMS.Installation;
 using MrCMS.Models;
 using MrCMS.Website.Controllers;
-using NHibernate;
 using Ninject;
 using Xunit;
 using System.Linq;
@@ -110,14 +109,14 @@ namespace MrCMS.Tests.Helpers
             get { return "Test"; }
         }
 
+        protected override void OnInstallation(IDbContext dbContext, InstallModel model, Site site)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void RegisterServices(IKernel kernel)
         {
             
-        }
-
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
-        {
-            throw new NotImplementedException();
         }
     }
 }

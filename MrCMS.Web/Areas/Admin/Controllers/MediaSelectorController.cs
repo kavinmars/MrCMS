@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using MrCMS.Entities.Documents.Media;
+using MrCMS.Helpers;
 using MrCMS.Paging;
 using MrCMS.Services;
-using MrCMS.Settings;
 using MrCMS.Website.Controllers;
-using NHibernate;
-using MrCMS.Helpers;
-using NHibernate.Criterion;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {
@@ -48,18 +47,18 @@ namespace MrCMS.Web.Areas.Admin.Controllers
 
     public class MediaSelectorService : IMediaSelectorService
     {
-        private readonly ISession _session;
         private readonly IFileService _fileService;
+        private readonly IDbContext _dbContext;
 
-        public MediaSelectorService(ISession session, IFileService fileService)
+        public MediaSelectorService(IDbContext dbContext, IFileService fileService)
         {
-            _session = session;
+            _dbContext = dbContext;
             _fileService = fileService;
         }
 
         public IPagedList<MediaFile> Search(MediaSelectorSearchQuery searchQuery)
         {
-            var queryOver = _session.QueryOver<MediaFile>();
+            var queryOver = _dbContext.Set<MediaFile>();
             if (searchQuery.CategoryId.HasValue)
                 queryOver = queryOver.Where(file => file.MediaCategory.Id == searchQuery.CategoryId);
             if (!string.IsNullOrWhiteSpace(searchQuery.Query))
@@ -68,16 +67,16 @@ namespace MrCMS.Web.Areas.Admin.Controllers
                 queryOver =
                     queryOver.Where(
                         file =>
-                        file.FileName.IsLike(term, MatchMode.Anywhere) ||
-                        file.Title.IsLike(term, MatchMode.Anywhere) ||
-                        file.Description.IsLike(term, MatchMode.Anywhere));
+                        file.FileName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        file.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        file.Description.Contains(term, StringComparison.OrdinalIgnoreCase));
             }
-            return queryOver.OrderBy(file => file.CreatedOn).Desc.Paged(searchQuery.Page);
+            return queryOver.OrderByDescending(file => file.CreatedOn).Paged(searchQuery.Page);
         }
 
         public List<SelectListItem> GetCategories()
         {
-            return _session.QueryOver<MediaCategory>().Where(category => !category.HideInAdminNav).Cacheable().List()
+            return _dbContext.Set<MediaCategory>().Where(category => !category.HideInAdminNav).ToList()
                            .BuildSelectItemList(category => category.Name, category => category.Id.ToString(),
                                                 emptyItemText: "All categories");
         }

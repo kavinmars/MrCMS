@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using NHibernate;
+using MrCMS.Helpers;
 
 namespace MrCMS.Entities
 {
@@ -14,7 +14,7 @@ namespace MrCMS.Entities
 
         public virtual bool IsDeleted { get; set; }
 
-        public virtual void OnDeleting(ISession session)
+        public virtual void OnDeleting(IDbContext dbContext)
         {
         }
     }

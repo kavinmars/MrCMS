@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using MrCMS.Entities.Multisite;
-using MrCMS.Entities.Settings;
-using MrCMS.Models;
-using NHibernate;
 using MrCMS.Helpers;
+using MrCMS.Models;
 
 namespace MrCMS.Services
 {
@@ -16,12 +12,12 @@ namespace MrCMS.Services
     public class CloneSiteService : ICloneSiteService
     {
         private readonly ICloneSitePartsService _cloneSitePartsService;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public CloneSiteService(ICloneSitePartsService cloneSitePartsService, ISession session)
+        public CloneSiteService(ICloneSitePartsService cloneSitePartsService, IDbContext dbContext)
         {
             _cloneSitePartsService = cloneSitePartsService;
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void CloneData(Site site, SiteCopyOptions options)
@@ -29,7 +25,7 @@ namespace MrCMS.Services
             if (!options.SiteId.HasValue)
                 return;
 
-            var @from = _session.Get<Site>(options.SiteId.Value);
+            var @from = _dbContext.Get<Site>(options.SiteId.Value);
             if (@from == null)
                 return;
             _cloneSitePartsService.CopySettings(@from, site);

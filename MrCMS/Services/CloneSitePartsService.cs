@@ -1,4 +1,5 @@
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
@@ -7,25 +8,24 @@ using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Settings;
-using NHibernate;
 
 namespace MrCMS.Services
 {
     public class CloneSitePartsService : ICloneSitePartsService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dataContext;
 
-        public CloneSitePartsService(ISession session)
+        public CloneSitePartsService(IDbContext dataContext)
         {
-            _session = session;
+            _dataContext = dataContext;
         }
 
         public void CopySettings(Site @from, Site to)
         {
-            _session.Transact(session =>
+            _dataContext.Transact(session =>
             {
-                var fromProvider = new ConfigurationProvider(new SettingService(_session, @from), @from);
-                var toProvider = new ConfigurationProvider(new SettingService(_session, @to), @to);
+                var fromProvider = new ConfigurationProvider(new SettingService(session, @from), @from);
+                var toProvider = new ConfigurationProvider(new SettingService(session, @to), @to);
                 var siteSettingsBases = fromProvider.GetAllSiteSettings();
                 siteSettingsBases.ForEach(@base =>
                 {
@@ -38,17 +38,17 @@ namespace MrCMS.Services
         public void CopyLayouts(Site @from, Site to)
         {
             var layouts =
-                _session.QueryOver<Layout>().Where(layout => layout.Site == @from && layout.Parent == null).List();
+                _dataContext.Set<Layout>().Where(layout => layout.Site == @from && layout.Parent == null).ToList();
 
             var copies = layouts.Select(layout => CopyLayout(layout, to));
 
-            _session.Transact(session => copies.ForEach(layout =>
+            _dataContext.Transact(session => copies.ForEach(layout =>
             {
-                session.Save(layout);
+                session.Add(layout);
                 layout.LayoutAreas.ForEach(area =>
                 {
-                    session.Save(area);
-                    area.Widgets.ForEach(widget => session.Save(widget));
+                    session.Add(area);
+                    area.Widgets.ForEach(widget => session.Add(widget));
                 });
             }));
         }
@@ -89,11 +89,11 @@ namespace MrCMS.Services
 
         public void CopyMediaCategories(Site @from, Site to)
         {
-            var mediaCategories = _session.QueryOver<MediaCategory>().Where(category => category.Site == @from && category.Parent == null).List();
+            var mediaCategories = _dataContext.Set<MediaCategory>().Where(category => category.Site == @from && category.Parent == null).ToList();
 
             var copies = mediaCategories.Select(category => CopyMediaCategory(category, to));
 
-            _session.Transact(session => copies.ForEach(category => session.Save(category)));
+            _dataContext.Transact(session => copies.ForEach(category => session.Add(category)));
         }
 
         private MediaCategory CopyMediaCategory(MediaCategory category, Site to)
@@ -115,25 +115,23 @@ namespace MrCMS.Services
         public void CopyHome(Site @from, Site to)
         {
             var home =
-                _session.QueryOver<Webpage>()
-                        .Where(webpage => webpage.Site == @from && webpage.Parent == null)
-                        .OrderBy(webpage => webpage.DisplayOrder)
-                        .Asc.Take(1)
-                        .SingleOrDefault();
+                _dataContext.Set<Webpage>()
+                            .OrderBy(webpage => webpage.DisplayOrder)
+                            .FirstOrDefault(webpage => webpage.Site == @from && webpage.Parent == null);
 
             var copy = GetCopy(home, to);
-            _session.Transact(session => session.Save(copy));
+            _dataContext.Transact(session => session.Add(copy));
         }
 
         public void Copy404(Site @from, Site to)
         {
-            var fromProvider = new ConfigurationProvider(new SettingService(_session, @from), @from);
-            var toProvider = new ConfigurationProvider(new SettingService(_session, @to), @to);
+            var fromProvider = new ConfigurationProvider(new SettingService(_dataContext, @from), @from);
+            var toProvider = new ConfigurationProvider(new SettingService(_dataContext, @to), @to);
             var siteSettings = fromProvider.GetSiteSettings<SiteSettings>();
-            var error404 = _session.Get<Webpage>(siteSettings.Error404PageId);
+            var error404 = _dataContext.Get<Webpage>(siteSettings.Error404PageId);
 
             var copy = GetCopy(error404, to);
-            _session.Transact(session => session.Save(copy));
+            _dataContext.Transact(session => session.Add(copy));
 
             var toSettings = toProvider.GetSiteSettings<SiteSettings>();
             toSettings.Error404PageId = copy.Id;
@@ -142,13 +140,13 @@ namespace MrCMS.Services
 
         public void Copy403(Site @from, Site to)
         {
-            var fromProvider = new ConfigurationProvider(new SettingService(_session, @from), @from);
-            var toProvider = new ConfigurationProvider(new SettingService(_session, @to), @to);
+            var fromProvider = new ConfigurationProvider(new SettingService(_dataContext, @from), @from);
+            var toProvider = new ConfigurationProvider(new SettingService(_dataContext, @to), @to);
             var siteSettings = fromProvider.GetSiteSettings<SiteSettings>();
-            var error403 = _session.Get<Webpage>(siteSettings.Error403PageId);
+            var error403 = _dataContext.Get<Webpage>(siteSettings.Error403PageId);
 
             var copy = GetCopy(error403, to);
-            _session.Transact(session => session.Save(copy));
+            _dataContext.Transact(session => session.Add(copy));
 
             var toSettings = toProvider.GetSiteSettings<SiteSettings>();
             toSettings.Error403PageId = copy.Id;
@@ -157,13 +155,13 @@ namespace MrCMS.Services
 
         public void Copy500(Site @from, Site to)
         {
-            var fromProvider = new ConfigurationProvider(new SettingService(_session, @from), @from);
-            var toProvider = new ConfigurationProvider(new SettingService(_session, @to), @to);
+            var fromProvider = new ConfigurationProvider(new SettingService(_dataContext, @from), @from);
+            var toProvider = new ConfigurationProvider(new SettingService(_dataContext, @to), @to);
             var siteSettings = fromProvider.GetSiteSettings<SiteSettings>();
-            var error500 = _session.Get<Webpage>(siteSettings.Error500PageId);
+            var error500 = _dataContext.Get<Webpage>(siteSettings.Error500PageId);
 
             var copy = GetCopy(error500, to);
-            _session.Transact(session => session.Save(copy));
+            _dataContext.Transact(session => session.Add(copy));
 
             var toSettings = toProvider.GetSiteSettings<SiteSettings>();
             toSettings.Error500PageId = copy.Id;
@@ -173,16 +171,16 @@ namespace MrCMS.Services
         public void CopyLogin(Site @from, Site to)
         {
             var login =
-                _session.QueryOver<Webpage>()
-                        .Where(webpage => webpage.Site == @from && webpage.DocumentType == "MrCMS.Web.Apps.Core.Pages.LoginPage")
-                        .OrderBy(webpage => webpage.DisplayOrder)
-                        .Asc.Take(1)
-                        .SingleOrDefault();
+                _dataContext.Set<Webpage>()
+                            .OrderBy(webpage => webpage.DisplayOrder)
+                            .FirstOrDefault(
+                                webpage =>
+                                webpage.Site == @from && webpage.DocumentType == "MrCMS.Web.Apps.Core.Pages.LoginPage");
 
             if (login != null)
             {
                 var loginCopy = GetCopy(login, to);
-                _session.Transact(session => session.Save(loginCopy));
+                _dataContext.Transact(session => session.Add(loginCopy));
             }
         }
     }

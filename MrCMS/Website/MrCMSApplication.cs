@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
+using System.Data.Entity;
 using System.IO;
 using System.Threading;
 using System.Web;
@@ -10,24 +10,19 @@ using System.Web.Routing;
 using Elmah;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using MrCMS.Apps;
-using MrCMS.DbConfiguration.Configuration;
-using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
-using MrCMS.Events;
+using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Installation;
 using MrCMS.IoC;
 using MrCMS.Services;
 using MrCMS.Settings;
-using MrCMS.Tasks;
 using MrCMS.Website;
 using MrCMS.Website.Binders;
 using MrCMS.Website.Routing;
-using NHibernate;
 using Ninject;
 using Ninject.Web.Common;
 using System.Linq;
-using MrCMS.Helpers;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(MrCMSApplication), "Start", Order = 1)]
 [assembly: WebActivator.PreApplicationStartMethod(typeof(MrCMSApplication), "EnsureIndexesExist", Order = 2)]
@@ -55,11 +50,14 @@ namespace MrCMS.Website
             ControllerBuilder.Current.SetControllerFactory(new MrCMSControllerFactory());
 
             GlobalFilters.Filters.Add(new HoneypotFilterAttribute());
+
+
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<MrCMSDbContext, Migrations.Configuration>());
         }
 
         private static void SetModelBinders()
         {
-            ModelBinders.Binders.DefaultBinder = new MrCMSDefaultModelBinder(Get<ISession>);
+            ModelBinders.Binders.DefaultBinder = new MrCMSDefaultModelBinder(Get<IDbContext>);
             ModelBinders.Binders.Add(typeof(DateTime), new CultureAwareDateBinder());
             ModelBinders.Binders.Add(typeof(DateTime?), new NullableCultureAwareDateBinder());
         }
@@ -112,11 +110,11 @@ namespace MrCMS.Website
                                   {
                                       if (CurrentRequestData.QueuedTasks.Any())
                                       {
-                                          Kernel.Get<ISession>()
+                                          Kernel.Get<IDbContext>()
                                                  .Transact(session =>
                                                                {
                                                                    foreach (var queuedTask in CurrentRequestData.QueuedTasks)
-                                                                       session.Save(queuedTask);
+                                                                       session.Add(queuedTask);
                                                                });
                                       }
                                       foreach (var action in CurrentRequestData.OnEndRequest)
@@ -183,8 +181,8 @@ namespace MrCMS.Website
         {
             if (CurrentRequestData.DatabaseIsInstalled)
             {
-                var session = bootstrapper.Kernel.Get<ISessionFactory>().OpenFilteredSession();
-                var sites = session.QueryOver<Site>().List();
+                var session = bootstrapper.Kernel.Get<IDbContextFactory>().GetContext();
+                var sites = session.Set<Site>().ToList();
                 foreach (var site in sites)
                     IndexManager.EnsureIndexesExist(session, site);
             }
@@ -204,8 +202,7 @@ namespace MrCMS.Website
         /// <returns>The created kernel.</returns>
         private static IKernel CreateKernel()
         {
-            var kernel = new StandardKernel(new ServiceModule(), new ContextModule(),
-                                            new NHibernateModule(DatabaseType.Auto, InDevelopment));
+            var kernel = new StandardKernel(new ServiceModule(), new ContextModule());
             kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
             kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
 

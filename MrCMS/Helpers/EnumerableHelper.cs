@@ -17,9 +17,10 @@ namespace MrCMS.Helpers
             }
         }
 
-        public static List<T> ToList<T>(this IEnumerable<T> list, Func<T, bool> predicate)
+        public static List<T> ToList<T>(this IEnumerable<T> list, Func<T, bool> predicate=null)
         {
-            return list.Where(predicate).ToList();
+            if (predicate != null) return list.Where(predicate).ToList();
+            return Enumerable.ToList(list);
         }
 
         /// <summary>

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Web;
-using Iesi.Collections.Generic;
 using Microsoft.AspNet.Identity;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
@@ -17,16 +16,15 @@ using MrCMS.Settings;
 using MrCMS.Web.Apps.Core.Pages;
 using MrCMS.Web.Apps.Core.Widgets;
 using MrCMS.Website;
-using NHibernate;
 
 namespace MrCMS.Web.Apps.Core
 {
     public class CoreAppInstallation
     {
-        public static void Install(ISession session, InstallModel model, Site site)
+        public static void Install(IDbContext dbContext, InstallModel model, Site site)
         {
 //settings
-            session.Transact(sess => sess.Save(site));
+            dbContext.Transact(sess => sess.Add(site));
             CurrentRequestData.CurrentSite = site;
 
             var siteSettings = new SiteSettings
@@ -47,16 +45,16 @@ namespace MrCMS.Web.Apps.Core
 
             CurrentRequestData.SiteSettings = siteSettings;
 
-            var documentService = new DocumentService(session,
+            var documentService = new DocumentService(dbContext,
                                                       new DocumentEventService(new List<IOnDocumentDeleted>(),
                                                                                new List<IOnDocumentUnpublished>(),
                                                                                new List<IOnDocumentAdded>()),
                                                       siteSettings, site);
-            var layoutAreaService = new LayoutAreaService(session);
-            var widgetService = new WidgetService(session);
+            var layoutAreaService = new LayoutAreaService(dbContext);
+            var widgetService = new WidgetService(dbContext, null);
             var fileSystem = new FileSystem();
-            var imageProcessor = new ImageProcessor(session, fileSystem, mediaSettings);
-            var fileService = new FileService(session, fileSystem, imageProcessor, mediaSettings, site, siteSettings);
+            var imageProcessor = new ImageProcessor(dbContext, fileSystem, mediaSettings);
+            var fileService = new FileService(dbContext, fileSystem, imageProcessor, mediaSettings, site, siteSettings);
             var user = new User
                            {
                                Email = model.AdminEmail,
@@ -66,12 +64,12 @@ namespace MrCMS.Web.Apps.Core
             var hashAlgorithms = new List<IHashAlgorithm> {new SHA512HashAlgorithm()};
             var hashAlgorithmProvider = new HashAlgorithmProvider(hashAlgorithms);
             var passwordEncryptionManager = new PasswordEncryptionManager(hashAlgorithmProvider,
-                                                                          new UserService(session, siteSettings));
+                                                                          new UserService(dbContext, siteSettings));
             var passwordManagementService = new PasswordManagementService(passwordEncryptionManager);
 
             passwordManagementService.ValidatePassword(model.AdminPassword, model.ConfirmPassword);
             passwordManagementService.SetPassword(user, model.AdminPassword, model.ConfirmPassword);
-            var userService = new UserService(session, siteSettings);
+            var userService = new UserService(dbContext, siteSettings);
             userService.AddUser(user);
             CurrentRequestData.CurrentUser = user;
 
@@ -202,8 +200,8 @@ namespace MrCMS.Web.Apps.Core
                                       };
             documentService.AddDocument(userAccountPage);
 
-            var registerPage = new RegisterPage()
-                                   {
+            var registerPage = new RegisterPage
+                {
                                        Name = "Register",
                                        UrlSegment = "register",
                                        CreatedOn = CurrentRequestData.Now,
@@ -212,7 +210,7 @@ namespace MrCMS.Web.Apps.Core
                                    };
             documentService.AddDocument(registerPage);
 
-            var webpages = session.QueryOver<Webpage>().List();
+            var webpages = dbContext.Set<Webpage>().ToList();
             webpages.ForEach(documentService.PublishNow);
 
             var defaultMediaCategory = new MediaCategory
@@ -242,7 +240,7 @@ namespace MrCMS.Web.Apps.Core
             mediaSettings.ResizeQuality = 90;
             mediaSettings.DefaultCategory = defaultMediaCategory.Id;
 
-            var configurationProvider = new ConfigurationProvider(new SettingService(session, site),
+            var configurationProvider = new ConfigurationProvider(new SettingService(dbContext, site),
                                                                   site);
             var fileSystemSettings = new FileSystemSettings {Site = site, StorageType = typeof (FileSystem).FullName};
             configurationProvider.SaveSettings(siteSettings);
@@ -268,14 +266,14 @@ namespace MrCMS.Web.Apps.Core
                                         Name = UserRole.Administrator
                                     };
 
-            user.Roles = new HashedSet<UserRole> {adminUserRole};
-            adminUserRole.Users = new HashedSet<User> {user};
-            var roleService = new RoleService(session);
+            user.Roles = new HashSet<UserRole> {adminUserRole};
+            adminUserRole.Users = new HashSet<User> {user};
+            var roleService = new RoleService(dbContext);
             roleService.SaveRole(adminUserRole);
 
             var authorisationService = new AuthorisationService(HttpContext.Current.GetOwinContext().Authentication,
                                                                 new UserManager<User>(new UserStore(userService,
-                                                                                                    roleService, session)));
+                                                                                                    roleService, dbContext)));
             authorisationService.Logout();
             authorisationService.SetAuthCookie(user, false);
         }

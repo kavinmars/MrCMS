@@ -1,11 +1,11 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using MrCMS.Entities.Messaging;
 using MrCMS.Helpers;
 using MrCMS.Settings;
 using MrCMS.Website;
-using NHibernate;
 
 namespace MrCMS.Tasks
 {
@@ -13,12 +13,12 @@ namespace MrCMS.Tasks
     {
         public const int MAX_TRIES = 5;
         private readonly MailSettings _mailSettings;
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly SiteSettings _siteSettings;
 
-        public SendQueuedMessagesTask(ISession session, MailSettings mailSettings, SiteSettings siteSettings)
+        public SendQueuedMessagesTask(IDbContext dbContext, MailSettings mailSettings, SiteSettings siteSettings)
         {
-            _session = session;
+            _dbContext = dbContext;
             _mailSettings = mailSettings;
             _siteSettings = siteSettings;
         }
@@ -37,19 +37,19 @@ namespace MrCMS.Tasks
                                                     new NetworkCredential(_mailSettings.UserName, _mailSettings.Password)
                                             })
                 {
-                    _session.Transact(session =>
+                    _dbContext.Transact(session =>
                                           {
                                               foreach (
                                                   QueuedMessage queuedMessage in
-                                                      session.QueryOver<QueuedMessage>().Where(
+                                                      session.Set<QueuedMessage>().Where(
                                                           message => message.SentOn == null && message.Tries < MAX_TRIES)
-                                                             .List())
+                                                             .ToList())
                                               {
                                                   if (CanSend(queuedMessage, smtpClient))
                                                       SendMailMessage(queuedMessage, smtpClient);
                                                   else
                                                       MarkAsSent(queuedMessage);
-                                                  session.SaveOrUpdate(queuedMessage);
+                                                  session.AddOrUpdate(queuedMessage);
                                               }
                                           });
                 }

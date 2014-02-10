@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Mvc;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Website;
-using NHibernate;
 
 namespace MrCMS.Entities.Documents.Media
 {
@@ -34,10 +34,10 @@ namespace MrCMS.Entities.Documents.Media
         public override bool ShowInAdminNav { get { return !HideInAdminNav; } }
 
 
-        public override void OnDeleting(ISession session)
+        public override void OnDeleting(IDbContext dbContext)
         {
-            base.OnDeleting(session);
-            
+            base.OnDeleting(dbContext);
+
             var mediaFiles = Files.ToList();
 
             var fileService = MrCMSApplication.Get<IFileService>();

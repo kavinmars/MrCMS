@@ -15,23 +15,21 @@ using MrCMS.Models;
 using MrCMS.Paging;
 using MrCMS.Settings;
 using MrCMS.Shortcodes.Forms;
-using MrCMS.Tasks;
 using MrCMS.Website;
-using NHibernate;
 
 namespace MrCMS.Services
 {
     public class FormService : IFormService
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
         private readonly IDocumentService _documentService;
         private readonly IFileService _fileService;
         private readonly SiteSettings _siteSettings;
         private readonly MailSettings _mailSettings;
 
-        public FormService(ISession session, IDocumentService documentService, IFileService fileService, SiteSettings siteSettings, MailSettings mailSettings)
+        public FormService(IDbContext dbContext, IDocumentService documentService, IFileService fileService, SiteSettings siteSettings, MailSettings mailSettings)
         {
-            _session = session;
+            _dbContext = dbContext;
             _documentService = documentService;
             _fileService = fileService;
             _siteSettings = siteSettings;
@@ -43,13 +41,13 @@ namespace MrCMS.Services
             var formProperties = webpage.FormProperties;
 
             var formPosting = new FormPosting { Webpage = webpage };
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
                                       webpage.FormPostings.Add(formPosting);
-                                      session.SaveOrUpdate(formPosting);
+                                      session.Add(formPosting);
                                   });
             var errors = new List<string>();
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
                                       foreach (var formProperty in formProperties)
                                       {
@@ -104,7 +102,7 @@ namespace MrCMS.Services
                                       }
                                       else
                                       {
-                                          formPosting.FormValues.ForEach(value => session.Save(value));
+                                          formPosting.FormValues.ForEach(value => session.Add(value));
 
                                           SendFormMessages(webpage, formPosting);
                                       }
@@ -146,7 +144,7 @@ namespace MrCMS.Services
 
         public void SaveFormData(Webpage webpage, FormCollection formCollection)
         {
-            _session.Transact(session =>
+            _dbContext.Transact(session =>
                                   {
                                       if (webpage == null) return;
                                       var formPosting = new FormPosting
@@ -166,11 +164,11 @@ namespace MrCMS.Services
                                                                                                          formPosting,
                                                                                                  };
                                                                              formPosting.FormValues.Add(formValue);
-                                                                             session.SaveOrUpdate(formValue);
+                                                                             session.Add(formValue);
                                                                          });
 
                                       webpage.FormPostings.Add(formPosting);
-                                      session.SaveOrUpdate(formPosting);
+                                      session.Add(formPosting);
 
                                       SendFormMessages(webpage, formPosting);
                                   });
@@ -178,7 +176,7 @@ namespace MrCMS.Services
 
         public void ClearFormData(Webpage webpage)
         {
-            _session.Transact(session => webpage.FormPostings.ForEach(session.Delete));
+            _dbContext.Transact(session => webpage.FormPostings.ForEach(session.Delete));
         }
 
         public byte[] ExportFormData(Webpage webpage)
@@ -245,7 +243,7 @@ namespace MrCMS.Services
             var sendTo = webpage.SendFormTo.Split(',');
             if (sendTo.Any())
             {
-                _session.Transact(session =>
+                _dbContext.Transact(session =>
                                       {
                                           foreach (var email in sendTo)
                                           {
@@ -254,7 +252,7 @@ namespace MrCMS.Services
                                               var formTitle = ParseFormMessage(webpage.FormEmailTitle, webpage,
                                                                                formPosting);
 
-                                              session.SaveOrUpdate(new QueuedMessage
+                                              session.Add(new QueuedMessage
                                                                        {
                                                                            Subject = formTitle,
                                                                            Body = formMessage,
@@ -324,7 +322,7 @@ namespace MrCMS.Services
 
         public FormPosting GetFormPosting(int id)
         {
-            return _session.Get<FormPosting>(id);
+            return _dbContext.Get<FormPosting>(id);
         }
 
         public PostingsModel GetFormPostings(Webpage webpage, int page, string search)
@@ -344,16 +342,16 @@ namespace MrCMS.Services
 
         public void AddFormProperty(FormProperty property)
         {
-            _session.Transact(session => session.Save(property));
+            _dbContext.Transact(session => session.Add(property));
         }
         public void SaveFormProperty(FormProperty property)
         {
-            _session.Transact(session => session.Update(property));
+            _dbContext.Transact(session => session.Update(property));
         }
 
         public void DeleteFormProperty(FormProperty property)
         {
-            _session.Transact(session => session.Delete(property));
+            _dbContext.Transact(session => session.Delete(property));
         }
 
         public void SaveFormListOption(FormListOption formListOption)
@@ -361,22 +359,22 @@ namespace MrCMS.Services
             var formProperty = formListOption.FormProperty;
             if (formProperty != null)
                 formProperty.Options.Add(formListOption);
-            _session.Transact(session => session.Save(formListOption));
+            _dbContext.Transact(session => session.Add(formListOption));
         }
 
         public void UpdateFormListOption(FormListOption formListOption)
         {
-            _session.Transact(session => session.Update(formListOption));
+            _dbContext.Transact(session => session.Update(formListOption));
         }
 
         public void DeleteFormListOption(FormListOption formListOption)
         {
-            _session.Transact(session => session.Delete(formListOption));
+            _dbContext.Transact(session => session.Delete(formListOption));
         }
 
         public void SetOrders(List<SortItem> items)
         {
-            _session.Transact(session => items.ForEach(item =>
+            _dbContext.Transact(session => items.ForEach(item =>
             {
                 var formItem = session.Get<FormProperty>(item.Id);
                 formItem.DisplayOrder = item.Order;

@@ -28,21 +28,8 @@ using Ninject;
 
 namespace MrCMS.IoC
 {
-    public class ContextModule : NinjectModule
-    {
-        public override void Load()
-        {
-            Kernel.Bind<HttpContextBase>()
-                  .ToMethod(context => new HttpContextWrapper(HttpContext.Current))
-                  .When(request => HttpContext.Current != null)
-                  .InRequestScope();
-            Kernel.Bind<HttpContextBase>()
-                  .ToMethod(context => new OutOfContext())
-                  .When(request => HttpContext.Current == null)
-                  .InThreadScope();
-        }
-    }
-    //Wires up IOC automatically
+
+//Wires up IOC automatically
     public class ServiceModule : NinjectModule
     {
         public override void Load()

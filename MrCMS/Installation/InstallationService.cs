@@ -23,10 +23,11 @@ using MrCMS.Apps;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
+using MrCMS.IoC;
 using MrCMS.Website;
 using MySql.Data.MySqlClient;
+using Ninject;
 using AuthorizationRuleCollection = System.Security.AccessControl.AuthorizationRuleCollection;
-using DbConfiguration = MrCMS.Helpers.DbConfiguration;
 
 namespace MrCMS.Installation
 {
@@ -322,26 +323,12 @@ namespace MrCMS.Installation
         }
 
         private void SetUpInitialData(InstallModel model, string connectionString, DatabaseType databaseType)
-        { 
-            DbConfiguration.Override = GetDbConnection(connectionString, databaseType);
-            
-            MigratorBase migrator = new DbMigrator(new DbMigrationsConfiguration
-                {
-                    MigrationsAssembly = GetType().Assembly,
-                    TargetDatabase = new DbConnectionInfo(connectionString,"System.Data.SqlClient"),
-                    AutomaticMigrationsEnabled = true,
-                    ContextType = typeof(MrCMSDbContext),
-                });
-
-            migrator.Update();
-            
-
-            DbConfiguration.Override = GetDbConnection(connectionString, databaseType);
+        {
+            MrCMSConnectionFactory.OverrideConnectionString = connectionString;
             var dbContextFactory = new DbContextFactory();
 
             MrCMSDbContext mrCMSDbContext = dbContextFactory.Create();
             var dbContext = new StandardDbContext(mrCMSDbContext);
-
 
             var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
             dbContext.Transact(s => s.Add(site));
@@ -349,7 +336,7 @@ namespace MrCMS.Installation
             MrCMSApp.InstallApps(dbContext, model, site);
 
             SetupInitialTemplates(dbContext);
-            DbConfiguration.Override = null;
+            MrCMSConnectionFactory.OverrideConnectionString = null;
         }
 
         private static DbConnection GetDbConnection(string connectionString, DatabaseType databaseType)
@@ -379,12 +366,9 @@ namespace MrCMS.Installation
                                      foreach (
                                          var type in TypeHelper.GetAllConcreteMappedClassesAssignableFrom<MessageTemplate>())
                                      {
-                                         if (s.Set(type).Cast<MessageTemplate>().Any())
-                                         {
-                                             var messageTemplate = Activator.CreateInstance(type) as MessageTemplate;
-                                             if (messageTemplate != null && messageTemplate.GetInitialTemplate(s) != null)
-                                                 s.Add(messageTemplate.GetInitialTemplate(s));
-                                         }
+                                         var messageTemplate = Activator.CreateInstance(type) as MessageTemplate;
+                                         if (messageTemplate != null && messageTemplate.GetInitialTemplate(s) != null)
+                                             dbContext.Add(messageTemplate.GetInitialTemplate(s));
                                      }
                                  });
         }

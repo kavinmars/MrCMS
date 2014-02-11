@@ -17,5 +17,25 @@ namespace MrCMS.Entities
         public virtual void OnDeleting(IDbContext dbContext)
         {
         }
+        public Type ObjectType
+        {
+            get
+            {
+                var type = GetType();
+                if (type.BaseType != null && type.Namespace == "System.Data.Entity.DynamicProxies")
+                {
+                    type = type.BaseType;
+                }
+                return type;
+            }
+        }
+
+        public virtual string ObjectTypeName
+        {
+            get
+            {
+                return ObjectType.Name;
+            }
+        }
     }
 }

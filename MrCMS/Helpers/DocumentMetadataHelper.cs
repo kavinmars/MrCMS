@@ -66,7 +66,7 @@ namespace MrCMS.Helpers
 
         public static DocumentMetadata GetMetadata(this Document document)
         {
-            return DocumentMetadatas.FirstOrDefault(x => x.Type.Name == document.DocumentType);
+            return DocumentMetadatas.FirstOrDefault(x => x.Type.Name == document.ObjectTypeName);
         }
 
         public static IEnumerable<DocumentMetadata> GetValidWebpageDocumentTypes(this Webpage parent)

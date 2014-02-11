@@ -23,8 +23,7 @@ namespace MrCMS.Web.Apps.Core
     {
         public static void Install(IDbContext dbContext, InstallModel model, Site site)
         {
-//settings
-            dbContext.Transact(sess => sess.Add(site));
+            //settings
             CurrentRequestData.CurrentSite = site;
 
             var siteSettings = new SiteSettings
@@ -61,7 +60,7 @@ namespace MrCMS.Web.Apps.Core
                                IsActive = true
                            };
 
-            var hashAlgorithms = new List<IHashAlgorithm> {new SHA512HashAlgorithm()};
+            var hashAlgorithms = new List<IHashAlgorithm> { new SHA512HashAlgorithm() };
             var hashAlgorithmProvider = new HashAlgorithmProvider(hashAlgorithms);
             var passwordEncryptionManager = new PasswordEncryptionManager(hashAlgorithmProvider,
                                                                           new UserService(dbContext, siteSettings));
@@ -202,12 +201,12 @@ namespace MrCMS.Web.Apps.Core
 
             var registerPage = new RegisterPage
                 {
-                                       Name = "Register",
-                                       UrlSegment = "register",
-                                       CreatedOn = CurrentRequestData.Now,
-                                       Site = site,
-                                       PublishOn = CurrentRequestData.Now
-                                   };
+                    Name = "Register",
+                    UrlSegment = "register",
+                    CreatedOn = CurrentRequestData.Now,
+                    Site = site,
+                    PublishOn = CurrentRequestData.Now
+                };
             documentService.AddDocument(registerPage);
 
             var webpages = dbContext.Set<Webpage>().ToList();
@@ -242,7 +241,7 @@ namespace MrCMS.Web.Apps.Core
 
             var configurationProvider = new ConfigurationProvider(new SettingService(dbContext, site),
                                                                   site);
-            var fileSystemSettings = new FileSystemSettings {Site = site, StorageType = typeof (FileSystem).FullName};
+            var fileSystemSettings = new FileSystemSettings { Site = site, StorageType = typeof(FileSystem).FullName };
             configurationProvider.SaveSettings(siteSettings);
             configurationProvider.SaveSettings(mediaSettings);
             configurationProvider.SaveSettings(fileSystemSettings);
@@ -266,8 +265,8 @@ namespace MrCMS.Web.Apps.Core
                                         Name = UserRole.Administrator
                                     };
 
-            user.Roles = new HashSet<UserRole> {adminUserRole};
-            adminUserRole.Users = new HashSet<User> {user};
+            user.Roles = new HashSet<UserRole> { adminUserRole };
+            adminUserRole.Users = new HashSet<User> { user };
             var roleService = new RoleService(dbContext);
             roleService.SaveRole(adminUserRole);
 

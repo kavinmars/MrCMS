@@ -449,7 +449,7 @@ namespace MrCMS.Services
                 .OrderBy(webpage => webpage.DisplayOrder)
                         .Where(
                             document =>
-                            document.Site.Id == _currentSite.Id && document.Parent == null)
+                            document.Site.Id == _currentSite.Id && document.Parent == null).ToList()
                         .FirstOrDefault(webpage => webpage.Published);
         }
 

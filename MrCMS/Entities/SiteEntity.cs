@@ -1,4 +1,5 @@
-﻿using MrCMS.Entities.Multisite;
+﻿using System;
+using MrCMS.Entities.Multisite;
 
 namespace MrCMS.Entities
 {

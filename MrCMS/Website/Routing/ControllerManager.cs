@@ -135,7 +135,7 @@ namespace MrCMS.Website.Routing
             routeValueDictionary["action"] = GetActionName(webpage, httpMethod);
             routeValueDictionary["page"] = webpage;
             controller.RouteData.Values.Merge(routeValueDictionary);
-            controller.RouteData.DataTokens["app"] = MrCMSApp.AppWebpages[webpage.GetType()];
+            controller.RouteData.DataTokens["app"] = MrCMSApp.AppWebpages[webpage.ObjectType];
 
             return controller;
         }

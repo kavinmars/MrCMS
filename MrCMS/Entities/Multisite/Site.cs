@@ -28,7 +28,7 @@ namespace MrCMS.Entities.Multisite
 
         public virtual bool IsValidForSite(SiteEntity entity)
         {
-            if (entity.GetType().GetCustomAttributes(typeof(AdminUISiteAgnosticAttribute), true).Any())
+            if (entity.ObjectType.GetCustomAttributes(typeof(AdminUISiteAgnosticAttribute), true).Any())
                 return true;
             return entity.Site != null && entity.Site.Id == Id;
         }

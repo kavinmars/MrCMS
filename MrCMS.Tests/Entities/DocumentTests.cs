@@ -80,7 +80,7 @@ namespace MrCMS.Tests.Entities
 
             var list =
                 Session.Set<Webpage>()
-                       .GroupBy(webpage => webpage.DocumentType)
+                       .GroupBy(webpage => webpage.ObjectTypeName)
                        .Select(webpages => new DocumentTypeCount
                            {
                                DocumentType = webpages.Key,

@@ -2,14 +2,14 @@
 @using MrCMS.Helpers
 @model Widget
 @{
-    ViewBag.Title = "Edit | " + Model.WidgetType.BreakUpString();
+    ViewBag.Title = "Edit | " + Model.WidgetTypeFormatted;
     Layout = "~/Areas/Admin/Views/Shared/_LayoutPopup.cshtml";
 }
 @using (Html.BeginForm("Edit", "Widget", new { }, FormMethod.Post, new { id = "edit-widget" }))
 {
     
     <fieldset>
-        <legend>@(!string.IsNullOrWhiteSpace(Model.Name) ? Model.Name : Model.WidgetType.BreakUpString())
+        <legend>@(!string.IsNullOrWhiteSpace(Model.Name) ? Model.Name : Model.WidgetTypeFormatted)
 
             <span class="btn-group  display-inline  pull-right">
                 <input type="submit" class="btn-success btn" value="Save widget" />

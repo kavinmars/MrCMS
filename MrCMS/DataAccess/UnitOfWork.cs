@@ -1,15 +1,8 @@
-﻿using System;
-using MrCMS.Helpers;
+﻿using MrCMS.Helpers;
 using MrCMS.Website;
 
 namespace MrCMS.DataAccess
 {
-    public interface IUnitOfWork : IDisposable
-    {
-        void Commit();
-        void Rollback();
-    }
-
     public class UnitOfWork :  IUnitOfWork
     {
         private readonly IDbContext _context;

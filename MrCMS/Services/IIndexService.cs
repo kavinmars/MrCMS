@@ -118,13 +118,13 @@ namespace MrCMS.Services
             //methodInfo.Invoke(indexManagerBase, new object[] { listInstance });
         }
 
-        public void Reindex<T1, T2, T3>(Site site = null) where T1 : IndexManager<T2, T3> where T2 : SiteEntity where T3 : IIndexDefinition<T2>
+        public void Reindex<T1, T2, T3>(Site site = null) where T1 : IIndexManager<T2, T3> where T2 : SiteEntity where T3 : IIndexDefinition<T2>
         {
             site = site ?? _site;
 
             //var indexManagerBase = GetIndexManagerBase(definitionType, site);
 
-            var list = _dbContext.Set<T2>().Where(arg => arg.Site == site).ToList();
+            var list = _dbContext.Set<T2>().Where(arg => arg.Site.Id == site.Id).ToList();
             MrCMSApplication.Get<T1>().ReIndex(list);
         }
 

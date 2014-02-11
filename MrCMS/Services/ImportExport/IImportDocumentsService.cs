@@ -73,7 +73,7 @@ namespace MrCMS.Services.ImportExport
                 wsItems.Cells["A" + rowId].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 wsItems.Cells["B" + rowId].Value = webpages[i].Parent != null ? webpages[i].Parent.UrlSegment : String.Empty;
                 wsItems.Cells["B" + rowId].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
-                wsItems.Cells["C" + rowId].Value = webpages[i].DocumentType;
+                wsItems.Cells["C" + rowId].Value = webpages[i].ObjectTypeName;
                 wsItems.Cells["D" + rowId].Value = webpages[i].Name;
                 wsItems.Cells["D" + rowId].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 wsItems.Cells["E" + rowId].Value = webpages[i].BodyContent;

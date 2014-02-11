@@ -18,7 +18,12 @@ namespace MrCMS.Helpers
         private static List<Type> _alltypes;
         static List<Assembly> _mrCMSAssemblies;
 
-        public static List<Type> MappedClasses { get { return GetAllConcreteTypesAssignableFrom<SystemEntity>().FindAll(type => !type.GetCustomAttributes(typeof(DoNotMapAttribute), true).Any()); } }
+        public static List<Type> MappedClasses { get
+        {
+            return
+                GetAllTypesAssignableFrom<SystemEntity>()
+                    .FindAll(type => !type.GetCustomAttributes(typeof (DoNotMapAttribute), true).Any());
+        } }
 
         public static List<Type> GetAllTypes()
         {

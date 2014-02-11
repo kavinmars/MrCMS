@@ -175,7 +175,7 @@ namespace MrCMS.Services
                             .OrderBy(webpage => webpage.DisplayOrder)
                             .FirstOrDefault(
                                 webpage =>
-                                webpage.Site == @from && webpage.DocumentType == "MrCMS.Web.Apps.Core.Pages.LoginPage");
+                                webpage.Site == @from && webpage.ObjectTypeName == "MrCMS.Web.Apps.Core.Pages.LoginPage");
 
             if (login != null)
             {

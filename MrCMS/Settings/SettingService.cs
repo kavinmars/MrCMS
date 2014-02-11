@@ -99,7 +99,7 @@ namespace MrCMS.Settings
             key = key.Trim().ToLowerInvariant();
 
             Setting setting =
-                _dbContext.Set<Setting>().SingleOrDefault(s => s.Site == _site && s.Name == key);
+                _dbContext.Set<Setting>().SingleOrDefault(s => s.Site.Id == _site.Id && s.Name == key);
             string valueStr = typeof(T).GetCustomTypeConverter().ConvertToInvariantString(value);
             if (setting != null)
             {

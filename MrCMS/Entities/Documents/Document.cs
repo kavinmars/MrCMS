@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -39,7 +40,6 @@ namespace MrCMS.Entities.Documents
 
         public virtual int ParentId { get { return Parent == null ? 0 : Parent.Id; } }
 
-        public virtual string DocumentType { get { return GetType().Name; } }
 
         public virtual bool CanDelete
         {

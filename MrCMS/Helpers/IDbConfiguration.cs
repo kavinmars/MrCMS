@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.Common;
-using System.Data.Entity.Core.EntityClient;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Infrastructure.DependencyResolution;
 using System.Data.SQLite;
 using System.Data.SqlClient;
+using MrCMS.Website;
 using MySql.Data.MySqlClient;
+using Ninject;
 
 namespace MrCMS.Helpers
 {
@@ -14,29 +18,52 @@ namespace MrCMS.Helpers
         DbConnection GetDbConnection();
     }
 
-    public class DbConfiguration : IDbConfiguration
+    public class MrCMSDbConfig : DbConfiguration
     {
-        public static DbConnection Override { get; set; }
-        public DbConnection GetDbConnection()
+        public MrCMSDbConfig()
         {
-            if (Override != null)
-                return Override;
-            ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings["mrcms"];
-            DbConnection connection = null;
-            switch (connectionStringSettings.ProviderName)
+            this.AddDependencyResolver(new MrCMSDbDependencyResolver());
+        }
+    }
+
+    public class MrCMSDbDependencyResolver : IDbDependencyResolver
+    {
+        public object GetService(Type type, object key)
+        {
+            try
             {
-                case "System.Data.SQLite":
-                    connection = new SQLiteConnection(connectionStringSettings.ConnectionString);
-                    break;
-                case "System.Data.SqlClient":
-                    connection = new SqlConnection(connectionStringSettings.ConnectionString);
-                    break;
-                case "MySql.Data.MySqlClient":
-                    connection = new MySqlConnection(connectionStringSettings.ConnectionString);
-                    break;
+                var kernel = MrCMSApplication.Get<IKernel>();
+                return kernel.Get(type);
             }
-            //return new EntityConnection(connectionStringSettings.ConnectionString)
-            return connection;
+            catch
+            {
+                return null;
+            }
+        }
+
+        public IEnumerable<object> GetServices(Type type, object key)
+        {
+            try
+            {
+                return MrCMSApplication.Get<IKernel>().GetAll(type);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+    public class MrCMSConnectionFactory : IDbConnectionFactory
+    {
+        public static string OverrideConnectionString { get; set; }
+        public DbConnection CreateConnection(string nameOrConnectionString)
+        {
+            if (!string.IsNullOrWhiteSpace(OverrideConnectionString))
+            {
+                return new SqlConnection(OverrideConnectionString);
+            }
+            ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings["mrcms"];
+            return new SqlConnection(connectionStringSettings.ConnectionString);
         }
     }
 }

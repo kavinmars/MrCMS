@@ -44,7 +44,7 @@ namespace MrCMS.Website
 
             var typeName = "";
             if (model is Webpage) //get base document type as using generic interfaces cause issues using Editable I.E DocumentContainer
-                typeName = (model as Webpage).DocumentType;
+                typeName = (model as Webpage).ObjectTypeName;
             else
                 typeName = model.GetType().Name;
 

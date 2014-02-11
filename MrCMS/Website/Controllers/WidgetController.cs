@@ -17,10 +17,10 @@ namespace MrCMS.Website.Controllers
 
         public PartialViewResult Show(Widget widget)
         {
-            if (MrCMSApp.AppWidgets.ContainsKey(widget.Unproxy().GetType()))
-                RouteData.DataTokens["app"] = MrCMSApp.AppWidgets[widget.Unproxy().GetType()];
+            if (MrCMSApp.AppWidgets.ContainsKey(widget.ObjectType))
+                RouteData.DataTokens["app"] = MrCMSApp.AppWidgets[widget.ObjectType];
             return PartialView(
-                !string.IsNullOrWhiteSpace(widget.CustomLayout) ? widget.CustomLayout : widget.WidgetType,
+                !string.IsNullOrWhiteSpace(widget.CustomLayout) ? widget.CustomLayout : widget.ObjectTypeName,
                 _widgetService.GetModel(widget));
         }
     }

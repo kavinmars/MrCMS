@@ -1,16 +1,10 @@
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 
 namespace MrCMS.Helpers
 {
     public class DbContextFactory : IDbContextFactory<MrCMSDbContext>, IDbContextFactory
     {
-        private IDbConfiguration _dbConfiguration = new DbConfiguration();
-
-        public void SetDbConfiguration(IDbConfiguration dbConfiguration)
-        {
-            _dbConfiguration = dbConfiguration;
-        }
-
         public IDbContext GetContext()
         {
             return
@@ -19,7 +13,7 @@ namespace MrCMS.Helpers
 
         public MrCMSDbContext Create()
         {
-            return new MrCMSDbContext(_dbConfiguration);
+            return new MrCMSDbContext();
         }
     }
 }

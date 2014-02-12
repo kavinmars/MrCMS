@@ -3,7 +3,7 @@
 <div class="tab-pane active" id="edit-content">
     <div class="span12">
         @Html.HiddenFor(x => x.LiveUrlSegment)
-        @Html.HiddenFor(x => x.DocumentTypeName)
+        @Html.HiddenFor(x => x.ObjectTypeName)
         @Html.HiddenFor(x => x.Id)
         <div class="accordion" id="accordion-page-edit">
             @Html.TextBoxFor(x => x.Name, new { @class = "span12" })
@@ -11,7 +11,7 @@
 
             @if (Model.GetMetadata().HasBodyContent)
             {
-                    Html.RenderPartial("Content", Model);
+                Html.RenderPartial("Content", Model);
             }
             @Html.RenderCustomAdminProperties()
         </div>

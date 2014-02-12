@@ -95,7 +95,7 @@ namespace MrCMS.Services
 
         public IEnumerable<T> GetAllDocuments<T>() where T : Document
         {
-            return _dbContext.Set<T>().Where(arg => arg.Site == _currentSite).ToList();
+            return _dbContext.Set<T>().Where(arg => arg.Site.Id == _currentSite.Id).ToList();
         }
 
         public bool ExistAny(Type type)
@@ -106,7 +106,7 @@ namespace MrCMS.Services
 
         public bool ExistAny<T>() where T : Document
         {
-            return _dbContext.Set<T>().Any(arg => arg.Site == _currentSite);
+            return _dbContext.Set<T>().Any(arg => arg.Site.Id == _currentSite.Id);
         }
 
 
@@ -165,7 +165,7 @@ namespace MrCMS.Services
             var settingValue = _siteSettings.DefaultLayoutId;
 
             return _dbContext.Get<Layout>(settingValue) ??
-                   _dbContext.Set<Layout>().FirstOrDefault(layout => layout.Site == currentPage.Site);
+                   _dbContext.Set<Layout>().FirstOrDefault(layout => layout.Site.Id == currentPage.Site.Id);
         }
 
         public void SetTags(string taglist, Document document)
@@ -227,7 +227,7 @@ namespace MrCMS.Services
         public bool AnyPublishedWebpages()
         {
             return
-                _dbContext.Set<Webpage>().Any(webpage => webpage.PublishOn != null && webpage.PublishOn <= DateTime.Now);
+                _dbContext.Set<Webpage>().Published().Any();
         }
 
         public bool AnyWebpages()
@@ -238,10 +238,9 @@ namespace MrCMS.Services
         public IEnumerable<Webpage> GetWebPagesByParentIdForNav(int parentId)
         {
             return
-                _dbContext.Set<Webpage>().Where(
+                _dbContext.Set<Webpage>().Published().Where(
                     x =>
-                    x.Parent.Id == parentId && x.PublishOn != null && x.PublishOn <= DateTime.Now &&
-                    x.PublishOn < DateTime.Now && x.RevealInNavigation).
+                    x.Parent.Id == parentId && x.RevealInNavigation).
                            ToList();
         }
 

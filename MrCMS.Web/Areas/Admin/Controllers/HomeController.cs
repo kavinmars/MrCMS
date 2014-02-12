@@ -26,7 +26,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
         {
             var currentSite = _currentSiteLocator.GetCurrentSite();
             var list = _dbContext.Set<Webpage>()
-                                 .Where(x => x.Site == currentSite)
+                                 .Where(x => x.Site.Id == currentSite.Id).ToList()
                                  .GroupBy(webpage => webpage.ObjectTypeName)
                                  .Select(webpages => new WebpageStats
                                      {

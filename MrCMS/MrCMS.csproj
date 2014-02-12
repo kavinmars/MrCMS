@@ -271,6 +271,7 @@
     <Compile Include="Helpers\MrCMSDbContext.cs" />
     <Compile Include="Helpers\StandardDbContext.cs" />
     <Compile Include="Helpers\UnitOfWorkHelper.cs" />
+    <Compile Include="Helpers\WebpageQueryingExtensions.cs" />
     <Compile Include="IoC\ContextModule.cs" />
     <Compile Include="IoC\EntityFrameworkModule.cs" />
     <Compile Include="Migrations\Configuration.cs" />

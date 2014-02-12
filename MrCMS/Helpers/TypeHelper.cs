@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -10,9 +11,6 @@ using MrCMS.Website;
 
 namespace MrCMS.Helpers
 {
-    public class DoNotMapAttribute : Attribute
-    {
-    }
     public static class TypeHelper
     {
         private static List<Type> _alltypes;
@@ -22,7 +20,7 @@ namespace MrCMS.Helpers
         {
             return
                 GetAllTypesAssignableFrom<SystemEntity>()
-                    .FindAll(type => !type.GetCustomAttributes(typeof (DoNotMapAttribute), true).Any());
+                    .FindAll(type => !type.GetCustomAttributes(typeof (NotMappedAttribute), true).Any());
         } }
 
         public static List<Type> GetAllTypes()

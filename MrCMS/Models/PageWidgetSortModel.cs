@@ -4,11 +4,9 @@ using System.Linq;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Widget;
-using MrCMS.Helpers;
 
 namespace MrCMS.Models
 {
-    [DoNotMap]
     public class PageWidgetSortModel
     {
         public List<WidgetModel> Widgets { get; set; }

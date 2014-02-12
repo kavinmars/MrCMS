@@ -1,4 +1,5 @@
 using System;
+using System.Data.Entity.ModelConfiguration.Configuration;
 using MrCMS.Entities.Documents;
 
 namespace MrCMS.DataAccess.Mappings

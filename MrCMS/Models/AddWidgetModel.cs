@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using MrCMS.Entities.Widget;
-using MrCMS.Helpers;
 
 namespace MrCMS.Models
 {
-    [DoNotMap]
+    [NotMapped]
     public class AddWidgetModel :Widget
     {
     }

@@ -2,16 +2,10 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using MrCMS.DataAccess;
-using MrCMS.Helpers;
 
 namespace MrCMS.Entities
 {
-    public interface IDeleted
-    {
-        bool IsDeleted { get; set; }
-    }
-
-    public abstract class SystemEntity : IDeleted
+    public abstract class SystemEntity
     {
         public virtual int Id { get; set; }
         [DisplayName("Created On")]
@@ -19,6 +13,7 @@ namespace MrCMS.Entities
         [DisplayName("Updated On")]
         public virtual DateTime UpdatedOn { get; set; }
 
+        [NotMapped]
         public virtual bool IsDeleted { get; set; }
 
         public virtual void OnDeleting(IDbContext dbContext)

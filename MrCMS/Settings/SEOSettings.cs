@@ -20,5 +20,10 @@ namespace MrCMS.Settings
 
         [DisplayName("Enable HTML Minification")]
         public bool EnableHtmlMinification { get; set; }
+
+        public override bool RenderInSettings
+        {
+            get { return true; }
+        }
     }
-} 
+}

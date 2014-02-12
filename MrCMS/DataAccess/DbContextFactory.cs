@@ -1,7 +1,8 @@
-using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using MrCMS.Helpers;
+using MrCMS.Website;
 
-namespace MrCMS.Helpers
+namespace MrCMS.DataAccess
 {
     public class DbContextFactory : IDbContextFactory<MrCMSDbContext>, IDbContextFactory
     {
@@ -13,7 +14,7 @@ namespace MrCMS.Helpers
 
         public MrCMSDbContext Create()
         {
-            return new MrCMSDbContext();
+            return new MrCMSDbContext(MrCMSApplication.GetAll<IPreCommitListener>());
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Xml;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
@@ -41,7 +42,7 @@ namespace MrCMS.Services
                 CanAddChild = DocumentMetadataHelper.GetValidWebpageDocumentTypes(null).Any(),
             };
             tree.Children = GetNodes(tree,
-                                     _dbContext.Set<Webpage>()
+                                     _dbContext.Query<Webpage>()
                                              .Where(webpage => webpage.Parent == null && webpage.Site.Id == _site.Id)
                                              .OrderBy(webpage => webpage.DisplayOrder)
                                              .ToList(), depth);
@@ -61,7 +62,7 @@ namespace MrCMS.Services
                 CanAddChild = true,
             };
             tree.Children = GetNodes(tree,
-                                     _dbContext.Set<MediaCategory>()
+                                     _dbContext.Query<MediaCategory>()
                                              .Where(category => category.Parent == null && category.Site.Id == _site.Id)
                                              .OrderBy(webpage => webpage.DisplayOrder)
                                              .ToList(), int.MaxValue);
@@ -82,7 +83,7 @@ namespace MrCMS.Services
             };
 
             tree.Children = GetNodes(tree,
-                                     _dbContext.Set<Layout>()
+                                     _dbContext.Query<Layout>()
                                              .Where(layout => layout.Parent == null && layout.Site.Id == _site.Id)
                                              .OrderBy(webpage => webpage.DisplayOrder)
                                              .ToList(), int.MaxValue);
@@ -192,7 +193,7 @@ namespace MrCMS.Services
                 if (doc.ShowInAdminNav)
                 {
                     var documentMetadata = doc.GetMetadata();
-                    var queryOver = _dbContext.Set<T>().Where(arg => arg.Parent.Id == doc.Id);
+                    var queryOver = _dbContext.Query<T>().Where(arg => arg.Parent.Id == doc.Id);
 
                     queryOver = queryOver.OrderBy(webpage => webpage.DisplayOrder);
 

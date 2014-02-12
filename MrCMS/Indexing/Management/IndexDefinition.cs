@@ -6,6 +6,7 @@ using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Util;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -37,7 +38,7 @@ namespace MrCMS.Indexing.Management
                 ids.Chunk(100)
                    .SelectMany(
                        ints =>
-                       dbContext.Set<T>()
+                       dbContext.Query<T>()
                                 .Where(arg => ints.Contains(arg.Id)).ToList()
                                 .OrderBy(arg => ids.IndexOf(arg.Id)));
         }

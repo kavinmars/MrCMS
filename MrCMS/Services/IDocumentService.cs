@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
@@ -78,7 +79,7 @@ namespace MrCMS.Services
         public T GetUniquePage<T>()
             where T : Document, IUniquePage
         {
-            return _dbContext.Set<T>().FirstOrDefault(arg => arg.Site.Id == _site.Id);
+            return _dbContext.Query<T>().FirstOrDefault(arg => arg.Site.Id == _site.Id);
         }
 
         public RedirectResult RedirectTo<T>(object routeValues = null) where T : Webpage, IUniquePage

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Helpers;
 using MrCMS.Settings;
@@ -41,7 +42,7 @@ namespace MrCMS.Tasks
                                           {
                                               foreach (
                                                   QueuedMessage queuedMessage in
-                                                      session.Set<QueuedMessage>().Where(
+                                                      session.Query<QueuedMessage>().Where(
                                                           message => message.SentOn == null && message.Tries < MAX_TRIES)
                                                              .ToList())
                                               {

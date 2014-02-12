@@ -149,6 +149,7 @@ namespace MrCMS.Tests.Settings
             Session.Transact(session =>
             {
                 session.Add(layout);
+                session.Add(site1);
             });
 
             var site2 = new Site();
@@ -157,6 +158,7 @@ namespace MrCMS.Tests.Settings
             Session.Transact(session =>
             {
                 session.Add(layout2);
+                session.Add(site2);
             });
 
             var errorPageOptions = siteSettingsOptionGenerator.GetLayoutOptions(Session, site2, layout2.Id);

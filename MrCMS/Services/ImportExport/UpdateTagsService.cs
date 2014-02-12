@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
@@ -28,7 +29,7 @@ namespace MrCMS.Services.ImportExport
 
         public IUpdateTagsService Inititalise()
         {
-            _tags = new HashSet<Tag>(_dbContext.Set<Tag>());
+            _tags = new HashSet<Tag>(_dbContext.Query<Tag>().Where(tag => tag.Site.Id == _site.Id));
             return this;
         }
 

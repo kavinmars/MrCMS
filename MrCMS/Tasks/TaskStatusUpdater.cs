@@ -1,4 +1,5 @@
 ﻿using System;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Helpers;
 

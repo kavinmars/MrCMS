@@ -24,7 +24,7 @@ namespace MrCMS.Tasks
             using (var session = _dbContextFactory.GetContext())
             {
                 var sessionDatas =
-                    session.Set<Log>()
+                    session.Query<Log>()
                                     .Where(
                                         data =>
                                         data.CreatedOn <= CurrentRequestData.Now.AddDays(-_siteSettings.DaysToKeepLogs))

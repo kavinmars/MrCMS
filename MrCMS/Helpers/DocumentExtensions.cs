@@ -11,6 +11,11 @@ namespace MrCMS.Helpers
 {
     public static class DocumentExtensions
     {
+        public static readonly string[] IgnoredVersionPropertyNames = new[]
+                                                                {
+                                                                    "UpdatedOn", "Id", "CreatedOn"
+                                                                };
+
         public static void SetParent(this Document document, Document parent)
         {
             var existingParent = document.Parent;
@@ -83,20 +88,14 @@ namespace MrCMS.Helpers
         }
 
         public static List<PropertyInfo> GetVersionProperties(this Type type)
-        {
-            var ignorePropertyNames = new[]
-                                          {
-                                              "UpdatedOn", "Id", "CreatedOn"
-                                          };
-
-            return type.GetProperties().Where(
+        {            return type.GetProperties().Where(
                 info =>
                 info.CanWrite &&
                 !typeof (SystemEntity).IsAssignableFrom(info.PropertyType) &&
                 (!info.PropertyType.IsGenericType ||
                  (info.PropertyType.IsGenericType && info.PropertyType.GetGenericTypeDefinition() == typeof (Nullable<>)))
                 &&
-                !ignorePropertyNames.Contains(info.Name)).ToList();
+                !IgnoredVersionPropertyNames.Contains(info.Name)).ToList();
         }
     }
 

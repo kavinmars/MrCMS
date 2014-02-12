@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Helpers;
 using MrCMS.Paging;
@@ -58,7 +59,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
 
         public IPagedList<MediaFile> Search(MediaSelectorSearchQuery searchQuery)
         {
-            var queryOver = _dbContext.Set<MediaFile>();
+            var queryOver = _dbContext.Query<MediaFile>();
             if (searchQuery.CategoryId.HasValue)
                 queryOver = queryOver.Where(file => file.MediaCategory.Id == searchQuery.CategoryId);
             if (!string.IsNullOrWhiteSpace(searchQuery.Query))
@@ -76,7 +77,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
 
         public List<SelectListItem> GetCategories()
         {
-            return _dbContext.Set<MediaCategory>().Where(category => !category.HideInAdminNav).ToList()
+            return _dbContext.Query<MediaCategory>().Where(category => !category.HideInAdminNav).ToList()
                            .BuildSelectItemList(category => category.Name, category => category.Id.ToString(),
                                                 emptyItemText: "All categories");
         }

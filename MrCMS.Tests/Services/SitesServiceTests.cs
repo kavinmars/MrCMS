@@ -47,7 +47,7 @@ namespace MrCMS.Tests.Services
             _siteService.AddSite(site, options);
 
             // Including CurrentSite from the base class
-            Session.Set<Site>().Count().Should().Be(2);
+            Session.Query<Site>().Count().Should().Be(2);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace MrCMS.Tests.Services
 
             _siteService.AddSite(site, options);
 
-            Session.Set<Site>().Should().Contain(site);
+            Session.Query<Site>().Should().Contain(site);
         }
 
 
@@ -71,7 +71,7 @@ namespace MrCMS.Tests.Services
 
             _siteService.SaveSite(site);
 
-            Session.Set<Site>().Count(s => s.Name == "updated").Should().Be(1);
+            Session.Query<Site>().Count(s => s.Name == "updated").Should().Be(1);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace MrCMS.Tests.Services
 
             _siteService.DeleteSite(site);
 
-            Session.Set<Site>().Should().NotContain(site);
+            Session.Query<Site>().Should().NotContain(site);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace MrCMS.Tests.Services
             _siteService.DeleteSite(CurrentSite);
 
             // Including CurrentSite from the base class
-            Session.Set<Site>().Count().Should().Be(0);
+            Session.Query<Site>().Count().Should().Be(0);
         }
 
         [Fact]

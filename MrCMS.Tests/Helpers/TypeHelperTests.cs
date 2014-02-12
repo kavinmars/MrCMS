@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using MrCMS.Apps;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Installation;
@@ -109,7 +110,7 @@ namespace MrCMS.Tests.Helpers
             get { return "Test"; }
         }
 
-        protected override void OnInstallation(IDbContext dbContext, InstallModel model, Site site)
+        protected override void OnInstallation(IKernel kernel, InstallModel model, Site site)
         {
             throw new NotImplementedException();
         }

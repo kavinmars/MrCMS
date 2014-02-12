@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Services;
@@ -25,7 +26,7 @@ namespace MrCMS.Web.Areas.Admin.Controllers
         public ActionResult Index()
         {
             var currentSite = _currentSiteLocator.GetCurrentSite();
-            var list = _dbContext.Set<Webpage>()
+            var list = _dbContext.Query<Webpage>()
                                  .Where(x => x.Site.Id == currentSite.Id).ToList()
                                  .GroupBy(webpage => webpage.ObjectTypeName)
                                  .Select(webpages => new WebpageStats

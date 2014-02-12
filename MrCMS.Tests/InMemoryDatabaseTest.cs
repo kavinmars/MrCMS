@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Elmah;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
@@ -134,6 +135,11 @@ namespace MrCMS.Tests
             return systemEntities.FirstOrDefault(entity => entity.Id == id) as T;
         }
 
+        public T GetInThisContext<T>(T entity) where T : SystemEntity
+        {
+            return Get<T>(entity.Id);
+        }
+
         public SystemEntity Get(Type type, int id)
         {
             type = GetDataType(type);
@@ -194,7 +200,7 @@ namespace MrCMS.Tests
             return entity;
         }
 
-        public IQueryable<TEntity> Set<TEntity>() where TEntity : SystemEntity
+        public IQueryable<TEntity> Query<TEntity>() where TEntity : SystemEntity
         {
             Type type = GetDataType(typeof(TEntity));
             if (type == null)
@@ -204,7 +210,7 @@ namespace MrCMS.Tests
             return systemEntities.OfType<TEntity>().AsQueryable();
         }
 
-        public IQueryable<SystemEntity> Set(Type entityType)
+        public IQueryable<SystemEntity> Query(Type entityType)
         {
             Type type = GetDataType(entityType);
             if (type == null)

@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using System.Xml;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web.FormProperties;
 using MrCMS.Entities.People;
 using MrCMS.Models;
@@ -214,7 +215,7 @@ namespace MrCMS.Entities.Documents.Web
                     (arg => arg.Parent == this && arg.PublishOn != null && arg.PublishOn <= CurrentRequestData.Now);
                             
 
-            return MrCMSApplication.Get<IDbContext>().Set<T>().Where(query).Paged(pageNum, pageSize);
+            return MrCMSApplication.Get<IDbContext>().Query<T>().Where(query).Paged(pageNum, pageSize);
         }
 
         public virtual string GetPageTitle()

@@ -1,5 +1,6 @@
 ﻿using Lucene.Net.Store;
 using Lucene.Net.Store.Azure;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;

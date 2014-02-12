@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using Elmah;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Website;
@@ -54,7 +55,7 @@ namespace MrCMS.Logging
                 throw new ArgumentOutOfRangeException("pageSize", pageSize, null);
 
             var errorLogEntries =
-                _dbContext.Set<Log>()
+                _dbContext.Query<Log>()
                         .OrderByDescending(entry => entry.CreatedOn)
                         .Where(entry => entry.Type == LogEntryType.Error)
                         .Paged(pageIndex + 1, pageSize);
@@ -78,7 +79,7 @@ namespace MrCMS.Logging
 
             try
             {
-                var logEntry = _dbContext.Set<Log>().FirstOrDefault(entry => entry.Guid == guid);
+                var logEntry = _dbContext.Query<Log>().FirstOrDefault(entry => entry.Guid == guid);
                 return new ErrorLogEntry(this, id, logEntry.Error);
             }
             finally

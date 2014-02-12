@@ -37,7 +37,7 @@ namespace MrCMS.Tests.Logging
 
             _logService.DeleteAllLogs();
 
-            Session.Set<Log>().Count().Should().Be(0);
+            Session.Query<Log>().Count().Should().Be(0);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace MrCMS.Tests.Logging
 
             _logService.DeleteLog(list[0]);
 
-            Session.Set<Log>().Should().NotContain(list[0]);
+            Session.Query<Log>().Should().NotContain(list[0]);
         }
 
 

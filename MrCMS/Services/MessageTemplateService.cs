@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
@@ -26,25 +27,25 @@ namespace MrCMS.Services
         public List<MessageTemplateInfo> GetAllMessageTemplateTypesWithDetails()
         {
             var templates =
-                _dbContext.Set<MessageTemplate>().Where(template => template.Site == _site).ToList();
+                _dbContext.Query<MessageTemplate>().Where(template => template.Site.Id == _site.Id).ToList();
             var messageTemplateTypes = TypeHelper.GetAllConcreteMappedClassesAssignableFrom<MessageTemplate>();
             return messageTemplateTypes.Select(type =>
-            {
+                                               {
 
-                var existingMessageTemplate =
-                    templates.SingleOrDefault(x => x.GetType() == type);
-                return new MessageTemplateInfo
-                {
-                    Type = type,
-                    Id =
-                        existingMessageTemplate != null
-                            ? existingMessageTemplate.Id
-                            : (int?)null,
-                    CanPreview =
-                        existingMessageTemplate != null &&
-                        existingMessageTemplate.CanPreview
-                };
-            }).ToList();
+                                                   var existingMessageTemplate =
+                                                       templates.SingleOrDefault(x => x.ObjectType == type);
+                                                   return new MessageTemplateInfo
+                                                          {
+                                                              Type = type,
+                                                              Id =
+                                                                  existingMessageTemplate != null
+                                                                      ? existingMessageTemplate.Id
+                                                                      : (int?) null,
+                                                              CanPreview =
+                                                                  existingMessageTemplate != null &&
+                                                                  existingMessageTemplate.CanPreview
+                                                          };
+                                               }).ToList();
         }
 
         public MessageTemplate GetNew(string type)
@@ -87,7 +88,7 @@ namespace MrCMS.Services
 
         public T Get<T>() where T : MessageTemplate
         {
-            return _dbContext.Set<T>().SingleOrDefault(arg => arg.Site == _site);
+            return _dbContext.Query<T>().SingleOrDefault(arg => arg.Site.Id == _site.Id);
         }
 
         public string GetPreview(MessageTemplate messageTemplate, int itemId)

@@ -79,7 +79,7 @@ namespace MrCMS.Tests.Entities
                 });
 
             var list =
-                Session.Set<Webpage>()
+                Session.Query<Webpage>()
                        .GroupBy(webpage => webpage.ObjectTypeName)
                        .Select(webpages => new DocumentTypeCount
                            {

@@ -10,6 +10,7 @@ using System.Web.Routing;
 using Elmah;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using MrCMS.Apps;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
@@ -101,9 +102,14 @@ namespace MrCMS.Website
                                            {
                                                if (!IsFileRequest(Request.Url))
                                                {
-                                                   CurrentRequestData.CurrentUser =
-                                                       Get<IUserService>()
-                                                           .GetCurrentUser(CurrentRequestData.CurrentContext);
+                                                   if (CurrentRequestData.CurrentContext.User != null)
+                                                   {
+                                                       var currentUser = Get<IUserService>().GetCurrentUser(CurrentRequestData.CurrentContext);
+                                                       if (currentUser == null || !currentUser.IsActive)
+                                                           Get<IAuthorisationService>().Logout();
+                                                       else
+                                                           CurrentRequestData.CurrentUser = currentUser;
+                                                   }
                                                }
                                            };
                 EndRequest += (sender, args) =>
@@ -182,7 +188,7 @@ namespace MrCMS.Website
             if (CurrentRequestData.DatabaseIsInstalled)
             {
                 var session = bootstrapper.Kernel.Get<IDbContextFactory>().GetContext();
-                var sites = session.Set<Site>().ToList();
+                var sites = session.Query<Site>().ToList();
                 foreach (var site in sites)
                     IndexManager.EnsureIndexesExist(session, site);
             }

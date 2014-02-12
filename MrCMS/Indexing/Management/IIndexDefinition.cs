@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;

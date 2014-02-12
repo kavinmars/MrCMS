@@ -1,4 +1,5 @@
-﻿using MrCMS.Entities;
+﻿using MrCMS.DataAccess;
+using MrCMS.Entities;
 using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using Ninject;

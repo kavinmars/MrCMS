@@ -1,4 +1,5 @@
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -23,7 +24,7 @@ namespace MrCMS.Services
 
         public IPagedList<QueuedMessage> GetMessages(MessageQueueQuery searchQuery)
         {
-            var queryOver = _dbContext.Set<QueuedMessage>().Where(message => message.Site == _site);
+            var queryOver = _dbContext.Query<QueuedMessage>().Where(message => message.Site.Id == _site.Id);
             if (searchQuery.From.HasValue)
                 queryOver = queryOver.Where(message => message.CreatedOn >= searchQuery.From);
             if (searchQuery.To.HasValue)

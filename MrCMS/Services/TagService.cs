@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Helpers;
 using MrCMS.Models;
@@ -21,7 +22,7 @@ namespace MrCMS.Services
             var tags = GetTags(document);
 
             return
-                _dbContext.Set<Tag>().Where(x => x.Site == document.Site && x.Name.StartsWith(term)).ToList().Select(
+                _dbContext.Query<Tag>().Where(x => x.Site == document.Site && x.Name.StartsWith(term)).ToList().Select(
                     tag =>
                     new AutoCompleteResult
                         {
@@ -46,7 +47,7 @@ namespace MrCMS.Services
 
         public Tag GetByName(string name)
         {
-            return _dbContext.Set<Tag>().FirstOrDefault(x => x.Site == CurrentRequestData.CurrentSite
+            return _dbContext.Query<Tag>().FirstOrDefault(x => x.Site == CurrentRequestData.CurrentSite
                                                              && x.Name == name);
         }
         public void Add(Tag tag)

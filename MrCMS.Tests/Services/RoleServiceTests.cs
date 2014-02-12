@@ -48,7 +48,7 @@ namespace MrCMS.Tests.Services
         {
             _roleService.SaveRole(new UserRole());
 
-            Session.Set<UserRole>().Should().HaveCount(1);
+            Session.Query<UserRole>().Should().HaveCount(1);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MrCMS.Tests.Services
 
             _roleService.DeleteRole(userRole);
 
-            Session.Set<UserRole>().Should().HaveCount(0);
+            Session.Query<UserRole>().Should().HaveCount(0);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace MrCMS.Tests.Services
 
             _roleService.DeleteRole(userRole);
 
-            Session.Set<UserRole>().Should().HaveCount(1);
+            Session.Query<UserRole>().Should().HaveCount(1);
         }
 
         [Fact]

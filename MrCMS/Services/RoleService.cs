@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MrCMS.DataAccess;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
 using MrCMS.Models;
@@ -23,12 +24,12 @@ namespace MrCMS.Services
 
         public IEnumerable<UserRole> GetAllRoles()
         {
-            return _dbContext.Set<UserRole>();
+            return _dbContext.Query<UserRole>();
         }
 
         public UserRole GetRoleByName(string name)
         {
-            return _dbContext.Set<UserRole>().FirstOrDefault(role => role.Name == name);
+            return _dbContext.Query<UserRole>().FirstOrDefault(role => role.Name == name);
         }
 
         public void DeleteRole(UserRole role)
@@ -47,7 +48,7 @@ namespace MrCMS.Services
 
         public IEnumerable<AutoCompleteResult> Search(string term)
         {
-            IQueryable<UserRole> queryable = _dbContext.Set<UserRole>();
+            IQueryable<UserRole> queryable = _dbContext.Query<UserRole>();
 
             if (!string.IsNullOrWhiteSpace(term))
                 queryable = queryable.Where(x => x.Name.StartsWith(term, StringComparison.OrdinalIgnoreCase));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -124,7 +125,7 @@ namespace MrCMS.Services
 
             //var indexManagerBase = GetIndexManagerBase(definitionType, site);
 
-            var list = _dbContext.Set<T2>().Where(arg => arg.Site.Id == site.Id).ToList();
+            var list = _dbContext.Query<T2>().Where(arg => arg.Site.Id == site.Id).ToList();
             MrCMSApplication.Get<T1>().ReIndex(list);
         }
 

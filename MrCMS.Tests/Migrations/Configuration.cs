@@ -1,3 +1,5 @@
+using MrCMS.DataAccess;
+
 namespace MrCMS.Migrations
 {
     using System;
@@ -5,14 +7,14 @@ namespace MrCMS.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<MrCMS.Helpers.MrCMSDbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<MrCMSDbContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = true;
         }
 
-        protected override void Seed(MrCMS.Helpers.MrCMSDbContext context)
+        protected override void Seed(MrCMSDbContext context)
         {
             //  This method will be called after migrating to the latest version.
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Elmah;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Paging;
@@ -46,7 +47,7 @@ namespace MrCMS.Logging
 
         public List<SelectListItem> GetSiteOptions()
         {
-            var sites = _dbContext.Set<Site>().OrderBy(site => site.Name).ToList();
+            var sites = _dbContext.Query<Site>().OrderBy(site => site.Name).ToList();
             return sites.Count == 1
                        ? new List<SelectListItem>()
                        : sites.BuildSelectItemList(site => site.Name, site => site.Id.ToString(), emptyItemText: "All sites");
@@ -81,7 +82,7 @@ namespace MrCMS.Logging
         private IQueryable<Log> BaseQuery()
         {
             return
-                _dbContext.Set<Log>()
+                _dbContext.Query<Log>()
                           .OrderByDescending(entry => entry.Id);
         }
     }

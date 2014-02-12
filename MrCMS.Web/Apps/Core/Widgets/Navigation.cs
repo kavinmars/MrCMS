@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
@@ -39,7 +40,7 @@ namespace MrCMS.Web.Apps.Core.Widgets
 
         private IList<Webpage> GetPages(IDbContext session, Webpage parent)
         {
-            var queryOver = session.Set<Webpage>();
+            var queryOver = session.Query<Webpage>();
             queryOver = parent == null
                             ? queryOver.Where(webpage => webpage.Parent == null)
                             : queryOver.Where(webpage => webpage.Parent.Id == parent.Id);

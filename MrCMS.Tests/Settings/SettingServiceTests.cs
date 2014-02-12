@@ -37,7 +37,7 @@ namespace MrCMS.Tests.Settings
 
             _settingService.DeleteSetting(setting);
 
-            Session.Set<Setting>().Count().Should().Be(0);
+            Session.Query<Setting>().Count().Should().Be(0);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace MrCMS.Tests.Settings
 
             _settingService.SetSetting("test", "value");
 
-            Session.Set<Setting>().Should().HaveCount(1);
+            Session.Query<Setting>().Should().HaveCount(1);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace MrCMS.Tests.Settings
             Session.Transact(session => session.Add(new Setting { Name = "test", Value = "value", Site = CurrentSite }));
             _settingService.SetSetting("test", "value2");
 
-            var settings = Session.Set<Setting>().ToList();
+            var settings = Session.Query<Setting>().ToList();
 
             settings.Should().HaveCount(1);
             settings[0].Name.Should().Be("test");

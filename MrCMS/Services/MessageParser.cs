@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -20,7 +21,7 @@ namespace MrCMS.Services
 
         public QueuedMessage GetMessage(T2 obj, string fromAddress = null, string fromName = null, string toAddress = null, string toName = null, string cc = null, string bcc = null)
         {
-            var template = _dbContext.Set<T>().FirstOrDefault(arg => arg.Site == _site);
+            var template = _dbContext.Query<T>().FirstOrDefault(arg => arg.Site == _site);
             if (template == null)
                 return null;
 

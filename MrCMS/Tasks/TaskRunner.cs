@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Website;
 using MrCMS.Helpers;
 
@@ -50,7 +51,7 @@ namespace MrCMS.Tasks
         {
             _dbContext.Transact(session =>
                                   {
-                                      var hungTasks = session.Set<QueuedTask>()
+                                      var hungTasks = session.Query<QueuedTask>()
                                                              .Where(
                                                                  task =>
                                                                  (task.Status == TaskExecutionStatus.AwaitingExecution || task.Status == TaskExecutionStatus.Executing) &&

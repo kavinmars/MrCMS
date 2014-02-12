@@ -1,4 +1,5 @@
 ﻿using MrCMS.Apps;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Installation;
@@ -25,9 +26,9 @@ namespace MrCMS.Web.Apps.Core
 
         }
 
-        protected override void OnInstallation(IDbContext dbContext, InstallModel model, Site site)
+        protected override void OnInstallation(IKernel kernel, InstallModel model, Site site)
         {
-            CoreAppInstallation.Install(dbContext, model, site);
+            CoreAppInstallation.Install(kernel, model, site);
         }
 
         protected override void RegisterApp(MrCMSAppRegistrationContext context)

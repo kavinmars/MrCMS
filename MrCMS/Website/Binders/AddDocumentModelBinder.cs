@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
@@ -47,7 +48,7 @@ namespace MrCMS.Website.Binders
                 (document as Webpage).RevealInNavigation = true;
 
                 var pages = (document.Parent == null
-                                 ? Session.Set<Webpage>().Where(webpage => webpage.Parent == null).ToList()
+                                 ? Session.Query<Webpage>().Where(webpage => webpage.Parent == null).ToList()
                                  : document.Parent.Children.OfType<Webpage>()).ToList();
                 document.DisplayOrder = pages.Any() ? pages.Max(x => x.DisplayOrder) + 1 : 0;
             }

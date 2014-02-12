@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Multisite;
 using MrCMS.Models;
@@ -82,7 +83,9 @@ namespace MrCMS.Services
 
         private ViewDataUploadFilesResult GetUploadFilesResult(MediaFile mediaFile)
         {
-            return new ViewDataUploadFilesResult(mediaFile, GetUrl(mediaFile, GetImageSizes().Find(size => size.Name == "Thumbnail").Size));
+            var firstOrDefault = GetImageSizes().FirstOrDefault(size => size.Name == "Thumbnail") ??
+                                 new ImageSize("Thumbnail", new Size(100, 100));
+            return new ViewDataUploadFilesResult(mediaFile, GetUrl(mediaFile, firstOrDefault.Size));
         }
 
         /// <summary>
@@ -177,7 +180,7 @@ namespace MrCMS.Services
         public ViewDataUploadFilesResult[] GetFiles(MediaCategory mediaCategory)
         {
             return
-                _dbContext.Set<MediaFile>()
+                _dbContext.Query<MediaFile>()
                           .Where(file => file.MediaCategory == mediaCategory)
                           .OrderBy(file => file.DisplayOrder).ToList()
                           .Select(GetUploadFilesResult).ToArray();
@@ -190,7 +193,7 @@ namespace MrCMS.Services
 
         public IPagedList<MediaFile> GetFiles(int? mediaCategoryId, int page = 1)
         {
-            return _dbContext.Set<MediaFile>()
+            return _dbContext.Query<MediaFile>()
                              .Where(x => x.MediaCategory.Id == mediaCategoryId)
                              .OrderByDescending(x => x.DisplayOrder)
                              .Paged(page);
@@ -198,7 +201,7 @@ namespace MrCMS.Services
 
         public IPagedList<MediaFile> GetFilesForSearchPaged(MediaCategorySearchModel model)
         {
-            IQueryable<MediaFile> query = _dbContext.Set<MediaFile>();
+            IQueryable<MediaFile> query = _dbContext.Query<MediaFile>();
             if (model.Id > 0)
                 query = query.Where(x => x.MediaCategory.Id == model.Id);
             if (model.SearchText != null)
@@ -245,7 +248,7 @@ namespace MrCMS.Services
 
         public FilesPagedResult GetFilesPaged(int? categoryId, bool imagesOnly, int page = 1)
         {
-            var queryOver = _dbContext.Set<MediaFile>().Where(file => file.Site == _currentSite);
+            var queryOver = _dbContext.Query<MediaFile>().Where(file => file.Site == _currentSite);
 
             if (categoryId.HasValue)
                 queryOver = queryOver.Where(file => file.MediaCategory.Id == categoryId);
@@ -259,7 +262,7 @@ namespace MrCMS.Services
 
         public MediaFile GetFileByUrl(string value)
         {
-            return _dbContext.Set<MediaFile>().FirstOrDefault(file => file.FileUrl == value);
+            return _dbContext.Query<MediaFile>().FirstOrDefault(file => file.FileUrl == value);
         }
 
         public string GetFileUrl(string value)

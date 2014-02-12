@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Lucene.Net.Index;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Helpers;
 using MrCMS.Indexing;

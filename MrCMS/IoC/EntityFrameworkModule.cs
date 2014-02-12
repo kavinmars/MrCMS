@@ -11,8 +11,10 @@ using System.Data.Entity.SqlServer;
 using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
+using MrCMS.DataAccess;
 using MrCMS.Helpers;
 using MrCMS.Migrations;
+using Ninject;
 using Ninject.Activation;
 using Ninject.Modules;
 using Ninject.Web.Common;
@@ -46,6 +48,7 @@ namespace MrCMS.IoC
             //Bind<DbSpatialServices>().ToMethod(context => DbSpatialServices.Default).InSingletonScope();
             //Bind<Func<DbConnection, string, HistoryContext>>().ToMethod(context => ((connection, s) => new HistoryContext(connection, s))).InRequestScope();
             Bind<IPluralizationService>().To<UnpluralizedService>().InRequestScope();
+            Rebind<IDbContext>().ToMethod(context => context.Kernel.Get<StandardDbContext>()).InRequestScope();
         }
     }
 
@@ -107,7 +110,7 @@ namespace MrCMS.IoC
                 : _defaultExecutionStrategy.ExecuteAsync(operation, cancellationToken);
         }
 
-        public bool RetriesOnFailure { get; private set; }
+        public bool RetriesOnFailure { get { return IsAzure; } }
     }
 
     //public class MrCMSProviderFactoryResolver : IDbProviderFactoryResolver

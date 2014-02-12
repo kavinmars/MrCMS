@@ -57,7 +57,7 @@ namespace MrCMS.Tests.Services
             Session.Transact(session => session.Add(mediaCategory));
             fileService.AddFile(GetDefaultStream(), "test.txt", "text/plain", 0, mediaCategory);
 
-            Session.Set<MediaFile>().Count().Should().Be(1);
+            Session.Query<MediaFile>().Count().Should().Be(1);
         }
 
         private static MediaCategory GetDefaultMediaCategory()
@@ -230,7 +230,7 @@ namespace MrCMS.Tests.Services
 
             fileService.SaveFile(mediaFile);
 
-            Session.Set<MediaFile>().Should().Contain(mediaFile);
+            Session.Query<MediaFile>().Should().Contain(mediaFile);
         }
     }
 }

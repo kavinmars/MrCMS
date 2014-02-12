@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Helpers;
 using MrCMS.Website;
 
@@ -19,7 +20,7 @@ namespace MrCMS.Tasks
             return _dbContext.Transact(session =>
                                          {
                                              var queuedTasks =
-                                                 session.Set<QueuedTask>()
+                                                 session.Query<QueuedTask>()
                                                         .Where(task => task.Status == TaskExecutionStatus.Pending)
                                                         .ToList();
 
@@ -38,7 +39,7 @@ namespace MrCMS.Tasks
             return _dbContext.Transact(session =>
                                          {
                                              var scheduledTasks =
-                                                 _dbContext.Set<ScheduledTask>().ToList()
+                                                 _dbContext.Query<ScheduledTask>().ToList()
                                                          .Where(task =>
                                                              task.Status == TaskExecutionStatus.Pending &&
                                                              (task.LastComplete < CurrentRequestData.Now.AddSeconds(-task.EveryXSeconds) ||

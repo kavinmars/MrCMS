@@ -28,7 +28,7 @@ namespace MrCMS.Tests.Helpers
                 }
             });
 
-            var pagedList = Session.Set<StubWebpage>().OrderBy(webpage => webpage.Id).Paged(4, 10);
+            var pagedList = Session.Query<StubWebpage>().OrderBy(webpage => webpage.Id).Paged(4, 10);
 
             pagedList.TotalItemCount.Should().Be(100);
             pagedList.Count.Should().Be(10);
@@ -47,7 +47,7 @@ namespace MrCMS.Tests.Helpers
                 }
             });
 
-            var pagedList = Session.Set<StubWebpage>().Paged(4, 10);
+            var pagedList = Session.Query<StubWebpage>().Paged(4, 10);
 
             pagedList.TotalItemCount.Should().Be(100);
             pagedList.Count.Should().Be(10);

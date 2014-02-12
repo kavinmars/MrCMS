@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MrCMS.DataAccess;
 using MrCMS.Helpers;
 using MrCMS.Paging;
 using System.Linq;
@@ -16,12 +17,12 @@ namespace MrCMS.Tasks
 
         public List<ScheduledTask> GetAllScheduledTasks()
         {
-            return _dbContext.Set<ScheduledTask>().ToList();
+            return _dbContext.Query<ScheduledTask>().ToList();
         }
 
         public IPagedList<QueuedTask> GetQueuedTask(QueuedTaskSearchQuery searchQuery)
         {
-            var queryOver = _dbContext.Set<QueuedTask>();
+            var queryOver = _dbContext.Query<QueuedTask>();
 
             return queryOver.OrderByDescending(task => task.CreatedOn).Paged(searchQuery.Page);
         }

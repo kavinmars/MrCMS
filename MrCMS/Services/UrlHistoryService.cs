@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -30,8 +31,8 @@ namespace MrCMS.Services
 
         public IEnumerable<UrlHistory> GetAllOtherUrls(Webpage document)
         {
-            var urlHistory = _dbContext.Set<UrlHistory>().Where(x => x.Webpage.Id != document.Id).ToList();
-            var urls = _dbContext.Set<Document>().Where(x => x.Id != document.Id).ToList();
+            var urlHistory = _dbContext.Query<UrlHistory>().Where(x => x.Webpage.Id != document.Id).ToList();
+            var urls = _dbContext.Query<Document>().Where(x => x.Id != document.Id).ToList();
             foreach (var url in urls)
             {
                 if (urlHistory.All(x => x.UrlSegment != url.UrlSegment))
@@ -42,12 +43,12 @@ namespace MrCMS.Services
 
         public UrlHistory GetByUrlSegment(string url)
         {
-            return _dbContext.Set<UrlHistory>().FirstOrDefault(x => x.Site == CurrentRequestData.CurrentSite && x.UrlSegment.Contains(url));
+            return _dbContext.Query<UrlHistory>().FirstOrDefault(x => x.Site == CurrentRequestData.CurrentSite && x.UrlSegment.Contains(url));
         }
 
         public UrlHistory GetByUrlSegmentWithSite(string url, Site site, Webpage page)
         {
-            return _dbContext.Set<UrlHistory>().FirstOrDefault(x => x.Site == site && x.Webpage == page && x.UrlSegment == url);
+            return _dbContext.Query<UrlHistory>().FirstOrDefault(x => x.Site == site && x.Webpage == page && x.UrlSegment == url);
         }
     }
 }

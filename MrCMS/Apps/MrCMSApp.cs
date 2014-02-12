@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Routing;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
@@ -101,9 +102,9 @@ namespace MrCMS.Apps
             AllApps.ForEach(app => app.RegisterServices(kernel));
         }
 
-        public static void InstallApps(IDbContext dbContext, InstallModel model, Site site)
+        public static void InstallApps(IKernel kernel, InstallModel model, Site site)
         {
-            AllApps.OrderBy(app => app.InstallOrder).ForEach(app => app.OnInstallation(dbContext, model, site));
+            AllApps.OrderBy(app => app.InstallOrder).ForEach(app => app.OnInstallation(kernel, model, site));
         }
 
         //public static void AppendAllAppConfiguration(Configuration configuration)
@@ -113,7 +114,7 @@ namespace MrCMS.Apps
 
         //protected virtual void AppendConfiguration(Configuration configuration) { }
 
-        protected abstract void OnInstallation(IDbContext dbContext, InstallModel model, Site site);
+        protected abstract void OnInstallation(IKernel kernel, InstallModel model, Site site);
 
         private static List<MrCMSApp> AllApps
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
 using MrCMS.Web.Apps.Articles.Pages;
@@ -21,7 +22,7 @@ namespace MrCMS.Web.Apps.Articles.Widgets
 
             return new LatestXArticlesViewModel
                        {
-                           Articles = kernel.Get<IDbContext>().Set<Article>()
+                           Articles = kernel.Get<IDbContext>().Query<Article>()
                                            .Where(article => article.Parent.Id == RelatedNewsList.Id && article.PublishOn != null && article.PublishOn <= CurrentRequestData.Now)
                                            .Take(NumberOfArticles)
                                            .ToList(),
@@ -32,7 +33,7 @@ namespace MrCMS.Web.Apps.Articles.Widgets
 
         public override void SetDropdownData(System.Web.Mvc.ViewDataDictionary viewData, IKernel kernel)
         {
-            viewData["newsList"] = kernel.Get<IDbContext>().Set<ArticleList>()
+            viewData["newsList"] = kernel.Get<IDbContext>().Query<ArticleList>()
                                                 .Where(article => article.PublishOn != null && article.PublishOn <= CurrentRequestData.Now)
                                                 .ToList()
                                                 .BuildSelectItemList(item => item.Name,

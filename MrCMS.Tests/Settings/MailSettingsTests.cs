@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess;
 using MrCMS.Helpers;
 using MrCMS.Settings;
 using Xunit;

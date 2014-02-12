@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.Settings;
 using MrCMS.Helpers;
@@ -16,7 +17,7 @@ namespace MrCMS.Settings
     {
         private readonly IDbContext _dbContext;
         private readonly Site _site;
-        private static IList<Setting> _allSettings;
+        private IList<Setting> _allSettings;
         private IDictionary<string, KeyValuePair<int, string>> _allSettingsDictionary;
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace MrCMS.Settings
             key = key.Trim().ToLowerInvariant();
 
             Setting setting =
-                _dbContext.Set<Setting>().SingleOrDefault(s => s.Site.Id == _site.Id && s.Name == key);
+                _dbContext.Query<Setting>().SingleOrDefault(s => s.Site.Id == _site.Id && s.Name == key);
             string valueStr = typeof(T).GetCustomTypeConverter().ConvertToInvariantString(value);
             if (setting != null)
             {
@@ -117,8 +118,8 @@ namespace MrCMS.Settings
                     Value = valueStr,
                     Site = _site
                 };
-                AllSettings.Add(setting);
                 _dbContext.Transact(session => session.Add(setting));
+                AllSettings.Add(setting);
             }
         }
 
@@ -174,7 +175,7 @@ namespace MrCMS.Settings
 
         private IList<Setting> GetAllSettingForSite()
         {
-            return _dbContext.Set<Setting>().ToList();
+            return _dbContext.Query<Setting>().ToList();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;

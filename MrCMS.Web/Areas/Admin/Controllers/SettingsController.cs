@@ -6,7 +6,7 @@ using MrCMS.Website;
 using MrCMS.Website.Binders;
 using MrCMS.Website.Controllers;
 using Ninject;
-using IDbContext = MrCMS.Helpers.IDbContext;
+using IDbContext = MrCMS.DataAccess.IDbContext;
 
 namespace MrCMS.Web.Areas.Admin.Controllers
 {

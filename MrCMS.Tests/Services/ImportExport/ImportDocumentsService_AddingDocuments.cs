@@ -40,7 +40,7 @@ namespace MrCMS.Tests.Services.ImportExport
                                                                         }
                                                                 });
 
-            var webpages = Session.Set<Webpage>().ToList();
+            var webpages = Session.Query<Webpage>().ToList();
             webpages.Should().HaveCount(1);
             webpages[0].Should().BeOfType<BasicMappedWebpage>();
             webpages[0].Name.Should().Be("Test");
@@ -69,7 +69,7 @@ namespace MrCMS.Tests.Services.ImportExport
                                                                         }
                                                                 });
 
-            var webpages = Session.Set<Webpage>().ToList();
+            var webpages = Session.Query<Webpage>().ToList();
             webpages.Should().HaveCount(2);
             webpages.Where(webpage => webpage.Parent == null).Should().HaveCount(1);
             webpages.First(webpage => webpage.Parent != null).Parent.UrlSegment.Should().Be("test");
@@ -97,7 +97,7 @@ namespace MrCMS.Tests.Services.ImportExport
                                                                         }
                                                                 });
 
-            var webpages = Session.Set<Webpage>().ToList();
+            var webpages = Session.Query<Webpage>().ToList();
             webpages.Should().HaveCount(2);
             webpages.Where(webpage => webpage.Parent == null).Should().HaveCount(1);
             webpages.First(webpage => webpage.Parent != null).Parent.UrlSegment.Should().Be("test");
@@ -133,7 +133,7 @@ namespace MrCMS.Tests.Services.ImportExport
                                                                         }
                                                                 });
 
-            var webpages = Session.Set<Webpage>().ToList();
+            var webpages = Session.Query<Webpage>().ToList();
             webpages.Should().HaveCount(3);
             webpages.Where(webpage => webpage.Parent == null).Should().HaveCount(1);
             var children = webpages.Where(webpage => webpage.Parent != null).ToList();

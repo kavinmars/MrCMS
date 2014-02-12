@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
@@ -24,7 +25,7 @@ namespace MrCMS.Services
         public AdminTree GetWebpageNodes(int? id)
         {
             var adminTree = new AdminTree();
-            var query = _dbContext.Set<Webpage>().Where(x => x.Parent.Id == id && x.Site.Id == _site.Id);
+            var query = _dbContext.Query<Webpage>().Where(x => x.Parent.Id == id && x.Site.Id == _site.Id);
             int maxChildNodes = 1000;
             if (id.HasValue)
             {
@@ -125,7 +126,7 @@ namespace MrCMS.Services
                 adminTree.IsRootRequest = true;
             }
             var query =
-                _dbContext.Set<T>()
+                _dbContext.Query<T>()
                         .Where(x => x.Parent.Id == id && x.Site.Id == _site.Id)
                         .OrderBy(x => x.DisplayOrder)
                         .ToList();

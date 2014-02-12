@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using MrCMS.ACL.Rules;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;

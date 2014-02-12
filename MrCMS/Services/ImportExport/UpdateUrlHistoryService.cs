@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -27,7 +28,7 @@ namespace MrCMS.Services.ImportExport
 
         public IUpdateUrlHistoryService Initialise()
         {
-            _urlHistories = new HashSet<UrlHistory>(_session.Set<UrlHistory>().Where(history => history.Site == _site));
+            _urlHistories = new HashSet<UrlHistory>(_session.Query<UrlHistory>().Where(history => history.Site.Id == _site.Id));
             return this;
         }
 

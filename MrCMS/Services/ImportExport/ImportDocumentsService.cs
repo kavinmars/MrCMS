@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -34,11 +35,11 @@ namespace MrCMS.Services.ImportExport
         public void ImportDocumentsFromDTOs(IEnumerable<DocumentImportDTO> items)
         {
             var dataTransferObjects = new HashSet<DocumentImportDTO>(items);
-            _webpages = new HashSet<Webpage>(_dbContext.Set<Webpage>().Where(webpage => webpage.Site == _site).ToList());
+            _webpages = new HashSet<Webpage>(_dbContext.Query<Webpage>().Where(webpage => webpage.Site.Id == _site.Id).ToList());
             _updateTagsService.Inititalise();
             _updateUrlHistoryService.Initialise();
             _urlHistories =
-                new HashSet<UrlHistory>(_dbContext.Set<UrlHistory>().Where(tag => tag.Site == _site).ToList());
+                new HashSet<UrlHistory>(_dbContext.Query<UrlHistory>().Where(tag => tag.Site.Id == _site.Id).ToList());
 
             _dbContext.Transact(session =>
             {

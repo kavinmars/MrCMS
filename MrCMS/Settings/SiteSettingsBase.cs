@@ -1,4 +1,5 @@
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 
@@ -20,7 +21,7 @@ namespace MrCMS.Settings
 
         public virtual bool RenderInSettings
         {
-            get { return true; }
+            get { return false; }
         }
 
         public virtual void SetViewData(IDbContext dbContext, ViewDataDictionary viewDataDictionary)

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Helpers;
 using MrCMS.Services;

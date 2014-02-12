@@ -35,7 +35,7 @@ namespace MrCMS.Tests.Services
         {
             _documentService.AddDocument(new BasicMappedWebpage { Site = CurrentSite });
 
-            Session.Set<Document>().Count().Should().Be(1);
+            Session.Query<Document>().Count().Should().Be(1);
         }
 
 
@@ -261,7 +261,7 @@ namespace MrCMS.Tests.Services
 
             _documentService.SetTags(textPage.TagList, textPage);
 
-            Session.Set<Tag>().Count().Should().Be(2);
+            Session.Query<Tag>().Count().Should().Be(2);
         }
         [Fact]
         public void DocumentService_SetTags_ShouldNotReaddSetTags()
@@ -560,7 +560,7 @@ namespace MrCMS.Tests.Services
 
             _documentService.DeleteDocument(textPage);
 
-            Session.Set<Webpage>().Count().Should().Be(0);
+            Session.Query<Webpage>().Count().Should().Be(0);
         }
 
         [Fact]

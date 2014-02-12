@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Helpers;
 using MrCMS.Settings;
@@ -34,7 +35,7 @@ namespace MrCMS.Services
                 imageUrl = imageUrl.Remove(lastIndexOf - 1, resizePart.Length + 1);
             }
             var fileByLocation =
-                _dbContext.Set<MediaFile>()
+                _dbContext.Query<MediaFile>()
                           .FirstOrDefault(file => file.FileUrl == imageUrl);
 
             return fileByLocation;

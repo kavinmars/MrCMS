@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Widget;
 using MrCMS.Services;
 using MrCMS.Tests.Stubs;
@@ -42,7 +43,7 @@ namespace MrCMS.Tests.Services
         {
             _widgetService.SaveWidget(new BasicMappedWidget());
 
-            Session.Set<Widget>().Count().Should().Be(1);
+            Session.Query<Widget>().Count().Should().Be(1);
         }
 
         [Fact]
@@ -64,7 +65,7 @@ namespace MrCMS.Tests.Services
 
             _widgetService.DeleteWidget(widget);
 
-            Session.Set<Widget>().Count().Should().Be(0);
+            Session.Query<Widget>().Count().Should().Be(0);
         }
 
         [Fact]

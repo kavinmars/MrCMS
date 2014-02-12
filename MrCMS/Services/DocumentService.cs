@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
@@ -95,7 +96,7 @@ namespace MrCMS.Services
 
         public IEnumerable<T> GetAllDocuments<T>() where T : Document
         {
-            return _dbContext.Set<T>().Where(arg => arg.Site.Id == _currentSite.Id).ToList();
+            return _dbContext.Query<T>().Where(arg => arg.Site.Id == _currentSite.Id).ToList();
         }
 
         public bool ExistAny(Type type)
@@ -106,7 +107,7 @@ namespace MrCMS.Services
 
         public bool ExistAny<T>() where T : Document
         {
-            return _dbContext.Set<T>().Any(arg => arg.Site.Id == _currentSite.Id);
+            return _dbContext.Query<T>().Any(arg => arg.Site.Id == _currentSite.Id);
         }
 
 
@@ -115,7 +116,7 @@ namespace MrCMS.Services
         {
             IEnumerable<T> list = parent != null
                                       ? parent.Children.OfType<T>()
-                                      : _dbContext.Set<T>().Where(arg => arg.Parent == null).ToList();
+                                      : _dbContext.Query<T>().Where(arg => arg.Parent == null).ToList();
             list = list.Where(arg => arg.Site == _currentSite);
             return list;
         }
@@ -157,7 +158,7 @@ namespace MrCMS.Services
                 string defaultLayoutName = currentPage.GetMetadata().DefaultLayoutName;
                 if (!String.IsNullOrEmpty(defaultLayoutName))
                 {
-                    var layout = _dbContext.Set<Layout>().FirstOrDefault(x => x.Name == defaultLayoutName);
+                    var layout = _dbContext.Query<Layout>().FirstOrDefault(x => x.Name == defaultLayoutName);
                     if (layout != null)
                         return layout;
                 }
@@ -165,7 +166,7 @@ namespace MrCMS.Services
             var settingValue = _siteSettings.DefaultLayoutId;
 
             return _dbContext.Get<Layout>(settingValue) ??
-                   _dbContext.Set<Layout>().FirstOrDefault(layout => layout.Site.Id == currentPage.Site.Id);
+                   _dbContext.Query<Layout>().FirstOrDefault(layout => layout.Site.Id == currentPage.Site.Id);
         }
 
         public void SetTags(string taglist, Document document)
@@ -201,7 +202,7 @@ namespace MrCMS.Services
 
         private Tag GetTag(string name)
         {
-            return _dbContext.Set<Tag>().FirstOrDefault(tag => tag.Name == name);
+            return _dbContext.Query<Tag>().FirstOrDefault(tag => tag.Name == name);
         }
 
         public void SetOrder(int documentId, int order)
@@ -227,18 +228,18 @@ namespace MrCMS.Services
         public bool AnyPublishedWebpages()
         {
             return
-                _dbContext.Set<Webpage>().Published().Any();
+                _dbContext.Query<Webpage>().Published().Any();
         }
 
         public bool AnyWebpages()
         {
-            return _dbContext.Set<Webpage>().Any();
+            return _dbContext.Query<Webpage>().Any();
         }
 
         public IEnumerable<Webpage> GetWebPagesByParentIdForNav(int parentId)
         {
             return
-                _dbContext.Set<Webpage>().Published().Where(
+                _dbContext.Query<Webpage>().Published().Where(
                     x =>
                     x.Parent.Id == parentId && x.RevealInNavigation).
                            ToList();
@@ -371,12 +372,12 @@ namespace MrCMS.Services
 
         private UserRole GetRole(string name)
         {
-            return _dbContext.Set<UserRole>().FirstOrDefault(role => role.Name == name);
+            return _dbContext.Query<UserRole>().FirstOrDefault(role => role.Name == name);
         }
 
         public T GetDocumentByUrl<T>(string url) where T : Document
         {
-            return _dbContext.Set<T>().FirstOrDefault(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
+            return _dbContext.Query<T>().FirstOrDefault(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         public bool UrlIsValidForWebpage(string url, int? id)
@@ -415,7 +416,7 @@ namespace MrCMS.Services
 
             foreach (var metadata in validParentTypes)
             {
-                potentialParents.AddRange(_dbContext.Set(metadata.Type).Cast<Webpage>());
+                potentialParents.AddRange(_dbContext.Query(metadata.Type).Cast<Webpage>());
             }
 
             var result = potentialParents.Distinct().Where(page => !page.ActivePages.Contains(webpage) && page.Site.Id == _currentSite.Id).OrderBy(x => x.Name)
@@ -444,7 +445,7 @@ namespace MrCMS.Services
         public Webpage GetHomePage()
         {
             return
-                _dbContext.Set<Webpage>()
+                _dbContext.Query<Webpage>()
                 .OrderBy(webpage => webpage.DisplayOrder)
                         .Where(
                             document =>
@@ -499,7 +500,7 @@ namespace MrCMS.Services
 
         public UrlHistory GetHistoryItemByUrl(string url)
         {
-            return _dbContext.Set<UrlHistory>().FirstOrDefault(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
+            return _dbContext.Query<UrlHistory>().FirstOrDefault(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -509,7 +510,7 @@ namespace MrCMS.Services
         /// <returns>bool</returns>
         private bool MediaCategoryExists(string url)
         {
-            return _dbContext.Set<MediaCategory>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
+            return _dbContext.Query<MediaCategory>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -519,7 +520,7 @@ namespace MrCMS.Services
         /// <returns></returns>
         private bool LayoutExists(string url)
         {
-            return _dbContext.Set<Layout>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
+            return _dbContext.Query<Layout>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -529,7 +530,7 @@ namespace MrCMS.Services
         /// <returns>bool</returns>
         private bool WebpageExists(string url)
         {
-            return _dbContext.Set<Webpage>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
+            return _dbContext.Query<Webpage>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
 
         /// <summary>
@@ -539,7 +540,7 @@ namespace MrCMS.Services
         /// <returns>bool</returns>
         private bool ExistsInUrlHistory(string url)
         {
-            return _dbContext.Set<UrlHistory>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
+            return _dbContext.Query<UrlHistory>().Any(doc => doc.UrlSegment == url && doc.Site.Id == _currentSite.Id);
         }
     }
 }

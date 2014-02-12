@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.People;
 using MrCMS.Web.Apps.Core.Pages;
@@ -21,7 +22,7 @@ namespace MrCMS.Web.Apps.Articles.Pages
         public override void AdminViewData(ViewDataDictionary viewData, IKernel kernel)
         {
             base.AdminViewData(viewData, kernel);
-            viewData["users"] = kernel.Get<IDbContext>().Set<User>()
+            viewData["users"] = kernel.Get<IDbContext>().Query<User>()
                                        .ToList()
                                        .BuildSelectItemList(user => user.Name, user => user.Id.ToString(),
                                                             user => user == User, "Please select ...");

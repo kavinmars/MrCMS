@@ -38,7 +38,7 @@ namespace MrCMS.Services
         public void CopyLayouts(Site @from, Site to)
         {
             var layouts =
-                _dataContext.Set<Layout>().Where(layout => layout.Site == @from && layout.Parent == null).ToList();
+                _dataContext.Query<Layout>().Where(layout => layout.Site == @from && layout.Parent == null).ToList();
 
             var copies = layouts.Select(layout => CopyLayout(layout, to));
 
@@ -89,7 +89,7 @@ namespace MrCMS.Services
 
         public void CopyMediaCategories(Site @from, Site to)
         {
-            var mediaCategories = _dataContext.Set<MediaCategory>().Where(category => category.Site == @from && category.Parent == null).ToList();
+            var mediaCategories = _dataContext.Query<MediaCategory>().Where(category => category.Site == @from && category.Parent == null).ToList();
 
             var copies = mediaCategories.Select(category => CopyMediaCategory(category, to));
 
@@ -115,7 +115,7 @@ namespace MrCMS.Services
         public void CopyHome(Site @from, Site to)
         {
             var home =
-                _dataContext.Set<Webpage>()
+                _dataContext.Query<Webpage>()
                             .OrderBy(webpage => webpage.DisplayOrder)
                             .FirstOrDefault(webpage => webpage.Site == @from && webpage.Parent == null);
 
@@ -171,7 +171,7 @@ namespace MrCMS.Services
         public void CopyLogin(Site @from, Site to)
         {
             var login =
-                _dataContext.Set<Webpage>()
+                _dataContext.Query<Webpage>()
                             .OrderBy(webpage => webpage.DisplayOrder)
                             .FirstOrDefault(
                                 webpage =>

@@ -1,5 +1,6 @@
 ﻿using System;
 using MrCMS.ACL;
+using MrCMS.DataAccess;
 using MrCMS.Helpers;
 
 namespace MrCMS.Website
@@ -17,6 +18,8 @@ namespace MrCMS.Website
 
         protected override bool AuthorizeCore(System.Web.HttpContextBase httpContext)
         {
+            if (!CurrentRequestData.CurrentUser.IsActive)
+                return false;
             object idVal;
             if (httpContext.Request.RequestContext.RouteData.Values.TryGetValue("id", out idVal))
             {

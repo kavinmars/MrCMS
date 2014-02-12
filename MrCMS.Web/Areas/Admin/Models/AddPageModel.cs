@@ -1,4 +1,5 @@
-﻿using MrCMS.Entities.Documents.Web;
+﻿using MrCMS.DataAccess.Mappings;
+using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 
 namespace MrCMS.Web.Areas.Admin.Models

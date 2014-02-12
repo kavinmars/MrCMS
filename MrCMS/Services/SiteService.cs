@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using MrCMS.Models;
@@ -21,7 +22,7 @@ namespace MrCMS.Services
 
         public List<Site> GetAllSites()
         {
-            return _dbContext.Set<Site>().OrderBy(site => site.Name).ToList();
+            return _dbContext.Query<Site>().OrderBy(site => site.Name).ToList();
         }
 
         public Site GetSite(int id)

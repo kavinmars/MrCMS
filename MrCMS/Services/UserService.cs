@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
@@ -44,19 +45,19 @@ namespace MrCMS.Services
 
         public IPagedList<User> GetAllUsersPaged(int page)
         {
-            return _session.Set<User>().Paged(page, _siteSettings.DefaultPageSize);
+            return _session.Query<User>().Paged(page, _siteSettings.DefaultPageSize);
         }
 
         public User GetUserByEmail(string email)
         {
             string trim = email.Trim();
-            return _session.Set<User>().FirstOrDefault(user => user.Email == trim);
+            return _session.Query<User>().FirstOrDefault(user => user.Email == trim);
         }
 
         public User GetUserByResetGuid(Guid resetGuid)
         {
             return
-                _session.Set<User>()
+                _session.Query<User>()
                         .FirstOrDefault(
                             user =>
                             user.ResetPasswordGuid == resetGuid && user.ResetPasswordExpiry >= CurrentRequestData.Now);
@@ -82,9 +83,9 @@ namespace MrCMS.Services
         {
             if (id.HasValue)
             {
-                return !_session.Set<User>().Any(u => u.Email == email && u.Id != id.Value);
+                return !_session.Query<User>().Any(u => u.Email == email && u.Id != id.Value);
             }
-            return !_session.Set<User>().Any(u => u.Email == email);
+            return !_session.Query<User>().Any(u => u.Email == email);
         }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace MrCMS.Services
         /// <returns></returns>
         public int ActiveUsers()
         {
-            return _session.Set<User>().Count(x => x.IsActive);
+            return _session.Query<User>().Count(x => x.IsActive);
         }
 
         /// <summary>
@@ -102,23 +103,23 @@ namespace MrCMS.Services
         /// <returns></returns>
         public int NonActiveUsers()
         {
-            return _session.Set<User>().Count(x => !x.IsActive);
+            return _session.Query<User>().Count(x => !x.IsActive);
         }
 
         public T Get<T>(User user) where T : SystemEntity, IBelongToUser
         {
-            return _session.Set<T>().FirstOrDefault(arg => arg.User == user);
+            return _session.Query<T>().FirstOrDefault(arg => arg.User == user);
         }
 
         public IList<T> GetAll<T>(User user) where T : SystemEntity, IBelongToUser
         {
-            return _session.Set<T>().Where(arg => arg.User == user).ToList();
+            return _session.Query<T>().Where(arg => arg.User == user).ToList();
         }
 
         public IPagedList<T> GetPaged<T>(User user, Expression<Func<T, bool>> query = null, int page = 1) where T : SystemEntity, IBelongToUser
         {
             query = query ?? (arg => arg.User == user);
-            return _session.Set<T>().Where(query).Paged(page);
+            return _session.Query<T>().Where(query).Paged(page);
         }
     }
 }

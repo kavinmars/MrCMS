@@ -3,6 +3,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Services;
@@ -53,7 +54,7 @@ namespace MrCMS.Website.Routing
         private void ProcessRequest(HttpContextWrapper context)
         {
             var urlHistory =
-                _dbContext.Set<UrlHistory>()
+                _dbContext.Query<UrlHistory>()
                           .FirstOrDefault(
                               history => history.UrlSegment == Data && history.Site.Id == _siteSettings.Site.Id);
             if (urlHistory != null && urlHistory.Webpage != null)

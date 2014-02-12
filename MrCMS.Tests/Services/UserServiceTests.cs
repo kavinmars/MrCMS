@@ -32,7 +32,7 @@ namespace MrCMS.Tests.Services
 
             _userService.AddUser(user);
 
-            Session.Set<User>().Should().Contain(user);
+            Session.Query<User>().Should().Contain(user);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace MrCMS.Tests.Services
 
             _userService.SaveUser(user);
 
-            Session.Set<User>().Should().Contain(user);
+            Session.Query<User>().Should().Contain(user);
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace MrCMS.Tests.Services
 
             _userService.DeleteUser(user);
 
-            Session.Set<User>().Count().Should().Be(0);
+            Session.Query<User>().Count().Should().Be(0);
         }
 
         [Fact]

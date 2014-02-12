@@ -1,4 +1,5 @@
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;

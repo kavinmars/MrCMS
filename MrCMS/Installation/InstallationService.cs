@@ -20,6 +20,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Hosting;
 using MrCMS.Apps;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
@@ -324,16 +325,16 @@ namespace MrCMS.Installation
 
         private void SetUpInitialData(InstallModel model, string connectionString, DatabaseType databaseType)
         {
-            MrCMSConnectionFactory.OverrideConnectionString = connectionString;
-            var dbContextFactory = new DbContextFactory();
-
-            MrCMSDbContext mrCMSDbContext = dbContextFactory.Create();
-            var dbContext = new StandardDbContext(mrCMSDbContext);
-
             var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
+            CurrentRequestData.CurrentSite = site;
+            MrCMSConnectionFactory.OverrideConnectionString = connectionString;
+            var kernel = MrCMSApplication.Get<IKernel>();
+
+            var dbContext = kernel.Get<IDbContext>();
+
             dbContext.Transact(s => s.Add(site));
 
-            MrCMSApp.InstallApps(dbContext, model, site);
+            MrCMSApp.InstallApps(kernel, model, site);
 
             SetupInitialTemplates(dbContext);
             MrCMSConnectionFactory.OverrideConnectionString = null;

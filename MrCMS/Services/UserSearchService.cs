@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
 using MrCMS.Models;
@@ -19,7 +20,7 @@ namespace MrCMS.Services
 
         public List<SelectListItem> GetAllRoleOptions()
         {
-            var roles = _dbContext.Set<UserRole>().OrderBy(role => role.Name).ToList();
+            var roles = _dbContext.Query<UserRole>().OrderBy(role => role.Name).ToList();
 
             return roles.BuildSelectItemList(role => role.Name, role => role.Id.ToString(), emptyItemText: "Any role");
         }
@@ -27,7 +28,7 @@ namespace MrCMS.Services
 
         public IPagedList<User> GetUsersPaged(UserSearchQuery searchQuery)
         {
-            IQueryable<User> query = _dbContext.Set<User>();
+            IQueryable<User> query = _dbContext.Query<User>();
 
             if (!string.IsNullOrWhiteSpace(searchQuery.Query))
                 query =
@@ -38,11 +39,10 @@ namespace MrCMS.Services
                         user.FirstName.Contains(searchQuery.Query));
             if (searchQuery.UserRoleId != null)
             {
-                UserRole role = _dbContext.Get<UserRole>(searchQuery.UserRoleId.Value);
-                query = query.Where(user => user.Roles.Contains(role));
+                query = query.Where(user => user.Roles.Any(userRole => userRole.Id == searchQuery.UserRoleId));
             }
 
-            return query.Paged(searchQuery.Page);
+            return query.OrderBy(user => user.Email).Paged(searchQuery.Page);
         }
     }
 }

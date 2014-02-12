@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
 

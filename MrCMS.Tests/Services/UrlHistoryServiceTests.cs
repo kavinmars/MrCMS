@@ -22,7 +22,7 @@ namespace MrCMS.Tests.Services
         {
             _urlHistoryService.Add(new UrlHistory {Webpage = new StubWebpage()});
 
-            Session.Set<UrlHistory>().Count().Should().Be(1);
+            Session.Query<UrlHistory>().Count().Should().Be(1);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace MrCMS.Tests.Services
 
             _urlHistoryService.Delete(urlHistory);
 
-            Session.Set<UrlHistory>().ToList().Should().NotContain(urlHistory);
+            Session.Query<UrlHistory>().ToList().Should().NotContain(urlHistory);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Lucene.Net.Store;
+using MrCMS.DataAccess;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;

@@ -52,7 +52,7 @@ namespace MrCMS.Tests.Services
 
             _layoutAreaService.SaveArea(layoutArea);
 
-            Session.Set<LayoutArea>().Should().HaveCount(1);
+            Session.Query<LayoutArea>().Should().HaveCount(1);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace MrCMS.Tests.Services
 
             _layoutAreaService.DeleteArea(layoutArea);
 
-            Session.Set<LayoutArea>().Should().HaveCount(0);
+            Session.Query<LayoutArea>().Should().HaveCount(0);
         }
 
         [Fact]

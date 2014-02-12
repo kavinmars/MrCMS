@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Multisite;
 using MrCMS.Helpers;
 using System.Data.Entity;
@@ -41,7 +42,7 @@ namespace MrCMS.Services
         {
             var authority = _requestBase.Url.Authority;
 
-            var allSites = _dbContext.Set<Site>().Include(s => s.RedirectedDomains).ToList();
+            var allSites = _dbContext.Query<Site>().Include(s => s.RedirectedDomains).ToList();
             var redirectedDomains = allSites.SelectMany(s => s.RedirectedDomains).ToList();
             var site = allSites.FirstOrDefault(s => s.BaseUrl != null && s.BaseUrl.Equals(authority, StringComparison.OrdinalIgnoreCase));
             if (site == null)

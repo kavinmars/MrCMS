@@ -1,4 +1,5 @@
 using System.Linq;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Widget;
@@ -18,7 +19,7 @@ namespace MrCMS.Services
         }
         public LayoutArea GetArea(Layout layout, string name)
         {
-            return _dbContext.Set<LayoutArea>().Where(x => x.Layout == layout && x.AreaName == name).Include(
+            return _dbContext.Query<LayoutArea>().Where(x => x.Layout == layout && x.AreaName == name).Include(
                 area => area.Widgets).FirstOrDefault();
         }
 
@@ -72,7 +73,7 @@ namespace MrCMS.Services
                         var widget = _dbContext.Get<Widget>(model.Id);
 
                         var widgetSort =
-                            _dbContext.Set<PageWidgetSort>().SingleOrDefault(sort => sort.LayoutArea == layoutArea &&
+                            _dbContext.Query<PageWidgetSort>().SingleOrDefault(sort => sort.LayoutArea == layoutArea &&
                                                                                      sort.Webpage == webpage &&
                                                                                      sort.Widget == widget) ??
                             new PageWidgetSort

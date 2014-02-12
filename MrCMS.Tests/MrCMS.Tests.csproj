@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ACL\ACLRuleTests.cs" />
+    <Compile Include="DataAccess\DbMappingsTests.cs" />
     <Compile Include="Entities\DocumentTests.cs" />
     <Compile Include="Entities\MediaFileTests.cs" />
     <Compile Include="Entities\WebpageTests.cs" />

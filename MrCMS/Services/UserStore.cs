@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
+using MrCMS.DataAccess;
 using MrCMS.Entities.People;
 using System.Linq;
 using MrCMS.Helpers;
@@ -106,7 +107,7 @@ namespace MrCMS.Services
             return Task.Run(() =>
                 {
                     UserLogin firstOrDefault =
-                        _dbContext.Set<UserLogin>().FirstOrDefault(userLogin => userLogin.ProviderKey == login.ProviderKey &&
+                        _dbContext.Query<UserLogin>().FirstOrDefault(userLogin => userLogin.ProviderKey == login.ProviderKey &&
                                                                                  userLogin.LoginProvider == login.LoginProvider);
 
                     return firstOrDefault != null ? firstOrDefault.User : null;

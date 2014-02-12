@@ -1,3 +1,4 @@
+using MrCMS.DataAccess;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
 using Ninject;

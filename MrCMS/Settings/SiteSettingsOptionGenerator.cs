@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
@@ -17,7 +18,7 @@ namespace MrCMS.Settings
     {
         public virtual List<SelectListItem> GetErrorPageOptions(IDbContext session, Site site, int pageId)
         {
-            var list = session.Set<Webpage>().Where(webpage => webpage.Site == site && webpage.Parent == null).ToList();
+            var list = session.Query<Webpage>().Where(webpage => webpage.Site.Id == site.Id && webpage.Parent == null).ToList();
             return
                 list.Where(page => page.Published)
                          .BuildSelectItemList(
@@ -29,8 +30,8 @@ namespace MrCMS.Settings
         public virtual List<SelectListItem> GetMediaCategoryOptions(IDbContext session, Site site, int categoryId)
         {
             var list =
-                session.Set<MediaCategory>()
-                       .Where(category => category.Site == site && category.Parent == null && !category.HideInAdminNav)
+                session.Query<MediaCategory>()
+                       .Where(category => category.Site.Id == site.Id && category.Parent == null && !category.HideInAdminNav)
                        .ToList();
             return
                 list.BuildSelectItemList(
@@ -41,8 +42,8 @@ namespace MrCMS.Settings
 
         public virtual List<SelectListItem> GetLayoutOptions(IDbContext dbContext, Site site, int? selectedLayoutId)
         {
-            return dbContext.Set<Layout>()
-                          .Where(layout => layout.Site == site)
+            return dbContext.Query<Layout>()
+                          .Where(layout => layout.Site.Id == site.Id)
                           .ToList()
                           .BuildSelectItemList(
                               layout => layout.Name,

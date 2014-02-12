@@ -1,10 +1,17 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using MrCMS.DataAccess;
 using MrCMS.Helpers;
 
 namespace MrCMS.Entities
 {
-    public abstract class SystemEntity
+    public interface IDeleted
+    {
+        bool IsDeleted { get; set; }
+    }
+
+    public abstract class SystemEntity : IDeleted
     {
         public virtual int Id { get; set; }
         [DisplayName("Created On")]

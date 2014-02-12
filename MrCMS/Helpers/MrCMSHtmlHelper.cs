@@ -16,6 +16,7 @@ using System.Web.Mvc.Html;
 using System.Web.Routing;
 using System.Web.WebPages;
 using MrCMS.Apps;
+using MrCMS.Entities;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.People;
 using MrCMS.Services;
@@ -292,25 +293,25 @@ namespace MrCMS.Helpers
             return new HtmlString(sb.ToString());
         }
 
-        public static MvcHtmlString RenderCustomAdminProperties<T>(this HtmlHelper<T> htmlHelper)
+        public static MvcHtmlString RenderCustomAdminProperties<T>(this HtmlHelper<T> htmlHelper) where T : SystemEntity
         {
             T model = htmlHelper.ViewData.Model;
             if (model == null)
                 return MvcHtmlString.Empty;
-            if (MrCMSApp.AppWebpages.ContainsKey(model.GetType()))
-                htmlHelper.ViewContext.RouteData.DataTokens["app"] = MrCMSApp.AppWebpages[model.GetType()];
-            if (MrCMSApp.AppWidgets.ContainsKey(model.GetType()))
-                htmlHelper.ViewContext.RouteData.DataTokens["app"] = MrCMSApp.AppWidgets[model.GetType()];
+            if (MrCMSApp.AppWebpages.ContainsKey(model.ObjectType))
+                htmlHelper.ViewContext.RouteData.DataTokens["app"] = MrCMSApp.AppWebpages[model.ObjectType];
+            if (MrCMSApp.AppWidgets.ContainsKey(model.ObjectType))
+                htmlHelper.ViewContext.RouteData.DataTokens["app"] = MrCMSApp.AppWidgets[model.ObjectType];
 
             ViewEngineResult viewEngineResult =
                 ViewEngines.Engines.FindView(
                     new ControllerContext(htmlHelper.ViewContext.RequestContext, htmlHelper.ViewContext.Controller),
-                    model.GetType().Name, "");
+                    model.ObjectTypeName, "");
             if (viewEngineResult.View != null)
             {
                 try
                 {
-                    return htmlHelper.Partial(model.GetType().Name, model);
+                    return htmlHelper.Partial(model.ObjectTypeName, model);
                 }
                 catch (Exception exception)
                 {

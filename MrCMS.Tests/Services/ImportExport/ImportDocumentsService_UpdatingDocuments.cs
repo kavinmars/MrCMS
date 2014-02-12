@@ -31,28 +31,28 @@ namespace MrCMS.Tests.Services.ImportExport
         public void ShouldNotReAddAnExistingDocument()
         {
             Session.Transact(session => session.Add(new BasicMappedWebpage { UrlSegment = "test", Site = CurrentSite }));
-            Session.Set<Webpage>().Count().Should().Be(1);
+            Session.Query<Webpage>().Count().Should().Be(1);
 
             _importDocumentsService.ImportDocumentsFromDTOs(new HashSet<DocumentImportDTO>
                                                                 {
                                                                     new DocumentImportDTO{UrlSegment = "test"}
                                                                 });
 
-            Session.Set<Webpage>().Count().Should().Be(1);
+            Session.Query<Webpage>().Count().Should().Be(1);
         }
 
         [Fact]
         public void ShouldUpdatePropertiesFromDTO()
         {
             Session.Transact(session => session.Add(new BasicMappedWebpage { UrlSegment = "test", Site = CurrentSite, Name = "old" }));
-            Session.Set<Webpage>().Count().Should().Be(1);
+            Session.Query<Webpage>().Count().Should().Be(1);
 
             _importDocumentsService.ImportDocumentsFromDTOs(new HashSet<DocumentImportDTO>
                                                                 {
                                                                     new DocumentImportDTO{UrlSegment = "test", Name = "New"}
                                                                 });
 
-            Session.Set<Webpage>().ToList()[0].Name.Should().Be("New");
+            Session.Query<Webpage>().ToList()[0].Name.Should().Be("New");
         }
 
         [Fact]

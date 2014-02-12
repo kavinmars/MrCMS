@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Helpers;
 using MrCMS.Services;

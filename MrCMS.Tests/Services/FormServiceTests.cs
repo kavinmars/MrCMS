@@ -34,13 +34,11 @@ namespace MrCMS.Tests.Services
             var webpage = new BasicMappedWebpage();
             var posting = new FormPosting()
                 {
-                    IsDeleted = false,
                     Webpage = webpage,
                     FormValues = new List<FormValue>()
                         {
                             new FormValue()
                                 {
-                                    IsDeleted = false,
                                     IsFile = false,
                                     Key = "Name",
                                     Value = "MrCMS"
@@ -54,7 +52,7 @@ namespace MrCMS.Tests.Services
 
             _formService.ClearFormData(webpage);
 
-            Session.Set<FormPosting>().Count().Should().Be(0);
+            Session.Query<FormPosting>().Count().Should().Be(0);
         }
 
         [Fact]
@@ -63,13 +61,11 @@ namespace MrCMS.Tests.Services
             var webpage = new BasicMappedWebpage();
             var posting = new FormPosting()
             {
-                IsDeleted = false,
                 Webpage = webpage,
                 FormValues = new List<FormValue>()
                         {
                             new FormValue()
                                 {
-                                    IsDeleted = false,
                                     IsFile = false,
                                     Key = "Name",
                                     Value = "MrCMS"

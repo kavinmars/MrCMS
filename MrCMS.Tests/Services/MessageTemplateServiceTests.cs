@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess;
 using MrCMS.Entities.Messaging;
 using MrCMS.Helpers;
 using MrCMS.Services;
@@ -27,7 +28,7 @@ namespace MrCMS.Tests.Services
 
             _messageTemplateService.Save(messageTemplate);
 
-            Session.Set<MessageTemplate>().Count().Should().Be(1);
+            Session.Query<MessageTemplate>().Count().Should().Be(1);
         }
 
         [Fact]

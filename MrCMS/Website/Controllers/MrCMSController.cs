@@ -19,7 +19,7 @@ namespace MrCMS.Website.Controllers
         {
             var entities = filterContext.ActionParameters.Values.OfType<SiteEntity>().ToList();
 
-            if (entities.Any(entity => !CurrentRequestData.CurrentSite.IsValidForSite(entity) && entity.Id != 0) || entities.Any(entity => entity.IsDeleted))
+            if (entities.Any(entity => !CurrentRequestData.CurrentSite.IsValidForSite(entity) && entity.Id != 0))
             {
                 filterContext.Result = AuthenticationFailureRedirect();
             }

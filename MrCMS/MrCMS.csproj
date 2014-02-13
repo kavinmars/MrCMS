@@ -263,6 +263,7 @@
     <Compile Include="DataAccess\MrCMSDbConfig.cs" />
     <Compile Include="DataAccess\MrCMSDbContext.cs" />
     <Compile Include="DataAccess\MrCMSDbDependencyResolver.cs" />
+    <Compile Include="DataAccess\MrCMSExecutionStrategy.cs" />
     <Compile Include="DataAccess\MrCMSMappingConvention.cs" />
     <Compile Include="DataAccess\SetCreatedOn.cs" />
     <Compile Include="DataAccess\SetSite.cs" />
@@ -270,6 +271,7 @@
     <Compile Include="DataAccess\StandardDbContext.cs" />
     <Compile Include="DataAccess\UnitOfWork.cs" />
     <Compile Include="DataAccess\IUnitOfWork.cs" />
+    <Compile Include="DataAccess\UnpluralizedService.cs" />
     <Compile Include="Entities\ACL\ACLRole.cs" />
     <Compile Include="Entities\Assets\Activity.cs" />
     <Compile Include="Entities\Assets\ActivityType.cs" />

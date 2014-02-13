@@ -1,4 +1,3 @@
-using System;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Core.Common;
@@ -9,8 +8,6 @@ using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Spatial;
 using System.Data.Entity.SqlServer;
 using System.Security.AccessControl;
-using System.Threading;
-using System.Threading.Tasks;
 using MrCMS.DataAccess;
 using MrCMS.Helpers;
 using MrCMS.Migrations;
@@ -50,74 +47,7 @@ namespace MrCMS.IoC
             Bind<IPluralizationService>().To<UnpluralizedService>().InRequestScope();
             Rebind<IDbContext>().ToMethod(context => context.Kernel.Get<StandardDbContext>()).InRequestScope();
         }
+        
     }
-
-    public class UnpluralizedService : IPluralizationService
-    {
-        public string Pluralize(string word)
-        {
-            return word;
-        }
-
-        public string Singularize(string word)
-        {
-            return word;
-        }
-    }
-
-    public class MrCMSExecutionStrategy : IDbExecutionStrategy
-    {
-        private readonly DefaultExecutionStrategy _defaultExecutionStrategy;
-        private readonly SqlAzureExecutionStrategy _sqlAzureExecutionStrategy;
-
-        public MrCMSExecutionStrategy()
-        {
-            _defaultExecutionStrategy = new DefaultExecutionStrategy();
-            _sqlAzureExecutionStrategy = new SqlAzureExecutionStrategy();
-        }
-
-        //TODO: make this work out where the current connection is (possibly even just make a setting)
-        private bool IsAzure
-        {
-            get { return false; }
-        }
-
-        public void Execute(Action operation)
-        {
-            if (IsAzure)
-                _sqlAzureExecutionStrategy.Execute(operation);
-            _defaultExecutionStrategy.Execute(operation);
-        }
-
-        public TResult Execute<TResult>(Func<TResult> operation)
-        {
-            return IsAzure
-                ? _sqlAzureExecutionStrategy.Execute(operation)
-                : _defaultExecutionStrategy.Execute(operation);
-        }
-
-        public Task ExecuteAsync(Func<Task> operation, CancellationToken cancellationToken)
-        {
-            return IsAzure
-                ? _sqlAzureExecutionStrategy.ExecuteAsync(operation, cancellationToken)
-                : _defaultExecutionStrategy.ExecuteAsync(operation, cancellationToken);
-        }
-
-        public Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> operation, CancellationToken cancellationToken)
-        {
-            return IsAzure
-                ? _sqlAzureExecutionStrategy.ExecuteAsync(operation, cancellationToken)
-                : _defaultExecutionStrategy.ExecuteAsync(operation, cancellationToken);
-        }
-
-        public bool RetriesOnFailure { get { return IsAzure; } }
-    }
-
-    //public class MrCMSProviderFactoryResolver : IDbProviderFactoryResolver
-    //{
-    //    public DbProviderFactory ResolveProviderFactory(DbConnection connection)
-    //    {
-    //        return DbProviderFactories.GetFactory(connection);
-    //    }
-    //}
+    
 }

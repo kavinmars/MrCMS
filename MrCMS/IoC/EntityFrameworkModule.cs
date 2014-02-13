@@ -47,7 +47,5 @@ namespace MrCMS.IoC
             Bind<IPluralizationService>().To<UnpluralizedService>().InRequestScope();
             Rebind<IDbContext>().ToMethod(context => context.Kernel.Get<StandardDbContext>()).InRequestScope();
         }
-        
     }
-    
 }

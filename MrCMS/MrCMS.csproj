@@ -244,7 +244,9 @@
     <Compile Include="DataAccess\CustomCollections\MrCMSSet.cs" />
     <Compile Include="DataAccess\DbContextFactory.cs" />
     <Compile Include="DataAccess\ForeignKeyNamingConvention.cs" />
+    <Compile Include="DataAccess\IDbConfiguration.cs" />
     <Compile Include="DataAccess\IDbContext.cs" />
+    <Compile Include="DataAccess\IDbContextFactory.cs" />
     <Compile Include="DataAccess\IPostCommitListener.cs" />
     <Compile Include="DataAccess\IPreCommitListener.cs" />
     <Compile Include="DataAccess\LogDocumentVersions.cs" />
@@ -257,7 +259,10 @@
     <Compile Include="DataAccess\Mappings\SystemEntityMapping.cs" />
     <Compile Include="DataAccess\Mappings\WebpageMapping.cs" />
     <Compile Include="DataAccess\Mappings\WidgetMapping.cs" />
+    <Compile Include="DataAccess\MrCMSConnectionFactory.cs" />
+    <Compile Include="DataAccess\MrCMSDbConfig.cs" />
     <Compile Include="DataAccess\MrCMSDbContext.cs" />
+    <Compile Include="DataAccess\MrCMSDbDependencyResolver.cs" />
     <Compile Include="DataAccess\MrCMSMappingConvention.cs" />
     <Compile Include="DataAccess\SetCreatedOn.cs" />
     <Compile Include="DataAccess\SetSite.cs" />
@@ -287,9 +292,7 @@
     <Compile Include="Entities\People\IBelongToUser.cs" />
     <Compile Include="Entities\People\UserProfileData.cs" />
     <Compile Include="Helpers\AuthConfigurationServiceExtensions.cs" />
-    <Compile Include="Helpers\IDbConfiguration.cs" />
-    <Compile Include="Helpers\IDbContextExtensions.cs" />
-    <Compile Include="Helpers\IDbContextFactory.cs" />
+    <Compile Include="Helpers\PagingExtensions.cs" />
     <Compile Include="Helpers\UnitOfWorkHelper.cs" />
     <Compile Include="Helpers\WebpageQueryingExtensions.cs" />
     <Compile Include="IoC\ContextModule.cs" />

@@ -1,6 +1,4 @@
-using MrCMS.DataAccess;
-
-namespace MrCMS.Helpers
+namespace MrCMS.DataAccess
 {
     public interface IDbContextFactory
     {

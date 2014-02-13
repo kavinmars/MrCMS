@@ -6,7 +6,7 @@ using MrCMS.Website;
 
 namespace MrCMS.Helpers
 {
-    public static class IDbContextExtensions
+    public static class PagingExtensions
     {
         public static IPagedList<T> Paged<T>(this IQueryable<T> query, int page, int? pageSize = null) where T : SystemEntity
         {

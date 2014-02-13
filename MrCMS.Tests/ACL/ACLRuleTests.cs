@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using MrCMS.ACL;
 using MrCMS.Apps;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.People;
 using MrCMS.Tests.Helpers;
 using Xunit;
@@ -16,7 +17,7 @@ namespace MrCMS.Tests.ACL
         {
             var testAclRule = new TestACLRule();
 
-            testAclRule.CanAccess(new User { Roles = new HashSet<UserRole> { new UserRole { Name = UserRole.Administrator } } },
+            testAclRule.CanAccess(new User { Roles = new MrCMSSet<UserRole> { new UserRole { Name = UserRole.Administrator } } },
                                   "test").Should().BeTrue();
         }
 

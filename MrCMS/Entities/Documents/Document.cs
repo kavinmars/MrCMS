@@ -1,10 +1,8 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using MrCMS.DataAccess;
-using MrCMS.Helpers;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Models;
 using MrCMS.Paging;
 using MrCMS.Services;
@@ -15,9 +13,9 @@ namespace MrCMS.Entities.Documents
     {
         protected Document()
         {
-            Versions = new List<DocumentVersion>();
-            Children = new List<Document>();
-            Tags = new HashSet<Tag>();
+            Versions = new MrCMSList<DocumentVersion>();
+            Children = new MrCMSCollection<Document>();
+            Tags = new MrCMSSet<Tag>();
         }
         [Required]
         [StringLength(255)]
@@ -30,9 +28,9 @@ namespace MrCMS.Entities.Documents
 
         public virtual string UrlSegment { get; set; }
 
-        public virtual IList<Document> Children { get; set; }
+        public virtual MrCMSCollection<Document> Children { get; set; }
 
-        public virtual ISet<Tag> Tags { get; set; }
+        public virtual MrCMSSet<Tag> Tags { get; set; }
 
         public virtual string TagList
         {
@@ -47,7 +45,7 @@ namespace MrCMS.Entities.Documents
             get { return !Children.Any(); }
         }
 
-        protected internal virtual IList<DocumentVersion> Versions { get; set; }
+        protected internal virtual MrCMSList<DocumentVersion> Versions { get; set; }
 
         public virtual VersionsModel GetVersions(int page)
         {

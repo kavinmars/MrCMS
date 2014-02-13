@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Web.Mvc;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Widget;
@@ -282,7 +283,7 @@ namespace MrCMS.Web.Tests.Areas.Admin.Controllers
     {
         public FakeLayoutArea()
         {
-            Widgets = new List<Widget>();
+            Widgets = new MrCMSList<Widget>();
         }
     }
 }

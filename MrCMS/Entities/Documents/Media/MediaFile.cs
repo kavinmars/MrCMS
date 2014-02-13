@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Models;
 using MrCMS.Services;
 using MrCMS.Settings;
@@ -14,7 +15,7 @@ namespace MrCMS.Entities.Documents.Media
     {
         public MediaFile()
         {
-            ResizedImages = new List<ResizedImage>();
+            ResizedImages = new MrCMSList<ResizedImage>();
         }
         public virtual string FileExtension { get; set; }
         public virtual string ContentType { get; set; }
@@ -59,6 +60,6 @@ namespace MrCMS.Entities.Documents.Media
             }
         }
 
-        public virtual IList<ResizedImage> ResizedImages { get; set; }
+        public virtual MrCMSList<ResizedImage> ResizedImages { get; set; }
     }
 }

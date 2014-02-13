@@ -1,5 +1,6 @@
 using System.Linq;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
@@ -68,15 +69,15 @@ namespace MrCMS.Services
                                            widgetCopy.LayoutArea = areaCopy;
                                            return widgetCopy;
                                        })
-                                       .ToList();
+                                       .ToMrCMSList();
                 return areaCopy;
-            }).ToList();
+            }).ToMrCMSList();
             copy.Children = layout.Children.OfType<Layout>().Select(childLayout =>
-            {
-                var child = CopyLayout(childLayout, to);
-                child.Parent = copy;
-                return child;
-            }).Cast<Document>().ToList();
+                                                                    {
+                                                                        var child = CopyLayout(childLayout, to);
+                                                                        child.Parent = copy;
+                                                                        return child;
+                                                                    }).Cast<Document>().ToMrCMSCollection();
             return copy;
         }
 
@@ -101,14 +102,14 @@ namespace MrCMS.Services
             var copy = GetCopy(category, to);
             copy.Children =
                 category.Children.OfType<MediaCategory>()
-                        .Select(childLayout =>
-                        {
-                            var child = CopyMediaCategory(childLayout, to);
-                            child.Parent = copy;
-                            return child;
-                        })
-                        .Cast<Document>()
-                        .ToList();
+                    .Select(childLayout =>
+                            {
+                                var child = CopyMediaCategory(childLayout, to);
+                                child.Parent = copy;
+                                return child;
+                            })
+                    .Cast<Document>()
+                    .ToMrCMSCollection();
             return copy;
         }
 

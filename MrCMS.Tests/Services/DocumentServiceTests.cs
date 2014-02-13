@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FakeItEasy;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
@@ -413,7 +414,7 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_HideWidget_AddsAWidgetToTheHiddenWidgetsListIfItIsNotInTheShownList()
         {
-            var textPage = new BasicMappedWebpage { ShownWidgets = new HashSet<Widget>(), HiddenWidgets = new HashSet<Widget>() };
+            var textPage = new BasicMappedWebpage { ShownWidgets = new MrCMSSet<Widget>(), HiddenWidgets = new MrCMSSet<Widget>() };
             _documentService.SaveDocument(textPage);
 
             var textWidget = new BasicMappedWidget();
@@ -432,8 +433,8 @@ namespace MrCMS.Tests.Services
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashSet<Widget> { textWidget },
-                HiddenWidgets = new HashSet<Widget>()
+                ShownWidgets = new MrCMSSet<Widget> { textWidget },
+                HiddenWidgets = new MrCMSSet<Widget>()
             };
             _documentService.SaveDocument(textPage);
 
@@ -450,8 +451,8 @@ namespace MrCMS.Tests.Services
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashSet<Widget> { textWidget },
-                HiddenWidgets = new HashSet<Widget>()
+                ShownWidgets = new MrCMSSet<Widget> { textWidget },
+                HiddenWidgets = new MrCMSSet<Widget>()
             };
             _documentService.SaveDocument(textPage);
 
@@ -464,7 +465,7 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void DocumentService_ShowWidget_AddsAWidgetToTheShownWidgetsListIfItIsNotInTheHiddenList()
         {
-            var textPage = new BasicMappedWebpage { ShownWidgets = new HashSet<Widget>(), HiddenWidgets = new HashSet<Widget>() };
+            var textPage = new BasicMappedWebpage { ShownWidgets = new MrCMSSet<Widget>(), HiddenWidgets = new MrCMSSet<Widget>() };
             _documentService.SaveDocument(textPage);
 
             var textWidget = new BasicMappedWidget();
@@ -483,8 +484,8 @@ namespace MrCMS.Tests.Services
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashSet<Widget>(),
-                HiddenWidgets = new HashSet<Widget> { textWidget }
+                ShownWidgets = new MrCMSSet<Widget>(),
+                HiddenWidgets = new MrCMSSet<Widget> { textWidget }
             };
             _documentService.SaveDocument(textPage);
 
@@ -501,8 +502,8 @@ namespace MrCMS.Tests.Services
 
             var textPage = new BasicMappedWebpage
             {
-                ShownWidgets = new HashSet<Widget>(),
-                HiddenWidgets = new HashSet<Widget> { textWidget }
+                ShownWidgets = new MrCMSSet<Widget>(),
+                HiddenWidgets = new MrCMSSet<Widget> { textWidget }
             };
             _documentService.SaveDocument(textPage);
 

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Mvc;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Website;
@@ -12,6 +13,10 @@ namespace MrCMS.Entities.Documents.Media
 {
     public class MediaCategory : Document
     {
+        public MediaCategory()
+        {
+            Files = new MrCMSList<MediaFile>();
+        }
         [Required]
         [Remote("ValidateUrlIsAllowed", "MediaCategory", AdditionalFields = "Id")]
         [RegularExpression("[a-zA-Z0-9\\-\\.\\~\\/_\\\\]+$", ErrorMessage = "Path must alphanumeric characters only with dashes or underscore for spaces.")]
@@ -23,18 +28,12 @@ namespace MrCMS.Entities.Documents.Media
 
         public virtual bool IsGallery { get { return true; }}
 
-        private IList<MediaFile> _files = new List<MediaFile>();
 
-        public virtual IList<MediaFile> Files
-        {
-            get { return _files; }
-            protected internal set { _files = value; }
-        }
+        public virtual MrCMSList<MediaFile> Files { get; set; }
 
         public virtual bool HideInAdminNav { get; set; }
         public override bool ShowInAdminNav { get { return !HideInAdminNav; } }
-
-
+        
         public override void OnDeleting(IDbContext dbContext)
         {
             base.OnDeleting(dbContext);

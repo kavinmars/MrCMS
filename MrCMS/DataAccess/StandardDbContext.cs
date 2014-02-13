@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MrCMS.Entities;
-using MrCMS.Helpers;
 
 namespace MrCMS.DataAccess
 {
@@ -31,7 +30,7 @@ namespace MrCMS.DataAccess
         public DbContextConfiguration Configuration { get { return _dbContext.Configuration; } }
         public IQueryable<TEntity> Query<TEntity>() where TEntity : SystemEntity
         {
-            return _dbContext.Set<TEntity>();
+            return _dbContext.Set<TEntity>().Where(entity => !entity.IsDeleted);
         }
 
         public IQueryable<SystemEntity> Query(Type entityType)
@@ -71,7 +70,7 @@ namespace MrCMS.DataAccess
 
         public T Get<T>(int id) where T : SystemEntity
         {
-            return _dbContext.Set<T>().Find(id);
+            return _dbContext.Set<T>().Where(entity => !entity.IsDeleted).FirstOrDefault(arg => arg.Id == id);
         }
 
         public T GetInThisContext<T>(T entity) where T : SystemEntity
@@ -81,18 +80,25 @@ namespace MrCMS.DataAccess
 
         public SystemEntity Get(Type type, int id)
         {
-            return _dbContext.Set(type).Find(id) as SystemEntity;
+            var systemEntity = _dbContext.Set(type).Find(id) as SystemEntity;
+            if (systemEntity != null && systemEntity.IsDeleted)
+                return null;
+            return systemEntity;
         }
 
         public T Add<T>(T entity) where T : SystemEntity
         {
+            if (entity == null || entity.IsDeleted) return null;
             _dbContext.Set<T>().Add(entity);
             return entity;
         }
 
         public T Update<T>(T entity) where T : SystemEntity
         {
-            _dbContext.Entry(entity).Property(arg => arg.UpdatedOn).IsModified = true;
+            if (entity == null || entity.IsDeleted) return null;
+            var dbEntityEntry = _dbContext.Entry(entity);
+            _dbContext.Set<T>().Attach(entity);
+            dbEntityEntry.Property(arg => arg.UpdatedOn).IsModified = true;
             return entity;
         }
 
@@ -103,6 +109,7 @@ namespace MrCMS.DataAccess
 
         public T AddOrUpdate<T>(T entity) where T : SystemEntity
         {
+            if (entity == null || entity.IsDeleted) return null;
             _dbContext.Set<T>().AddOrUpdate(arg => arg.Id, entity);
             return entity;
         }

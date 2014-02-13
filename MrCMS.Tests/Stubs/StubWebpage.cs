@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Documents.Web.FormProperties;
@@ -10,11 +11,11 @@ namespace MrCMS.Tests.Stubs
     {
         public StubWebpage()
         {
-            FormProperties = new List<FormProperty>();
+            FormProperties = new MrCMSList<FormProperty>();
         }
         public virtual void SetChildren(IList<Webpage> children)
         {
-            Children = children.OfType<Document>().ToList();
+            Children = children.OfType<Document>().ToMrCMSCollection();
             foreach (var document in Children)
             {
                 document.Parent = this;

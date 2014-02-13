@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using System.Xml;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web.FormProperties;
 using MrCMS.Entities.People;
 using MrCMS.Models;
@@ -25,11 +26,13 @@ namespace MrCMS.Entities.Documents.Web
         protected Webpage()
         {
             InheritFrontEndRolesFromParent = true;
-            Urls = new List<UrlHistory>();
-            ShownWidgets = new HashSet<Widget.Widget>();
-            HiddenWidgets = new HashSet<Widget.Widget>();
-            Widgets = new List<Widget.Widget>();
-            FrontEndAllowedRoles = new HashSet<UserRole>();
+            Urls = new MrCMSList<UrlHistory>();
+            ShownWidgets = new MrCMSSet<Widget.Widget>();
+            HiddenWidgets = new MrCMSSet<Widget.Widget>();
+            Widgets = new MrCMSList<Widget.Widget>();
+            FrontEndAllowedRoles = new MrCMSSet<UserRole>();
+            FormPostings = new MrCMSList<FormPosting>();
+            FormProperties = new MrCMSList<FormProperty>();
         }
         private Layout.Layout _layout;
 
@@ -82,12 +85,12 @@ namespace MrCMS.Entities.Documents.Web
             get { return _layout ?? (_layout = Layout ?? MrCMSApplication.Get<IDocumentService>().GetDefaultLayout(this)); }
         }
 
-        public virtual ISet<Widget.Widget> ShownWidgets { get; set; }
-        public virtual ISet<Widget.Widget> HiddenWidgets { get; set; }
+        public virtual MrCMSSet<Widget.Widget> ShownWidgets { get; set; }
+        public virtual MrCMSSet<Widget.Widget> HiddenWidgets { get; set; }
 
-        public virtual IList<Widget.Widget> Widgets { get; set; }
+        public virtual MrCMSList<Widget.Widget> Widgets { get; set; }
 
-        public virtual IList<PageWidgetSort> PageWidgetSorts { get; set; }
+        public virtual MrCMSList<PageWidgetSort> PageWidgetSorts { get; set; }
 
         [AllowHtml]
         [DisplayName("Body Content")]
@@ -141,8 +144,8 @@ namespace MrCMS.Entities.Documents.Web
         public virtual string SendFormTo { get; set; }
         [DisplayName("Form Email Message")]
         public virtual string FormMessage { get; set; }
-        public virtual IList<FormProperty> FormProperties { get; set; }
-        public virtual IList<FormPosting> FormPostings { get; set; }
+        public virtual MrCMSList<FormProperty> FormProperties { get; set; }
+        public virtual MrCMSList<FormPosting> FormPostings { get; set; }
         public virtual string FormDesign { get; set; }
         [StringLength(100)]
         [DisplayName("Submit Button Css Class")]
@@ -154,7 +157,7 @@ namespace MrCMS.Entities.Documents.Web
 
         [DisplayName("Same as parent")]
         public virtual bool InheritFrontEndRolesFromParent { get; set; }
-        public virtual ISet<UserRole> FrontEndAllowedRoles { get; set; }
+        public virtual MrCMSSet<UserRole> FrontEndAllowedRoles { get; set; }
 
         [DisplayName("Roles")]
         public virtual string FrontEndRoles
@@ -174,8 +177,8 @@ namespace MrCMS.Entities.Documents.Web
                 return string.Format("{0}{1}/{2}", scheme, authority, LiveUrlSegment);
             }
         }
-        
-        public virtual IList<UrlHistory> Urls { get; set; }
+
+        public virtual MrCMSList<UrlHistory> Urls { get; set; }
 
         public virtual IEnumerable<Webpage> PublishedChildren
         {

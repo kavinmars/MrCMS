@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using MrCMS.DataAccess.CustomCollections;
 
 namespace MrCMS.Entities.Messaging
 {
     public class QueuedMessage : SiteEntity
     {
+        public QueuedMessage()
+        {
+            QueuedMessageAttachments = new MrCMSList<QueuedMessageAttachment>();
+        }
         public virtual string FromAddress { get; set; }
         public virtual string FromName { get; set; }
 
@@ -25,7 +30,7 @@ namespace MrCMS.Entities.Messaging
 
         public virtual bool IsHtml { get; set; }
 
-        public virtual IList<QueuedMessageAttachment> QueuedMessageAttachments { get; set; }
+        public virtual MrCMSList<QueuedMessageAttachment> QueuedMessageAttachments { get; set; }
 
         public virtual string FromDescription
         {

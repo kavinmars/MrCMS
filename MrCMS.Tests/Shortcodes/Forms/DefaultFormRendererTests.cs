@@ -3,6 +3,7 @@ using System.Web.Mvc;
 using FakeItEasy;
 using FakeItEasy.Core;
 using FluentAssertions;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Documents.Web.FormProperties;
 using MrCMS.Settings;
@@ -64,7 +65,7 @@ namespace MrCMS.Tests.Shortcodes.Forms
             var textBox = new TextBox { Name = "test-1" };
             var stubWebpage = new StubWebpage
                                   {
-                                      FormProperties = new List<FormProperty> { textBox }
+                                      FormProperties = new MrCMSList<FormProperty> { textBox }
                                   };
             var formElementRenderer = A.Fake<IFormElementRenderer>();
             A.CallTo(() => _elementRendererManager.GetElementRenderer<FormProperty>(textBox))
@@ -83,7 +84,7 @@ namespace MrCMS.Tests.Shortcodes.Forms
             var textBox = new TextBox { Name = "test-1" };
             var stubWebpage = new StubWebpage
                                   {
-                                      FormProperties = new List<FormProperty> { textBox }
+                                      FormProperties = new MrCMSList<FormProperty> { textBox }
                                   };
             var formElementRenderer = A.Fake<IFormElementRenderer>();
             A.CallTo(() => _elementRendererManager.GetElementRenderer<FormProperty>(textBox))
@@ -101,7 +102,7 @@ namespace MrCMS.Tests.Shortcodes.Forms
             var textBox = new TextBox { Name = "test-1" };
             var stubWebpage = new StubWebpage
             {
-                FormProperties = new List<FormProperty> { textBox }
+                FormProperties = new MrCMSList<FormProperty> { textBox }
             };
             var formElementRenderer = A.Fake<IFormElementRenderer>();
             A.CallTo(() => _elementRendererManager.GetElementRenderer<FormProperty>(textBox))
@@ -121,7 +122,7 @@ namespace MrCMS.Tests.Shortcodes.Forms
 
             var stubWebpage = new StubWebpage
             {
-                FormProperties = new List<FormProperty> { textBox1, textBox2 }
+                FormProperties = new MrCMSList<FormProperty> { textBox1, textBox2 }
             };
             var formElementRenderer = A.Fake<IFormElementRenderer>();
             A.CallTo(() => formElementRenderer.AppendElement(textBox1, _existingValue)).Returns(new TagBuilder("input"));

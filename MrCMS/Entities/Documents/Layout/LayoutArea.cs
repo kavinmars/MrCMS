@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 
@@ -11,7 +12,8 @@ namespace MrCMS.Entities.Documents.Layout
     {
         public LayoutArea()
         {
-            Widgets = new List<Widget.Widget>();
+            Widgets = new MrCMSList<Widget.Widget>();
+            PageWidgetSorts = new MrCMSList<PageWidgetSort>();
         }
         public virtual Layout Layout { get; set; } //which layout does the area belong to?
         [Required]
@@ -19,9 +21,9 @@ namespace MrCMS.Entities.Documents.Layout
         [DisplayName("Area Name")]
         public virtual string AreaName { get; set; } // IE. Area.Top, Area.Sidebar.First
 
-        public virtual IList<Widget.Widget> Widgets { get; set; }
+        public virtual MrCMSList<Widget.Widget> Widgets { get; set; }
 
-        public virtual IList<PageWidgetSort> PageWidgetSorts { get; set; }
+        public virtual MrCMSList<PageWidgetSort> PageWidgetSorts { get; set; }
 
         public virtual List<Widget.Widget> GetWidgets(Webpage webpage = null, bool showHidden = false)
         {

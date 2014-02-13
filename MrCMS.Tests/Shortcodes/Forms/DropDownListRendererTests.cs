@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web.FormProperties;
 using MrCMS.Shortcodes.Forms;
 using Xunit;
@@ -89,7 +90,7 @@ namespace MrCMS.Tests.Shortcodes.Forms
             var dropDownList = new DropDownList
             {
                 Options =
-                    new List<FormListOption> { new FormListOption(), new FormListOption(), new FormListOption() }
+                    new MrCMSList<FormListOption> { new FormListOption(), new FormListOption(), new FormListOption() }
             };
 
             _dropDownListRenderer.AppendElement(dropDownList, null);
@@ -104,7 +105,7 @@ namespace MrCMS.Tests.Shortcodes.Forms
             var dropDownList = new DropDownList
             {
                 Options =
-                    new List<FormListOption> { new FormListOption()}
+                    new MrCMSList<FormListOption> { new FormListOption() }
             };
 
             A.CallTo(() => _dropDownListOptionRenderer.GetOption(A<FormListOption>.Ignored, null))

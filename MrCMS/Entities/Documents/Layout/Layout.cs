@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 
@@ -11,7 +12,8 @@ namespace MrCMS.Entities.Documents.Layout
     {
         public Layout()
         {
-            LayoutAreas = new List<LayoutArea>();
+            LayoutAreas = new MrCMSList<LayoutArea>();
+            Webpages = new MrCMSList<Webpage>();
         }
         [Required]
         [Remote("ValidateUrlIsAllowed", "Layout", AdditionalFields = "Id")]
@@ -19,7 +21,7 @@ namespace MrCMS.Entities.Documents.Layout
         public override string UrlSegment { get; set; }
 
         //todo this can't be protected, required in admin on layoput edit
-        public virtual IList<LayoutArea> LayoutAreas { get; set; }
+        public virtual MrCMSList<LayoutArea> LayoutAreas { get; set; }
 
         public virtual IEnumerable<LayoutArea> GetLayoutAreas()
         {
@@ -34,7 +36,7 @@ namespace MrCMS.Entities.Documents.Layout
             return layoutAreas;
         }
 
-        public virtual IList<Webpage> Webpages { get; set; }
+        public virtual MrCMSList<Webpage> Webpages { get; set; }
 
         public virtual bool Hidden { get; set; }
 

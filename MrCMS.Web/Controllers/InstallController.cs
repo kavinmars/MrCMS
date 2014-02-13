@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Installation;
 using MrCMS.Web.Apps.Core.Pages;
@@ -71,7 +72,7 @@ namespace MrCMS.Web.Controllers
                                    {
                                        Name = "Base Layout",
                                        UrlSegment = "~/Apps/Core/Views/Shared/_BaseLayout.cshtml",
-                                       LayoutAreas = new List<LayoutArea>()
+                                       LayoutAreas = new MrCMSList<LayoutArea>()
                                    };
             model.HomePage = new TextPage
                 {

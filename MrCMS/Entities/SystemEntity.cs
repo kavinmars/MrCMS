@@ -13,7 +13,6 @@ namespace MrCMS.Entities
         [DisplayName("Updated On")]
         public virtual DateTime UpdatedOn { get; set; }
 
-        [NotMapped]
         public virtual bool IsDeleted { get; set; }
 
         public virtual void OnDeleting(IDbContext dbContext)

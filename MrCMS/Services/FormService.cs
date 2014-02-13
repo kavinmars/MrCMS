@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using CsvHelper;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Documents.Web.FormProperties;
@@ -151,7 +152,7 @@ namespace MrCMS.Services
                                       var formPosting = new FormPosting
                                                             {
                                                                 Webpage = webpage,
-                                                                FormValues = new List<FormValue>()
+                                                                FormValues = new MrCMSList<FormValue>()
                                                             };
                                       formCollection.AllKeys.ForEach(s =>
                                                                          {

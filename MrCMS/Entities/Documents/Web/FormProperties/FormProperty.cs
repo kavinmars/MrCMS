@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Web.Mvc;
+using MrCMS.DataAccess.CustomCollections;
 
 namespace MrCMS.Entities.Documents.Web.FormProperties
 {
@@ -7,7 +8,7 @@ namespace MrCMS.Entities.Documents.Web.FormProperties
     {
         protected FormProperty()
         {
-            Options = new List<FormListOption>();
+            Options = new MrCMSList<FormListOption>();
         }
         public virtual string Name { get; set; }
         public virtual string LabelText { get; set; }
@@ -16,7 +17,7 @@ namespace MrCMS.Entities.Documents.Web.FormProperties
         public virtual string HtmlId { get; set; }
 
         public virtual Webpage Webpage { get; set; }
-        public virtual IList<FormListOption> Options { get; set; }
+        public virtual MrCMSList<FormListOption> Options { get; set; }
         public abstract bool HasOptions { get; }
         public virtual int DisplayOrder { get; set; }
 

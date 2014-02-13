@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Website;
 using System.Linq;
 
@@ -10,7 +11,7 @@ namespace MrCMS.Entities.Multisite
     {
         public Site()
         {
-            RedirectedDomains = new List<RedirectedDomain>();
+            RedirectedDomains = new MrCMSList<RedirectedDomain>();
         }
         [Required]
         public virtual string Name { get; set; }
@@ -19,7 +20,7 @@ namespace MrCMS.Entities.Multisite
         [Required]
         public virtual string BaseUrl { get; set; }
 
-        public virtual IList<RedirectedDomain> RedirectedDomains { get; set; }
+        public virtual MrCMSList<RedirectedDomain> RedirectedDomains { get; set; }
 
         public virtual string DisplayName
         {

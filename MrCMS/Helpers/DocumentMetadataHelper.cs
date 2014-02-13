@@ -79,7 +79,7 @@ namespace MrCMS.Helpers
             {
                 var documentTypeDefinition =
                     WebpageMetadata.FirstOrDefault(
-                        definition => definition.TypeName == parent.Unproxy().GetType().Name);
+                        definition => definition.TypeName == parent.ObjectTypeName);
 
                 if (documentTypeDefinition == null) return Enumerable.Empty<DocumentMetadata>();
 

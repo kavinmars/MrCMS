@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
+using MrCMS.DataAccess.CustomCollections;
 
 namespace MrCMS.Entities.Documents.Web
 {
@@ -9,10 +8,10 @@ namespace MrCMS.Entities.Documents.Web
     {
         public FormPosting()
         {
-            FormValues = new List<FormValue>();
+            FormValues = new MrCMSList<FormValue>();
         }
         public virtual Webpage Webpage { get; set; }
-        public virtual IList<FormValue> FormValues { get; set; }
+        public virtual MrCMSList<FormValue> FormValues { get; set; }
 
         public virtual string this[string heading]
         {

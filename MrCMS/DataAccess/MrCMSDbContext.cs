@@ -1,19 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Infrastructure.Interception;
-using System.Data.Entity.ModelConfiguration;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using MrCMS.DataAccess.Mappings;
 using MrCMS.Entities;
-using MrCMS.Entities.Documents.Layout;
-using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 
 namespace MrCMS.DataAccess
@@ -42,7 +32,6 @@ namespace MrCMS.DataAccess
             {
                 DbMappings.Mappers[type].Map(modelBuilder);
             }
-            modelBuilder.Types().Configure(configuration => configuration.Ignore("IsDeleted"));
             modelBuilder.Conventions.Add(new MrCMSMappingConvention(), new ForeignKeyNamingConvention());
         }
 

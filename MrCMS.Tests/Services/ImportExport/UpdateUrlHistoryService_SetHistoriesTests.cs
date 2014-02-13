@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Services.ImportExport;
 using MrCMS.Services.ImportExport.DTOs;
@@ -46,7 +47,7 @@ namespace MrCMS.Tests.Services.ImportExport
         public void UnAssigningAUrlHistoryShouldSetTheWebpageToNull()
         {
             var urlHistory = new UrlHistory { UrlSegment = "test" };
-            var basicMappedWebpage = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
+            var basicMappedWebpage = new BasicMappedWebpage { Urls = new MrCMSList<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage;
             Session.Transact(session => session.Add(urlHistory));
             _updateUrlHistoryService.Initialise();
@@ -61,7 +62,7 @@ namespace MrCMS.Tests.Services.ImportExport
         public void UnAssigningAUrlHistoryRemoveTheItemFromTheWebpageUrlList()
         {
             var urlHistory = new UrlHistory { UrlSegment = "test" };
-            var basicMappedWebpage = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
+            var basicMappedWebpage = new BasicMappedWebpage { Urls = new MrCMSList<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage;
             Session.Transact(session => session.Add(urlHistory));
             _updateUrlHistoryService.Initialise();
@@ -76,9 +77,9 @@ namespace MrCMS.Tests.Services.ImportExport
         public void MovesTheUrlHistoryBetweenPagesIfTheyAreChanged()
         {
             var urlHistory = new UrlHistory { UrlSegment = "test" };
-            var basicMappedWebpage1 = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
+            var basicMappedWebpage1 = new BasicMappedWebpage { Urls = new MrCMSList<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage1;
-            var basicMappedWebpage2 = new BasicMappedWebpage { Urls = new List<UrlHistory> { } };
+            var basicMappedWebpage2 = new BasicMappedWebpage { Urls = new MrCMSList<UrlHistory> { } };
             Session.Transact(session => session.Add(urlHistory));
             Session.Transact(session => session.Add(basicMappedWebpage1));
             Session.Transact(session => session.Add(basicMappedWebpage2));
@@ -97,9 +98,9 @@ namespace MrCMS.Tests.Services.ImportExport
         public void ShouldNotCreateNewUrlHistoryWhileMovingUrls()
         {
             var urlHistory = new UrlHistory { UrlSegment = "test" };
-            var basicMappedWebpage1 = new BasicMappedWebpage { Urls = new List<UrlHistory> { urlHistory } };
+            var basicMappedWebpage1 = new BasicMappedWebpage { Urls = new MrCMSList<UrlHistory> { urlHistory } };
             urlHistory.Webpage = basicMappedWebpage1;
-            var basicMappedWebpage2 = new BasicMappedWebpage { Urls = new List<UrlHistory> { } };
+            var basicMappedWebpage2 = new BasicMappedWebpage { Urls = new MrCMSList<UrlHistory> { } };
             Session.Transact(session => session.Add(urlHistory));
             Session.Transact(session => session.Add(basicMappedWebpage1));
             Session.Transact(session => session.Add(basicMappedWebpage2));

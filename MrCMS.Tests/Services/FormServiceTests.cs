@@ -2,6 +2,7 @@
 using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Services;
 using MrCMS.Settings;
@@ -35,7 +36,7 @@ namespace MrCMS.Tests.Services
             var posting = new FormPosting()
                 {
                     Webpage = webpage,
-                    FormValues = new List<FormValue>()
+                    FormValues = new MrCMSList<FormValue>()
                         {
                             new FormValue()
                                 {
@@ -46,7 +47,7 @@ namespace MrCMS.Tests.Services
                         }
                 };
 
-            webpage.FormPostings = new List<FormPosting>() {posting};
+            webpage.FormPostings = new MrCMSList<FormPosting>() { posting };
 
             Session.Transact(session => session.Add(posting));
 
@@ -62,7 +63,7 @@ namespace MrCMS.Tests.Services
             var posting = new FormPosting()
             {
                 Webpage = webpage,
-                FormValues = new List<FormValue>()
+                FormValues = new MrCMSList<FormValue>()
                         {
                             new FormValue()
                                 {
@@ -73,7 +74,7 @@ namespace MrCMS.Tests.Services
                         }
             };
 
-            webpage.FormPostings = new List<FormPosting>() { posting };
+            webpage.FormPostings = new MrCMSList<FormPosting>() { posting };
 
             var result=_formService.ExportFormData(webpage);
 

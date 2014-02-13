@@ -2,6 +2,7 @@
 using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents;
 using MrCMS.Services;
 using MrCMS.Tests.Stubs;
@@ -59,7 +60,7 @@ namespace MrCMS.Tests.Services
         {
             public void SetTags(ISet<Tag> tags)
             {
-                Tags = tags;
+                Tags = tags.ToMrCMSSet();
             }
         }
     }

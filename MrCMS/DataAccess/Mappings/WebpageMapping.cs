@@ -1,7 +1,15 @@
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Entities.People;
 
 namespace MrCMS.DataAccess.Mappings
 {
+    public class UserMapping : SystemEntityMapping<User>
+    {
+        public UserMapping()
+        {
+            HasMany(user => user.UserProfileData).WithRequired(data => data.User);
+        }
+    }
     public class WebpageMapping : SystemEntityMapping<Webpage>
     {
         public WebpageMapping()

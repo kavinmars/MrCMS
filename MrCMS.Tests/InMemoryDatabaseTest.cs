@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Elmah;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
@@ -62,8 +63,8 @@ namespace MrCMS.Tests
                     Name = UserRole.Administrator
                 };
 
-            user.Roles = new HashSet<UserRole> { adminUserRole };
-            adminUserRole.Users = new HashSet<User> { user };
+            user.Roles = new MrCMSSet<UserRole> { adminUserRole };
+            adminUserRole.Users = new MrCMSSet<User> { user };
 
             CurrentRequestData.CurrentUser = user;
         }

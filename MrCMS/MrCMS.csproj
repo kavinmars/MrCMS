@@ -238,6 +238,10 @@
     <Compile Include="Apps\MrCMSApp.cs" />
     <Compile Include="Apps\MrCMSAppRegistrationContext.cs" />
     <Compile Include="Config\MrCMSConfigSection.cs" />
+    <Compile Include="DataAccess\CustomCollections\MrCMSCollection.cs" />
+    <Compile Include="DataAccess\CustomCollections\MrCMSCollectionExtensions.cs" />
+    <Compile Include="DataAccess\CustomCollections\MrCMSList.cs" />
+    <Compile Include="DataAccess\CustomCollections\MrCMSSet.cs" />
     <Compile Include="DataAccess\DbContextFactory.cs" />
     <Compile Include="DataAccess\ForeignKeyNamingConvention.cs" />
     <Compile Include="DataAccess\IDbContext.cs" />

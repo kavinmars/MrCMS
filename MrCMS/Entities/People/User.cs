@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using MrCMS.ACL;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Helpers;
 using MrCMS.Helpers.Validation;
 
@@ -32,15 +33,15 @@ namespace MrCMS.Entities.People
         public User()
         {
             Guid = Guid.NewGuid();
-            Roles = new HashSet<UserRole>();
-            UserProfileData = new List<UserProfileData>();
-            UserLogins = new List<UserLogin>();
-            UserClaims = new List<UserClaim>();
+            Roles = new MrCMSSet<UserRole>();
+            UserProfileData = new MrCMSList<UserProfileData>();
+            UserLogins = new MrCMSList<UserLogin>();
+            UserClaims = new MrCMSList<UserClaim>();
         }
 
-        public virtual IList<UserClaim> UserClaims { get; set; }
+        public virtual MrCMSList<UserClaim> UserClaims { get; set; }
 
-        public virtual IList<UserLogin> UserLogins { get; set; }
+        public virtual MrCMSList<UserLogin> UserLogins { get; set; }
 
         [DisplayName("First Name")]
         public virtual string FirstName { get; set; }
@@ -69,8 +70,8 @@ namespace MrCMS.Entities.People
         public virtual Guid? ResetPasswordGuid { get; set; }
         public virtual DateTime? ResetPasswordExpiry { get; set; }
 
-        public virtual ISet<UserRole> Roles { get; set; }
-        protected internal virtual IList<UserProfileData> UserProfileData { get; set; }
+        public virtual MrCMSSet<UserRole> Roles { get; set; }
+        protected internal virtual MrCMSList<UserProfileData> UserProfileData { get; set; }
 
         public virtual T Get<T>() where T : UserProfileData
         {

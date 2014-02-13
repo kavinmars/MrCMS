@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Web.Mvc;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
@@ -13,8 +13,9 @@ namespace MrCMS.Entities.Widget
     {
         protected Widget()
         {
-            ShownOn = new HashSet<Webpage>();
-            HiddenOn = new HashSet<Webpage>();
+            ShownOn = new MrCMSSet<Webpage>();
+            HiddenOn = new MrCMSSet<Webpage>();
+            PageWidgetSorts = new MrCMSList<PageWidgetSort>();
         }
         public virtual LayoutArea LayoutArea { get; set; }
 
@@ -34,15 +35,15 @@ namespace MrCMS.Entities.Widget
         [DisplayName("Show on child pages")]
         public virtual bool IsRecursive { get; set; }
 
-        public virtual IList<PageWidgetSort> PageWidgetSorts { get; set; }
+        public virtual MrCMSList<PageWidgetSort> PageWidgetSorts { get; set; }
 	
         public virtual object GetModel(IKernel kernel)
         {
             return this;
         }
 
-        public virtual ISet<Webpage> HiddenOn { get; set; }
-        public virtual ISet<Webpage> ShownOn { get; set; }
+        public virtual MrCMSSet<Webpage> HiddenOn { get; set; }
+        public virtual MrCMSSet<Webpage> ShownOn { get; set; }
 
         public virtual void SetDropdownData(ViewDataDictionary viewData, IKernel kernel) { }
 

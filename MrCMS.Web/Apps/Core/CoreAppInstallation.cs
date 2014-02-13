@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.AspNet.Identity;
 using MrCMS.DataAccess;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
@@ -254,8 +255,8 @@ namespace MrCMS.Web.Apps.Core
                                         Name = UserRole.Administrator
                                     };
 
-            user.Roles = new HashSet<UserRole> { adminUserRole };
-            adminUserRole.Users = new HashSet<User> { user };
+            user.Roles = new MrCMSSet<UserRole> { adminUserRole };
+            adminUserRole.Users = new MrCMSSet<User> { user };
             var roleService = kernel.Get<IRoleService>();
             roleService.SaveRole(adminUserRole);
 

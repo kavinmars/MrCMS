@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MrCMS.DataAccess.CustomCollections;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 
@@ -9,7 +10,7 @@ namespace MrCMS.Tests.Stubs
     {
         public virtual void SetChildren(IList<Document> children)
         {
-            Children = children;
+            Children = children.ToMrCMSCollection();
             foreach (var document in Children)
             {
                 document.Parent = this;
@@ -18,7 +19,7 @@ namespace MrCMS.Tests.Stubs
 
         public virtual void SetVersions(List<DocumentVersion> versions)
         {
-            Versions = versions;
+            Versions = versions.ToMrCMSList();
         }
     }
     //[MrCMSMapClass]

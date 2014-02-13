@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using MrCMS.DataAccess.CustomCollections;
 
 namespace MrCMS.Entities.Documents
 {
@@ -6,10 +6,10 @@ namespace MrCMS.Entities.Documents
     {
         public Tag()
         {
-            Documents = new HashSet<Document>();
+            Documents = new MrCMSSet<Document>();
         }
         public virtual string Name { get; set; }
 
-        public virtual ISet<Document> Documents { get; set; }
+        public virtual MrCMSSet<Document> Documents { get; set; }
     }
 }

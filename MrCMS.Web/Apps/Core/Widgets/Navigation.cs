@@ -19,7 +19,9 @@ namespace MrCMS.Web.Apps.Core.Widgets
         public override object GetModel(ISession session)
         {
             var navigationRecords =
-                GetPages(session, null).Where(webpage => webpage.Published).OrderBy(webpage => webpage.DisplayOrder)
+                GetPages(session, null)
+                    .Where(webpage => webpage.Published)
+                    .OrderBy(webpage => webpage.DisplayOrder)
                        .Select(webpage => new NavigationRecord
                        {
                            Text = MvcHtmlString.Create(webpage.Name),

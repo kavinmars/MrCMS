@@ -62,6 +62,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\FluentNHibernate.1.4.0.0\lib\net35\FluentNHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="HibernatingRhinos.Profiler.Appender">
+      <HintPath>..\packages\NHibernateProfiler.Appender.2.0.2233.0\lib\HibernatingRhinos.Profiler.Appender.dll</HintPath>
+    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
@@ -280,6 +283,16 @@
     <Compile Include="Apps\Core\Models\RegisterAndLogin\ResetPasswordViewModel.cs" />
     <Compile Include="Apps\Core\Services\OnUserRegisteredEventArgs.cs" />
     <Compile Include="Apps\Core\Widgets\Slider.cs" />
+    <Compile Include="Apps\MobileFriendlyNavigation\Controllers\MobileFriendlyNavigationController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Apps\MobileFriendlyNavigation\MobileFriendlyNavigationApp.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Apps\MobileFriendlyNavigation\Models\MobileFriendlyNavigation\MobileFriendlyNavigationChildNode.cs" />
+    <Compile Include="Apps\MobileFriendlyNavigation\Services\IMobileFriendlyNavigationService.cs" />
+    <Compile Include="Apps\MobileFriendlyNavigation\Services\MobileFriendlyNavigationService.cs" />
+    <Compile Include="Apps\MobileFriendlyNavigation\Widgets\MobileFriendlyNavigation.cs" />
     <Compile Include="Areas\Admin\ACL\NotificationACL.cs" />
     <Compile Include="Areas\Admin\Controllers\NotificationController.cs" />
     <Compile Include="Areas\Admin\Controllers\NotificationSettingsController.cs" />
@@ -453,6 +466,12 @@
     <Content Include="Apps\Core\Content\Images\mrcms-logo.png" />
     <Content Include="Apps\Core\Content\SocialButtons\zocial-regular-webfont.svg" />
     <Content Include="Apps\Core\Content\SocialButtons\zocial.css" />
+    <Content Include="Apps\MobileFriendlyNavigation\Views\MobileFriendlyNavigation\Index.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Apps\MobileFriendlyNavigation\Views\web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Apps\Galleries\Areas\Admin\Content\Scripts\gallery.js" />
     <Content Include="Apps\Galleries\Content\blueimp-Bootstrap-Image-Gallery\css\bootstrap-image-gallery.min.css" />
     <Content Include="Apps\Galleries\Content\blueimp-Bootstrap-Image-Gallery\img\loading.gif" />
@@ -1511,6 +1530,17 @@
     <Content Include="Areas\Admin\Views\TransientNotification\Show.cshtml" />
     <Content Include="Areas\Admin\Views\PersistentNotification\Show.cshtml" />
     <Content Include="Areas\Admin\Views\PersistentNotification\Navbar.cshtml" />
+    <Content Include="Apps\MobileFriendlyNavigation\Areas\Admin\Views\Widget\MobileFriendlyNavigation.cshtml" />
+    <Content Include="Apps\MobileFriendlyNavigation\Areas\Admin\Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="Apps\MobileFriendlyNavigation\Views\web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="Apps\MobileFriendlyNavigation\Views\web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <Content Include="Apps\MobileFriendlyNavigation\Views\Widgets\MobileFriendlyNavigation.cshtml" />
     <None Include="Properties\PublishProfiles\new.pubxml" />
     <None Include="Themes\Default\Views\Web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
@@ -1627,7 +1657,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>1834</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:8880/</IISUrl>
+          <IISUrl>http://localhost:8881/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

@@ -21,6 +21,8 @@ namespace MrCMS.Web
 
             app.ConfigureAuth();
             ConfigureSignalR(app);
+
+            HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
         }
         public static void ConfigureSignalR(IAppBuilder app)
         {

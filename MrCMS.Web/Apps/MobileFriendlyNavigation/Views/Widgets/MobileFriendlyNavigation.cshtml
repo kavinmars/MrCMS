@@ -1,0 +1,54 @@
+﻿@model IEnumerable<MobileFriendlyNavigationRootNode>
+@{
+    Html.IncludeScript("~/Apps/MobileFriendlyNavigation/Content/Scripts/mrcms/mobileFriendlyNavigation.js");
+    
+    List<string> activePages = CurrentRequestData.CurrentPage.ActivePages
+        .Select(webpage => webpage.LiveUrlSegment)
+        .ToList();
+}
+
+@* The root navigation is rendered directly to the page *@
+<ul class="nav navbar-nav">
+    @foreach (MobileFriendlyNavigationRootNode rootNode in Model)
+    {
+        string activeClass = activePages.Any(a => a.StartsWith(rootNode.UrlSegment, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
+
+        if (rootNode.HasChildren)
+        {
+            <li class="dropdown @activeClass">
+                <a href="@rootNode.Url" class="dropdown-toggle" data-toggle="dropdown">C - @rootNode.Text</a>
+
+                <ul class="dropdown-menu">
+                    @foreach (MobileFriendlyNavigationChildNode childNode in rootNode.Children)
+                    {
+                        var childActiveClass = activePages.Any(a => a.StartsWith(childNode.UrlSegment, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
+                        
+                        <li class="@childActiveClass">
+                            <a href="@childNode.Url">@(childNode.HasChildren ? "C - ": "N - ") @childNode.Text</a>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+        else
+        {
+            <li class="@activeClass">
+                <a href="@rootNode.Url">N - @rootNode.Text</a>
+            </li>
+        }
+    }
+</ul>
+
+@*
+<div data-mfnav-template="hasChildren" style="display: none">
+    <a href="{Url}" class="dropdown-toggle" data-toggle="dropdown">{Text}</a>
+
+    <ul class="dropdown-menu" data-mfnav-template="childContainer">
+        <li class="@(activePages.Contains(record.Url.ToString(), StringComparer.OrdinalIgnoreCase) ? "active" : "")">
+            <a href="@record.Url">@record.Text</a>
+        </li>
+    </ul>
+</div>
+
+<div data-mfnav-template="noChildren" style="display: none">
+</div>*@

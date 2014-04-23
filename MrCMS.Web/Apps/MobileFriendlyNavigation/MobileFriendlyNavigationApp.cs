@@ -22,9 +22,11 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation
 
         protected override void RegisterApp(MrCMSAppRegistrationContext context)
         {
-            context.MapAreaRoute("Navigation controllers", "", "Apps/MobileFriendlyNavigation/{controller}/{action}/{id}",
-                new {controller = "Home", action = "Index", id = UrlParameter.Optional},
-                new[] {typeof (MobileFriendlyNavigationController).Namespace});
+            //context.MapAreaRoute("Navigation controllers", "", "Apps/MobileFriendlyNavigation/{controller}/{action}/{id}",
+            //    new {controller = "Home", action = "Index", id = UrlParameter.Optional},
+            //    new[] {typeof (MobileFriendlyNavigationController).Namespace});
+
+            context.MapRoute("MFNav GetChildren", "MobileFriendlyNavigation/GetChildNodes", new { controller = "MobileFriendlyNavigation", action = "GetChildNodes" });
         }
 
         protected override void RegisterServices(IKernel kernel)

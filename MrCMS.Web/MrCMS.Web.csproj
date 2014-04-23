@@ -466,6 +466,7 @@
     <Content Include="Apps\Core\Content\Images\mrcms-logo.png" />
     <Content Include="Apps\Core\Content\SocialButtons\zocial-regular-webfont.svg" />
     <Content Include="Apps\Core\Content\SocialButtons\zocial.css" />
+    <Content Include="Apps\MobileFriendlyNavigation\Content\Scripts\mrcms\helpers.js" />
     <Content Include="Apps\MobileFriendlyNavigation\Views\MobileFriendlyNavigation\Index.cshtml">
       <SubType>Code</SubType>
     </Content>
@@ -1534,6 +1535,7 @@
     <Content Include="Apps\MobileFriendlyNavigation\Areas\Admin\Views\Web.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Apps\MobileFriendlyNavigation\Content\Scripts\mrcms\mobileFriendlyNavigation.js" />
     <None Include="Apps\MobileFriendlyNavigation\Views\web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

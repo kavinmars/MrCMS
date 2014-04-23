@@ -58,9 +58,10 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Services
                 .Add(Restrictions.Where<Webpage>(node => node.RevealInNavigation && node.PublishOn != null))
                 .Add(criterion)
                 .SetProjection(Projections.ProjectionList()
+                    .Add(Projections.Property<Webpage>(node => node.Id), "Id")
+                    .Add(Projections.Property<Webpage>(node => node.Parent.Id), "ParentId")
                     .Add(Projections.Property<Webpage>(node => node.Name), "Name")
                     .Add(Projections.Property<Webpage>(node => node.UrlSegment), "UrlSegment")
-                    .Add(Projections.Property<Webpage>(node => node.Parent.Id), "ParentId")
                     .Add(Projections.SubQuery(countSubNodes), "ChildCount"))
                 .SetResultTransformer(Transformers.AliasToBean<MobileFriendlyNavigationChildNode>())
                 .Future<MobileFriendlyNavigationChildNode>();

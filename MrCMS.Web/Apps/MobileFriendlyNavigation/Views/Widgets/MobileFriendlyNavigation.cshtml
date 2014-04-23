@@ -1,54 +1,70 @@
 ﻿@model IEnumerable<MobileFriendlyNavigationRootNode>
 @{
+    Html.IncludeScript("~/Apps/MobileFriendlyNavigation/Content/Scripts/mrcms/helpers.js");
     Html.IncludeScript("~/Apps/MobileFriendlyNavigation/Content/Scripts/mrcms/mobileFriendlyNavigation.js");
-    
+
     List<string> activePages = CurrentRequestData.CurrentPage.ActivePages
         .Select(webpage => webpage.LiveUrlSegment)
         .ToList();
 }
 
-@* The root navigation is rendered directly to the page *@
-<ul class="nav navbar-nav">
-    @foreach (MobileFriendlyNavigationRootNode rootNode in Model)
-    {
-        string activeClass = activePages.Any(a => a.StartsWith(rootNode.UrlSegment, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
+<style type="text/css">
+    [data-mfnav="mobile"] { display: none; }
 
-        if (rootNode.HasChildren)
-        {
-            <li class="dropdown @activeClass">
-                <a href="@rootNode.Url" class="dropdown-toggle" data-toggle="dropdown">C - @rootNode.Text</a>
-
-                <ul class="dropdown-menu">
-                    @foreach (MobileFriendlyNavigationChildNode childNode in rootNode.Children)
-                    {
-                        var childActiveClass = activePages.Any(a => a.StartsWith(childNode.UrlSegment, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
-                        
-                        <li class="@childActiveClass">
-                            <a href="@childNode.Url">@(childNode.HasChildren ? "C - ": "N - ") @childNode.Text</a>
-                        </li>
-                    }
-                </ul>
-            </li>
-        }
-        else
-        {
-            <li class="@activeClass">
-                <a href="@rootNode.Url">N - @rootNode.Text</a>
-            </li>
-        }
+    @@media (max-width: 767px) {
+        [data-mfnav="mobile"] { display: block; }
     }
-</ul>
+</style>
 
-@*
-<div data-mfnav-template="hasChildren" style="display: none">
-    <a href="{Url}" class="dropdown-toggle" data-toggle="dropdown">{Text}</a>
+@* The root navigation is rendered directly to the page *@
+<div data-mfnav="root">
+    <div data-mfnav="mobile">
+        <div data-mfnav="mobileHeader">
+            <a data-mfnav="mobileBack" href="#">B</a>
+            <span></span>
+        </div>
+        <div data-mfnav="mobileCrumbs"></div>
+    </div>
 
-    <ul class="dropdown-menu" data-mfnav-template="childContainer">
-        <li class="@(activePages.Contains(record.Url.ToString(), StringComparer.OrdinalIgnoreCase) ? "active" : "")">
-            <a href="@record.Url">@record.Text</a>
-        </li>
+    <ul class="nav navbar-nav">
+        @foreach (MobileFriendlyNavigationRootNode rootNode in Model)
+        {
+            string activeClass = activePages.Any(a => a.StartsWith(rootNode.UrlSegment, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
+
+            if (rootNode.HasChildren)
+            {
+                <li class="@activeClass">
+                    <a href="@rootNode.Url" class="dropdown-toggle" data-toggle="dropdown">C - @rootNode.Text</a>
+
+                    <ul class="dropdown-menu">
+                        @foreach (MobileFriendlyNavigationChildNode childNode in rootNode.Children)
+                        {
+                            @* This should match the format of the template below *@
+                            string childActiveClass = activePages.Any(a => a.StartsWith(childNode.UrlSegment, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
+
+                            <li class="@childActiveClass" data-mfnav="menuItem" data-mfnav-level="1" data-mfnav-id="@childNode.Id" data-mfnav-has-children="@childNode.HasChildren.ToString().ToLower()">
+                                <a href="@childNode.Url">@(childNode.HasChildren ? "C - " : "N - ") @childNode.Text</a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+            else
+            {
+                <li class="@activeClass">
+                    <a href="@rootNode.Url">N - @rootNode.Text</a>
+                </li>
+            }
+        }
     </ul>
 </div>
 
-<div data-mfnav-template="noChildren" style="display: none">
-</div>*@
+@* ReSharper disable UnknownCssClass *@
+<div style="display: none">
+    <ul data-mfnav-template="container" data-mfnav="menu">
+        <li data-mfnav-template="node" class="{class}" data-mfnav="menuItem" data-mfnav-level="{level}" data-mfnav-id="{id}" data-mfnav-has-children="{hasChildren}">
+            <a href="{url}">{text}</a>
+        </li>
+    </ul>
+</div>
+@* ReSharper restore UnknownCssClass *@

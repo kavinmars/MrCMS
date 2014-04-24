@@ -10,11 +10,12 @@
     <meta name="description" content="@Model.MetaDescription" />
     <meta name="keywords" content="@Model.MetaKeywords" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @{
-        Html.IncludeCss("~/Apps/Core/Content/bootstrap/css/bootstrap.css");
-        Html.IncludeCss("~/Apps/Core/Content/bootstrap/css/bootstrap-theme.css");
-        Html.IncludeCss("~/Apps/Core/Content/Styles/style.css");
-    }
+        @{
+            Html.IncludeCss("~/Apps/Core/Content/bootstrap/css/bootstrap.css");
+            Html.IncludeCss("~/Apps/Core/Content/bootstrap/css/bootstrap-theme.css");
+            Html.IncludeCss("~/Apps/Core/Content/Styles/style.css");
+            Html.IncludeCss("~/Apps/MobileFriendlyNavigation/Content/Styles/mobileFriendlyNavigation.css");
+        }
     @Html.RenderCss()
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><script src="/Apps/Core/Content/Scripts/respond.min.js"></script><![endif]-->

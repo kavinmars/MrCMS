@@ -290,6 +290,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Apps\MobileFriendlyNavigation\Models\MobileFriendlyNavigation\MobileFriendlyNavigationChildNode.cs" />
+    <Compile Include="Apps\MobileFriendlyNavigation\Models\MobileFriendlyNavigation\MobileFriendlyNavigationRootNode.cs" />
     <Compile Include="Apps\MobileFriendlyNavigation\Services\IMobileFriendlyNavigationService.cs" />
     <Compile Include="Apps\MobileFriendlyNavigation\Services\MobileFriendlyNavigationService.cs" />
     <Compile Include="Apps\MobileFriendlyNavigation\Widgets\MobileFriendlyNavigation.cs" />
@@ -467,6 +468,7 @@
     <Content Include="Apps\Core\Content\SocialButtons\zocial-regular-webfont.svg" />
     <Content Include="Apps\Core\Content\SocialButtons\zocial.css" />
     <Content Include="Apps\MobileFriendlyNavigation\Content\Scripts\mrcms\helpers.js" />
+    <Content Include="Apps\MobileFriendlyNavigation\Content\Styles\mobileFriendlyNavigation.css" />
     <Content Include="Apps\MobileFriendlyNavigation\Views\MobileFriendlyNavigation\Index.cshtml">
       <SubType>Code</SubType>
     </Content>

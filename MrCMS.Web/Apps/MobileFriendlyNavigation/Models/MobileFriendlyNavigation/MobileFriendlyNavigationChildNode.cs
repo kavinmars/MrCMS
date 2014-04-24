@@ -1,31 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation
+﻿namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation
 {
-    public class MobileFriendlyNavigationRootNode
-    {
-        public string Name { get; set; }
-        public string UrlSegment { get; set; }
-        public IEnumerable<MobileFriendlyNavigationChildNode> Children { get; set; }
-
-        public bool HasChildren
-        {
-            get { return Children.Any(); }
-        }
-
-        public HtmlString Url
-        {
-            get { return new HtmlString("/" + UrlSegment); }
-        }
-
-        public HtmlString Text
-        {
-            get { return new HtmlString(Name); }
-        }
-    }
-
     public class MobileFriendlyNavigationChildNode
     {
         public int Id { get; set; }
@@ -34,19 +8,15 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigatio
         public string UrlSegment { get; set; }
         public int ChildCount { get; set; }
 
-        public bool HasChildren
+        public object ToJson()
         {
-            get { return ChildCount > 0; }
-        }
-
-        public HtmlString Url
-        {
-            get { return new HtmlString("/" + UrlSegment); }
-        }
-
-        public HtmlString Text
-        {
-            get { return new HtmlString(Name); }
+            return new
+            {
+                id = Id,
+                text = Name,
+                url = (!UrlSegment.StartsWith("/") ? "/" : string.Empty) + UrlSegment,
+                hasChildren = ChildCount > 0
+            };
         }
     }
 }

@@ -17,20 +17,10 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Controllers
         [HttpGet]
         public ActionResult GetChildNodes(int parentId)
         {
-            var data = _navigationService
-                .GetChildNodes(parentId)
-                .Select(x => new
-                {
-                    id = x.Id,
-                    text = x.Text.ToString(),
-                    url = x.Url.ToString(),
-                    hasChildren = x.HasChildren
-                });
-
             return new JsonResult
             {
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
-                Data = data
+                Data = _navigationService.GetChildNodes(parentId).Select(x => x.ToJson())
             };
         }
     }

@@ -1,8 +1,6 @@
-﻿using System.Web.Mvc;
-using MrCMS.Apps;
+﻿using MrCMS.Apps;
 using MrCMS.Entities.Multisite;
 using MrCMS.Installation;
-using MrCMS.Web.Apps.MobileFriendlyNavigation.Controllers;
 using NHibernate;
 using Ninject;
 
@@ -22,11 +20,7 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation
 
         protected override void RegisterApp(MrCMSAppRegistrationContext context)
         {
-            //context.MapAreaRoute("Navigation controllers", "", "Apps/MobileFriendlyNavigation/{controller}/{action}/{id}",
-            //    new {controller = "Home", action = "Index", id = UrlParameter.Optional},
-            //    new[] {typeof (MobileFriendlyNavigationController).Namespace});
-
-            context.MapRoute("MFNav GetChildren", "MobileFriendlyNavigation/GetChildNodes", new { controller = "MobileFriendlyNavigation", action = "GetChildNodes" });
+            context.MapRoute("MFNav GetChildren", "MobileFriendlyNavigation/GetChildNodes", new {controller = "MobileFriendlyNavigation", action = "GetChildNodes"});
         }
 
         protected override void RegisterServices(IKernel kernel)

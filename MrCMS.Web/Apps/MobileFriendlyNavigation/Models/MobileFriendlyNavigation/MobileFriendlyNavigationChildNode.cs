@@ -1,4 +1,6 @@
-﻿namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation
+﻿using System.Web;
+
+namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation
 {
     public class MobileFriendlyNavigationChildNode
     {
@@ -8,14 +10,29 @@
         public string UrlSegment { get; set; }
         public int ChildCount { get; set; }
 
+        public bool HasSubMenu
+        {
+            get { return ChildCount > 0; }
+        }
+
+        public HtmlString Url
+        {
+            get { return new HtmlString((!UrlSegment.StartsWith("/") ? "/" : string.Empty) + UrlSegment); }
+        }
+
+        public string GetJsHasSubMenu()
+        {
+            return (ChildCount > 0).ToString().ToLower();
+        }
+
         public object ToJson()
         {
             return new
             {
                 id = Id,
                 text = Name,
-                url = (!UrlSegment.StartsWith("/") ? "/" : string.Empty) + UrlSegment,
-                hasChildren = ChildCount > 0
+                url = Url.ToString(),
+                hasChildren = HasSubMenu
             };
         }
     }

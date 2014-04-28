@@ -1,32 +1,41 @@
 ﻿@model IEnumerable<MobileFriendlyNavigationRootNode>
 @{
+    Html.IncludeScript("~/Apps/MobileFriendlyNavigation/Content/Sidr/jquery.sidr.min.js");
     Html.IncludeScript("~/Apps/MobileFriendlyNavigation/Content/Scripts/mrcms/helpers.js");
     Html.IncludeScript("~/Apps/MobileFriendlyNavigation/Content/Scripts/mrcms/mobileFriendlyNavigation.js");
 }
 
-<div data-mfnav="root" data-mfnav-max-levels="3" data-mfnav-url="/MobileFriendlyNavigation/GetChildNodes">
-    <div data-mfnav="mobile" style="display: none">
-        <div data-mfnav="mobileHeader">
-            <a data-mfnav="mobileBack" href="#">B</a>
-            <span></span>
-        </div>
-        <div data-mfnav="mobileCrumbs"></div>
-    </div>
-
-    <ul class="nav navbar-nav" data-mfnav="menu">
+<div id="mfnav-desktop" data-mfnav="root">
+    <ul data-mfnav="nav" data-mfnav-max-levels="3" data-mfnav-url="/MobileFriendlyNavigation/GetChildNodes" class="nav navbar-nav">
         @foreach (MobileFriendlyNavigationRootNode rootNode in Model)
         {
-            <li data-mfnav="menuItem" data-mfnav-children="@rootNode.ChildrenAsJson()">
+            <li data-mfnav="menuItem" class="@(rootNode.HasSubMenu ? "has-submenu" : string.Empty)">
                 <a href="@rootNode.Url">@rootNode.Text</a>
+
+                @if (rootNode.HasSubMenu)
+                {
+                    <ul data-mfnav="subMenu">
+                        @foreach (MobileFriendlyNavigationChildNode childNode in rootNode.Children)
+                        {
+                            <li data-mfnav="menuItem"
+                                data-mfnav-id="@childNode.Id"
+                                data-mfnav-has-submenu="@childNode.GetJsHasSubMenu()"
+                                class="@(childNode.HasSubMenu ? "has-submenu" : string.Empty)">
+                                <a href="@childNode.Url">@childNode.Name</a>
+                            </li>
+                        }
+                    </ul>
+                }
             </li>
         }
     </ul>
+</div>
 
-    <div style="display: none">
-        <ul data-mfnav-template="menu" class="dropdown-menu">
-            <li data-mfnav-template="menuItem">
-                <a href="{url}">{text}</a>
-            </li>
-        </ul>
+<div data-mfnav="mobile" style="display: none">
+    <div data-mfnav="mobileHeader">
+        <a data-mfnav="mobileBack" href="#">Back</a>
+        <span></span>
     </div>
+
+    <div data-mfnav="mobileCrumbs"></div>
 </div>

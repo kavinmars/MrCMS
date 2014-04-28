@@ -11,9 +11,14 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigatio
         public string UrlSegment { get; set; }
         public IEnumerable<MobileFriendlyNavigationChildNode> Children { get; set; }
 
+        public bool HasSubMenu
+        {
+            get { return Children.Any(); }
+        }
+
         public HtmlString Url
         {
-            get { return new HtmlString((UrlSegment.StartsWith("/") ? "/" : string.Empty) + UrlSegment); }
+            get { return new HtmlString((!UrlSegment.StartsWith("/") ? "/" : string.Empty) + UrlSegment); }
         }
 
         public HtmlString Text

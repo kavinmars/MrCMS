@@ -3,242 +3,325 @@
 
     var common,
         mobile,
-        desktop;
+        desktop,
+        rootSelector = '[data-mfnav="root"]',
+        navSelector = '[data-mfnav="nav"]',
+        subMenuSelector = '[data-mfnav="subMenu"]',
+        menuItemSelector = '[data-mfnav="menuItem"]';
 
     (function() {
-        function init() {
-            var $root = $('[data-mfnav="root"]');
+        $(function() {
+            var $root = $(rootSelector);
 
+            mobile.init($root);
+            desktop.init($root);
             attachResponsiveHook($root);
             setMode($root);
-            attachRootChildren($root);
 
             $(window).resize(function() {
                 setMode($root);
             });
-        }
+        });
 
-        function attachResponsiveHook($root) {
-            $('<div data-mfnav="responsiveHook" style="display:none;width:1000px;">').appendTo($root);
-            $('<style>@media(max-width: 767px){[data-mfnav="responsiveHook"]{width: 767px !important;}}</style>').appendTo('HEAD');
+        function attachResponsiveHook() {
+            $('<style>@media(max-width: 767px){' + rootSelector + '{width: 767px !important;}}</style>').appendTo('HEAD');
         }
 
         function setMode($root) {
-            var isReponsiveLayoutMobile = $root.find('[data-mfnav="responsiveHook"]').css('width') === "767px";
+            var isReponsiveLayoutDesktop = $root.css('width') !== "767px";
 
-            if (isReponsiveLayoutMobile && $root.data('mfnav-mode') !== 'mobile') {
+            if (isReponsiveLayoutDesktop) {
+                if ($root.data('mfnav-mode') !== 'desktop') {
+                    mobile.deactivate($root);
+                    desktop.activate($root);
+                }
+
+                desktop.resize($root);
+                return;
+            }
+
+            if ($root.data('mfnav-mode') !== 'mobile') {
+                desktop.deactivate($root);
                 mobile.activate($root);
-            } else if (!isReponsiveLayoutMobile && $root.data('mfnav-mode') !== 'desktop') {
-                desktop.activate($root);
             }
         }
+    }());
 
-        function attachRootChildren($root) {
-            $root.find('[data-mfnav="menuItem"]').each(function() {
-                var $rootMenuItem = $(this),
-                    children = $rootMenuItem.data('mfnav-children');
+    common = (function() {
+        function loadSubMenu($menuItem, callback) {
+            var url = $menuItem.closest(navSelector).data('mfnav-url'),
+                data = { parentId: $menuItem.data('mfnav-id') };
 
-                $rootMenuItem.removeAttr('data-mfnav-children');
+            $.get(url, data, function(response) {
+                var $subMenu = appendSubMenuFromJson($menuItem, response);
 
-                if (children && children.length) {
-                    common.appendTemplates($rootMenuItem, children);
-                    $rootMenuItem.data('mfnav-has-children', true);
-                    calculateAlignment($rootMenuItem);
+                if (typeof (callback) === 'function') {
+                    callback($subMenu);
                 }
             });
         }
 
-        function calculateAlignment($rootMenuItem) {
-            var offset = $rootMenuItem.offset().left,
-                align = offset > 300 ? 'left' : 'right';
-
-            $rootMenuItem
-                .attr('data-mfnav-align', align);
-        }
-
-        $(init);
-    }());
-
-    common = (function() {
-        function showSubMenu($menuItem) {
-            var $root = $menuItem.closest('[data-mfnav="root"]');
-
-            if ($menuItem.data('mfnav-children-loaded')) {
-                $menuItem.children('[data-mfnav="menu"]').show();
-            } else if ($menuItem.data('mfnav-level') < $root.data('mfnav-max-levels')) {
-                loadNavigation($root, $menuItem);
-            }
-        }
-
-        function hideSubMenu($menuItem) {
-            $menuItem.find('[data-mfnav="menu"]').hide();
-        }
-
-        function loadNavigation($root, $menuItem) {
-            var url = $root.data('mfnav-url'),
-                data = { parentId: $menuItem.data('mfnav-id') };
-
-            $.get(url, data, function(response) {
-                appendTemplates($menuItem, response);
-                showSubMenu($menuItem);
-                setAlignment($menuItem);
-            });
-        }
-
-        function appendTemplates($menuItem, data) {
-            var $subMenu = $('[data-mfnav-template="menu"]').clone().removeAttr('data-mfnav-template').attr('data-mfnav', 'menu'),
-                $subMenuItem,
-                subMenuItemTemplate = $('<div>').append($subMenu.find('[data-mfnav-template="menuItem"]').clone().removeAttr('data-mfnav-template').attr('data-mfnav', 'menuItem')).html(),
-                subMenuItemLevel = ($menuItem.data('mfnav-level') || 0) + 1;
-
-            $subMenu
-                .find('[data-mfnav-template="menuItem"]')
-                .remove();
+        function appendSubMenuFromJson($menuItem, data) {
+            var $subMenu = $('<ul ' + subMenuSelector.replace('[', '').replace(']', '') + '>')
+                .data('mfnav-level', ($menuItem.parent().data('mfnav-level') || 1) + 1)
+                .hide();
 
             $.each(data, function() {
-                $subMenuItem = $(subMenuItemTemplate.supplant(this))
+                $('<li ' + menuItemSelector.replace("[", "").replace("]", "") + '>')
+                    .html('<a href="{url}">{text}</a>'.supplant(this))
                     .data('mfnav-id', this.id)
-                    .data('mfnav-level', subMenuItemLevel)
-                    .data('mfnav-has-children', this.hasChildren);
-
-                $subMenu.append($subMenuItem);
+                    .data('mfnav-has-submenu', this.hasChildren)
+                    .appendTo($subMenu);
             });
 
-            $menuItem
-                .data('mfnav-children-loaded', true)
-                .append($subMenu);
-        }
+            $menuItem.append($subMenu);
 
-        function setAlignment($menuItem) {
-            var align = $menuItem.closest('[data-mfnav-align]').data('mfnav-align');
-
-            $menuItem
-                .children('[data-mfnav="menu"]')
-                .addClass('dropdown-menu-' + align);
+            return $subMenu;
         }
 
         return {
-            showSubMenu: showSubMenu,
-            hideSubMenu: hideSubMenu,
-            appendTemplates: appendTemplates
+            loadSubMenu: loadSubMenu
         };
     }());
 
     desktop = (function() {
-        function activate($root) {
-            $root
-                .find('[data-mfnav="mobile"]')
-                .hide();
+        function init($root) {
+            var $nav = $root.children(navSelector);
 
-            $root
-                .data('mfnav-mode', 'desktop')
-                .off('mouseenter.mfnav')
-                .off('mouseleave.mfnav')
-                .off('click.mfnav')
-                .on('mouseenter.mfnav', '[data-mfnav="menuItem"]', onMouseEnter)
-                .on('mouseleave.mfnav', '[data-mfnav="menuItem"]', onMouseLeave);
+            $nav
+                .on('mouseenter.mfnav', menuItemSelector, onMouseEnter)
+                .on('mouseleave.mfnav', menuItemSelector, onMouseLeave);
+
+            $nav
+                .find(subMenuSelector)
+                .addClass('dropdown-menu');
+        }
+
+        function activate($root) {
+            $root.data('mfnav-mode', 'desktop');
+            resize($root);
+        }
+
+        function deactivate($root) {
+            $root.data('mfnav-mode', '');
+        }
+
+        function resize($root) {
+            var $nav = $root.children(navSelector);
+
+            $nav.children(menuItemSelector).has(subMenuSelector).each(function() {
+                var $menuItem = $(this),
+                    $subMenu = $menuItem.children(subMenuSelector),
+                    rightOffset = $(window).width() - ($menuItem.offset().left + $menuItem.outerWidth()),
+                    align = rightOffset < ($subMenu.outerWidth() * 3) ? 'left' : 'right';
+
+                $subMenu
+                    .removeClass('submenu-align-left')
+                    .removeClass('submenu-align-right')
+                    .addClass('submenu-align-' + align);
+            });
         }
 
         function onMouseEnter(event) {
-            var $menuItem = $(event.currentTarget);
+            var $menuItem = $(event.currentTarget),
+                $subMenu = $menuItem.children(subMenuSelector);
 
-            if ($menuItem.data('mfnav-has-children')) {
-                common.showSubMenu($menuItem);
+            if ($subMenu.length) {
+                showSubMenu($subMenu);
+                return;
             }
+
+            tryLoadSubMenu($menuItem);
         }
 
         function onMouseLeave(event) {
-            var $menuItem = $(event.currentTarget);
+            var $menuItem = $(event.currentTarget),
+                $subMenu = $menuItem.children(subMenuSelector);
 
-            if ($menuItem.data('mfnav-has-children')) {
-                common.hideSubMenu($menuItem);
+            if ($subMenu.length) {
+                hideSubMenu($subMenu);
             }
         }
 
+        function showSubMenu($subMenu) {
+            $subMenu.show();
+        }
+
+        function hideSubMenu($subMenu) {
+            $subMenu.hide();
+        }
+
+        function tryLoadSubMenu($menuItem) {
+            var level = ($menuItem.parent().data('mfnav-level') || 1),
+                maxLevel = $menuItem.closest(navSelector).data('mfnav-max-levels'),
+                hasSubMenu = $menuItem.data('mfnav-has-submenu');
+
+            if (level < maxLevel && hasSubMenu) {
+                common.loadSubMenu($menuItem, onSubMenuLoaded);
+                return true;
+            }
+
+            return false;
+        }
+
+        function onSubMenuLoaded($subMenu) {
+            $subMenu.addClass('dropdown-menu');
+            showSubMenu($subMenu);
+        }
+
         return {
-            activate: activate
+            init: init,
+            activate: activate,
+            deactivate: deactivate,
+            resize: resize
         };
     }());
 
     mobile = (function() {
+        var sidrSelector = '#mfnav-mobile',
+            headerSelector = '[data-mfnav="mobileHeader"]',
+            crumbsSelector = '[data-mfnav="mobileCrumbs"]';
+
+        function init() {
+            $().sidr({
+                name: sidrSelector.replace('#', ''),
+                source: '[data-mfnav="mobile"], ' + rootSelector
+            });
+
+            var $sidr = $(sidrSelector);
+
+            $sidr
+                .on('click.mfnav', menuItemSelector + ' > A', onClickLink)
+                .on('click.mfnav', '[data-mfnav="mobileBack"]', onClickBack);
+
+            $sidr
+                .find(headerSelector)
+                .hide();
+
+            $sidr
+                .find(navSelector)
+                .addClass('sidr-class-menu');
+
+            $sidr
+                .find(subMenuSelector)
+                .addClass('sidr-class-submenu')
+                .hide();
+
+            $(document)
+                .on('click.mfnav', '[data-mfnav="toggleMobileNav"]', onClicktoggleMobileNav);
+        }
+
         function activate($root) {
-            $root
-                .find('[data-mfnav="mobile"]')
-                .show()
-                .find('[data-mfnav="mobileCrumbs"]')
-                .empty();
+            $root.data('mfnav-mode', 'mobile');
+        }
 
-            $root
-                .data('mfnav-mode', 'mobile')
-                .off('mouseenter.mfnav')
-                .off('mouseleave.mfnav')
-                .off('click.mfnav')
-                .on('click.mfnav', '[data-mfnav="menuItem"] A', onClickLink)
-                .on('click.mfnav', '[data-mfnav="mobileBack"]', onClickMobileBack);
+        function deactivate($root) {
+            $root.data('mfnav-mode', '');
+            $.sidr('close', sidrSelector.replace('#', ''));
+        }
 
-            setHeader($root.find('[data-mfnav="mobile"]'));
+        function onClicktoggleMobileNav(event) {
+            event.preventDefault();
+            $.sidr('toggle', sidrSelector.replace('#', ''));
         }
 
         function onClickLink(event) {
-            var $mobile = $(event.delegateTarget).find('[data-mfnav="mobile"]'),
-                $menuItem = $(event.currentTarget).closest('[data-mfnav="menuItem"]'),
-                hasChildren = $menuItem.data('mfnav-has-children'),
-                level = ($menuItem.data('mfnav-level') || 1);
+            var $menuItem = $(event.currentTarget).closest(menuItemSelector),
+                $subMenu = $menuItem.children(subMenuSelector);
 
-            if (hasChildren && level < settings.maxLevels) {
+            if ($subMenu.length) {
                 event.preventDefault();
-                event.stopPropagation();
-                addToMobileMenu($mobile, $menuItem);
+                showSubMenu($subMenu);
                 return;
+            }
+
+            if (tryLoadSubMenu($menuItem)) {
+                event.preventDefault();
             }
         }
 
-        function onClickMobileBack(event) {
-            var $mobile = $(event.delegateTarget).find('[data-mfnav="mobile"]');
-
+        function onClickBack(event) {
             event.preventDefault();
-            removeLastFromMobileMenu($mobile);
-        }
 
-        function addToMobileMenu($mobile, $menuItem) {
-            var $breadcrumbs = $mobile.find('[data-mfnav="mobileCrumbs"]'),
-                $link = $menuItem.find('A');
+            var $sidr = $(event.delegateTarget),
+                $crumbs = $sidr.find(crumbsSelector),
+                $lastCrumb = $crumbs.children().last(),
+                $subMenu = $lastCrumb.data('mfnav-submenu'),
+                $parentMenu = $subMenu.parents(subMenuSelector);
 
-            common.showSubMenu($menuItem);
-            setHeader($mobile, $link);
-            $breadcrumbs.append($('<div>').data('mfnav-menu-item', $menuItem).html($link.html()));
-        }
-
-        function removeLastFromMobileMenu($mobile) {
-            var $breadcrumbs = $mobile.find('[data-mfnav="mobileCrumbs"]'),
-                $lastCrumb = $breadcrumbs.children().last(),
-                $link = null;
-
-            common.hideSubMenu($lastCrumb.data('mfnav-menu-item'));
             $lastCrumb.remove();
+            updateHeader($sidr, $parentMenu);
 
-            if ($breadcrumbs.children().length) {
-                $link = $breadcrumbs.children().last().data('mfnav-menu-item').find('A');
-            }
+            $subMenu.animate({ left: 260 }).promise().done(function() {
+                $subMenu.hide();
 
-            setHeader($mobile, $link);
+                $sidr
+                    .find(navSelector)
+                    .height($parentMenu.length ? $parentMenu.height() : '100%');
+            });
         }
 
-        function setHeader($mobile, $link) {
-            var $header = $mobile.find('[data-mfnav="mobileHeader"]'),
-                text;
+        function showSubMenu($subMenu) {
+            var $nav = $subMenu.closest(navSelector),
+                $sidr = $nav.closest(sidrSelector);
 
-            if (!$link) {
-                $header.hide().find('SPAN').html('');
+            $nav.height($subMenu.height());
+            $subMenu.show().animate({ left: 0 });
+
+            $sidr
+                .find(crumbsSelector)
+                .append($('<div>')
+                    .data('mfnav-submenu', $subMenu)
+                    .html($subMenu.siblings('A').html()));
+
+            updateHeader($sidr, $subMenu);
+        }
+
+        function updateHeader($sidr, $subMenu) {
+            var $header = $sidr.find(headerSelector);
+
+            if (!$subMenu.length) {
+                $header.hide();
                 return;
             }
 
-            text = $link.html(); // todo: concat?
-            $header.show().find('SPAN').html(text);
+            $header
+                .show()
+                .find('SPAN')
+                .html($subMenu.siblings('A').html());
+        }
+
+        function tryLoadSubMenu($menuItem) {
+            var level = ($menuItem.parent().data('mfnav-level') || 1),
+                maxLevel = $menuItem.closest(navSelector).data('mfnav-max-levels'),
+                hasSubMenu = $menuItem.data('mfnav-has-submenu');
+
+            if (level < maxLevel && hasSubMenu) {
+                common.loadSubMenu($menuItem, onSubMenuLoaded);
+                return true;
+            }
+
+            return false;
+        }
+
+        function onSubMenuLoaded($subMenu) {
+            $subMenu.addClass('sidr-class-submenu');
+
+            $subMenu.children(menuItemSelector).each(function() {
+                var $menuItem = $(this);
+
+                if ($menuItem.data('mfnav-has-submenu')) {
+                    $menuItem.addClass('sidr-class-has-submenu');
+                }
+            });
+
+            showSubMenu($subMenu);
         }
 
         return {
-            activate: activate
+            init: init,
+            activate: activate,
+            deactivate: deactivate
         };
     }());
 }());

@@ -1,9 +1,25 @@
-﻿.dropdown-menu-right {
+﻿#mfnav-desktop .submenu-align-right .dropdown-menu {
     left: 157px;
     top: 0;
 }
 
-.dropdown-menu-left {
+#mfnav-desktop .submenu-align-left .dropdown-menu {
     left: -157px;
     top: 0;
 }
+
+#mfnav-mobile .sidr-class-menu {
+    overflow: hidden;
+    position: relative;
+    width: 260px;
+}
+
+#mfnav-mobile .sidr-class-submenu {
+    background: beige;
+    left: 260px;
+    position: absolute;
+    top: 0;
+    width: 260px;
+}
+
+#mfnav-mobile .sidr-class-has-submenu { background: aquamarine; }

@@ -275,6 +275,7 @@
     <Compile Include="DbConfiguration\Mapping\MrCMSMapClassAttribute.cs" />
     <Compile Include="DbConfiguration\Mapping\MrCmsMappingConfiguration.cs" />
     <Compile Include="DbConfiguration\Mapping\StringResourceOverride.cs" />
+    <Compile Include="DbConfiguration\MrCMSListeners.cs" />
     <Compile Include="DbConfiguration\NHibernateConfigurator.cs" />
     <Compile Include="DbConfiguration\Overrides\DocumentOverride.cs" />
     <Compile Include="DbConfiguration\Overrides\DocumentVersionOverride.cs" />
@@ -329,7 +330,6 @@
     <Compile Include="Entities\People\IBelongToUser.cs" />
     <Compile Include="Entities\People\UserProfileData.cs" />
     <Compile Include="Entities\Resources\StringResource.cs" />
-    <Compile Include="Entities\UserProfile\NotificationSettings.cs" />
     <Compile Include="Events\Documents\DocumentAddedNotification.cs" />
     <Compile Include="Events\Documents\DocumentDeletedNotification.cs" />
     <Compile Include="Events\Documents\DocumentUpdatedNotification.cs" />
@@ -378,9 +378,9 @@
     <Compile Include="Models\WebpageCount.cs" />
     <Compile Include="Services\AuthConfigurationService.cs" />
     <Compile Include="Services\EventContext.cs" />
+    <Compile Include="Services\FileMigration\FileMigrationService.cs" />
     <Compile Include="Services\Events\Args\OnUserAddedEventArgs.cs" />
     <Compile Include="Services\Events\IOnUserAdded.cs" />
-    <Compile Include="Services\Events\InitializeNotificationSettings.cs" />
     <Compile Include="Services\FileMigration\MediaFileExtensions.cs" />
     <Compile Include="Services\IAuthConfigurationService.cs" />
     <Compile Include="Services\IEventContext.cs" />
@@ -670,6 +670,8 @@
     <Compile Include="Tasks\LuceneActionComparison.cs" />
     <Compile Include="Tasks\LuceneActionExecutor.cs" />
     <Compile Include="Tasks\LuceneIndexTaskExecutionHandler.cs" />
+    <Compile Include="Tasks\MoveFile.cs" />
+    <Compile Include="Tasks\MoveFileData.cs" />
     <Compile Include="Tasks\QueuedTaskSearchQuery.cs" />
     <Compile Include="Tasks\TaskManager.cs" />
     <Compile Include="Tasks\SendQueuedMessagesTask.cs" />

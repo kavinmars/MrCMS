@@ -252,7 +252,6 @@
     <Compile Include="Apps\Core\Controllers\RegistrationController.cs" />
     <Compile Include="Apps\Core\Controllers\SearchPageController.cs" />
     <Compile Include="Apps\Core\CoreAppInstallation.cs" />
-    <Compile Include="Apps\Core\Helpers\StringHelper.cs" />
     <Compile Include="Apps\Core\Indexing\WebpageSearchIndexDefinition.cs" />
     <Compile Include="Apps\Core\Indexing\WebpageSearch\BodyContentFieldDefinition.cs" />
     <Compile Include="Apps\Core\Indexing\WebpageSearch\CreatedOnFieldDefinition.cs" />
@@ -296,7 +295,6 @@
     <Compile Include="Apps\MobileFriendlyNavigation\Widgets\MobileFriendlyNavigation.cs" />
     <Compile Include="Areas\Admin\ACL\NotificationACL.cs" />
     <Compile Include="Areas\Admin\Controllers\NotificationController.cs" />
-    <Compile Include="Areas\Admin\Controllers\NotificationSettingsController.cs" />
     <Compile Include="Areas\Admin\Controllers\PersistentNotificationController.cs" />
     <Compile Include="Areas\Admin\Controllers\ResourceUpdateController.cs" />
     <Compile Include="Areas\Admin\Controllers\SiteListController.cs" />
@@ -416,12 +414,10 @@
     <Compile Include="Areas\Admin\Services\IIndexAdminService.cs" />
     <Compile Include="Areas\Admin\Services\IndexAdminService.cs" />
     <Compile Include="Areas\Admin\Services\INotificationAdminService.cs" />
-    <Compile Include="Areas\Admin\Services\INotificationSettingsAdminService.cs" />
     <Compile Include="Areas\Admin\Services\IStringResourceAdminService.cs" />
     <Compile Include="Areas\Admin\Services\IStringResourceUpdateService.cs" />
     <Compile Include="Areas\Admin\Services\IThirdPartyAuthSettingsAdminService.cs" />
     <Compile Include="Areas\Admin\Services\NotificationAdminService.cs" />
-    <Compile Include="Areas\Admin\Services\NotificationSettingsAdminService.cs" />
     <Compile Include="Areas\Admin\Services\SEOAnalysis\AllImagesHaveAltTags.cs" />
     <Compile Include="Areas\Admin\Services\SEOAnalysis\BaseSEOAnalysisFacetProvider.cs" />
     <Compile Include="Areas\Admin\Services\SEOAnalysis\BodyContentChecks.cs" />
@@ -1527,8 +1523,6 @@
     <Content Include="Areas\Admin\Views\Notification\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Notification\Push.cshtml" />
     <Content Include="Areas\Admin\Views\Notification\Delete.cshtml" />
-    <Content Include="Areas\Admin\Views\NotificationSettings\Show.cshtml" />
-    <Content Include="Areas\Admin\Views\User\NotificationSettings.cshtml" />
     <Content Include="Areas\Admin\Views\TransientNotification\Show.cshtml" />
     <Content Include="Areas\Admin\Views\PersistentNotification\Show.cshtml" />
     <Content Include="Areas\Admin\Views\PersistentNotification\Navbar.cshtml" />
@@ -1543,6 +1537,17 @@
     <None Include="Apps\MobileFriendlyNavigation\Views\web.Release.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
+    <Content Include="Apps\Articles\Areas\Admin\Views\Webpage\ArticleListAdd.cshtml" />
+    <Content Include="Apps\Articles\Areas\Admin\Views\Widget\ArticleCategoriesAdd.cshtml" />
+    <Content Include="Apps\Articles\Areas\Admin\Views\Widget\LatestXArticlesAdd.cshtml" />
+    <Content Include="Apps\Core\Areas\Admin\Views\Webpage\TextPageAdd.cshtml" />
+    <Content Include="Apps\Core\Areas\Admin\Views\Widget\CurrentPageSubNavigationAdd.cshtml" />
+    <Content Include="Apps\Core\Areas\Admin\Views\Widget\LinkedImageAdd.cshtml" />
+    <Content Include="Apps\Core\Areas\Admin\Views\Widget\NavigationAdd.cshtml" />
+    <Content Include="Apps\Core\Areas\Admin\Views\Widget\PlainTextWidgetAdd.cshtml" />
+    <Content Include="Apps\Core\Areas\Admin\Views\Widget\TextWidgetAdd.cshtml" />
+    <Content Include="Apps\Galleries\Areas\Admin\Views\Webpage\GalleryAdd.cshtml" />
+    <Content Include="Apps\Galleries\Areas\Admin\Views\Webpage\GalleryListAdd.cshtml" />
     <Content Include="Apps\MobileFriendlyNavigation\Views\Widgets\MobileFriendlyNavigation.cshtml" />
     <None Include="Properties\PublishProfiles\new.pubxml" />
     <None Include="Themes\Default\Views\Web.Debug.config">

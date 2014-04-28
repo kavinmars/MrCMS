@@ -379,7 +379,6 @@ namespace MrCMS.Installation
             ISessionFactory sessionFactory = configurator.CreateSessionFactory();
             ISession session = sessionFactory.OpenFilteredSession();
             MrCMSApplication.Get<IKernel>().Rebind<ISession>().ToMethod(context => session);
-
             var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
             session.Transact(s => s.Save(site));
 

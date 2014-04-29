@@ -464,7 +464,6 @@
     <Content Include="Apps\Core\Content\SocialButtons\zocial-regular-webfont.svg" />
     <Content Include="Apps\Core\Content\SocialButtons\zocial.css" />
     <Content Include="Apps\MobileFriendlyNavigation\Content\Scripts\mrcms\helpers.js" />
-    <Content Include="Apps\MobileFriendlyNavigation\Content\Sidr\jquery.sidr.light.css" />
     <Content Include="Apps\MobileFriendlyNavigation\Content\Sidr\jquery.sidr.min.js" />
     <Content Include="Apps\MobileFriendlyNavigation\Content\Styles\mobileFriendlyNavigation.css" />
     <Content Include="Apps\MobileFriendlyNavigation\Views\web.config">

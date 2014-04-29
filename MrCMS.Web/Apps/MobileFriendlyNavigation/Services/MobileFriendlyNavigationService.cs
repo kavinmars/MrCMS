@@ -3,6 +3,7 @@ using System.Linq;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation;
+using MrCMS.Website;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -22,49 +23,53 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Services
 
         public IEnumerable<MobileFriendlyNavigationRootNode> GetRootNodes()
         {
-            QueryOver<Webpage, Webpage> rootIds = QueryOver.Of<Webpage>()
-                .Where(node => node.Parent == null && node.Site.Id == _site.Id && node.RevealInNavigation && node.PublishOn != null)
-                .Select(node => node.Id);
-
             IEnumerable<Webpage> rootNodes = _session.QueryOver<Webpage>()
-                .WithSubquery.WhereProperty(node => node.Id).In(rootIds)
+                .Where(node => node.Parent == null && node.RevealInNavigation && node.PublishOn != null)
                 .OrderBy(node => node.DisplayOrder).Asc
-                .Future<Webpage>();
+                .Cacheable()
+                .List()
+                .Where(node => node.PublishOn <= CurrentRequestData.Now)
+                .ToList();
 
-            ICriterion criterion = Subqueries.WhereProperty<Webpage>(node => node.Parent.Id).In(rootIds);
-            IEnumerable<MobileFriendlyNavigationChildNode> childNodes = GetChildNodeTransforms(criterion);
+            int[] parentIds = rootNodes.Select(x => x.Id).ToArray();
+            IEnumerable<MobileFriendlyNavigationChildNode> childNodes = GetChildNodeTransforms(parentIds);
 
-            return rootNodes.Select(root => new MobileFriendlyNavigationRootNode
-            {
-                Name = root.Name,
-                UrlSegment = root.UrlSegment,
-                Children = childNodes.Where(x => x.ParentId == root.Id)
-            });
+            return rootNodes
+                .Select(root => new MobileFriendlyNavigationRootNode
+                {
+                    Name = root.Name,
+                    UrlSegment = root.UrlSegment,
+                    Children = childNodes.Where(x => x.ParentId == root.Id)
+                });
         }
 
         public IEnumerable<MobileFriendlyNavigationChildNode> GetChildNodes(int parentId)
         {
-            ICriterion criterion = Restrictions.Where<Webpage>(node => node.Parent.Id == parentId);
-            return GetChildNodeTransforms(criterion);
+            return GetChildNodeTransforms(new[] {parentId});
         }
 
-        private IEnumerable<MobileFriendlyNavigationChildNode> GetChildNodeTransforms(ICriterion criterion)
+        private IEnumerable<MobileFriendlyNavigationChildNode> GetChildNodeTransforms(int[] parentIds)
         {
-            DetachedCriteria countSubNodes = DetachedCriteria.For<Webpage>("subnode")
-                .Add(Restrictions.EqProperty("subnode.Parent.Id", "node.Id"))
-                .SetProjection(Projections.Count<Webpage>(subnode => subnode.Id));
+            Webpage webpageAlias = null;
+            MobileFriendlyNavigationChildNode nodeAlias = null;
 
-            return _session.CreateCriteria<Webpage>("node")
-                .Add(Restrictions.Where<Webpage>(node => node.RevealInNavigation && node.PublishOn != null))
-                .Add(criterion)
-                .SetProjection(Projections.ProjectionList()
-                    .Add(Projections.Property<Webpage>(node => node.Id), "Id")
-                    .Add(Projections.Property<Webpage>(node => node.Parent.Id), "ParentId")
-                    .Add(Projections.Property<Webpage>(node => node.Name), "Name")
-                    .Add(Projections.Property<Webpage>(node => node.UrlSegment), "UrlSegment")
-                    .Add(Projections.SubQuery(countSubNodes), "ChildCount"))
-                .SetResultTransformer(Transformers.AliasToBean<MobileFriendlyNavigationChildNode>())
-                .Future<MobileFriendlyNavigationChildNode>();
+            QueryOver<Webpage, Webpage> countSubNodes = QueryOver.Of<Webpage>()
+                .Where(x => x.Parent.Id == webpageAlias.Id)
+                .ToRowCountQuery();
+
+            return _session.QueryOver(() => webpageAlias)
+                .Where(node => node.RevealInNavigation && node.PublishOn != null)
+                .Where(node => node.Parent.Id.IsIn(parentIds))
+                .SelectList(x => x.Select(y => y.Id).WithAlias(() => nodeAlias.Id)
+                    .Select(y => y.Parent.Id).WithAlias(() => nodeAlias.ParentId)
+                    .Select(y => y.Name).WithAlias(() => nodeAlias.Name)
+                    .Select(y => y.UrlSegment).WithAlias(() => nodeAlias.UrlSegment)
+                    .Select(y => y.PublishOn).WithAlias(() => nodeAlias.PublishOn)
+                    .SelectSubQuery(countSubNodes).WithAlias(() => nodeAlias.ChildCount))
+                .TransformUsing(Transformers.AliasToBean<MobileFriendlyNavigationChildNode>())
+                .Cacheable()
+                .List<MobileFriendlyNavigationChildNode>()
+                .Where(root => root.PublishOn <= CurrentRequestData.Now);
         }
     }
 }

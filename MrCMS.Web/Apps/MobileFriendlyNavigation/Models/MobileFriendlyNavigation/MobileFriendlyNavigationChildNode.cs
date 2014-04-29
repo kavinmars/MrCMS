@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System;
+using System.Web;
 
 namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation
 {
@@ -9,6 +10,7 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigatio
         public string Name { get; set; }
         public string UrlSegment { get; set; }
         public int ChildCount { get; set; }
+        public DateTime? PublishOn { get; set; }
 
         public bool HasSubMenu
         {

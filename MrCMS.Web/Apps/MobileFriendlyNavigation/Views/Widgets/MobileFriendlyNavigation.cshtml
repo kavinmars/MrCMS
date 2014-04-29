@@ -6,22 +6,27 @@
 }
 
 <div id="mfnav-desktop" data-mfnav="root">
-    <ul data-mfnav="nav" data-mfnav-max-levels="3" data-mfnav-url="/MobileFriendlyNavigation/GetChildNodes" class="nav navbar-nav">
+    <ul data-mfnav="nav" data-mfnav-max-levels="3" data-mfnav-url="/MobileFriendlyNavigation/GetChildNodes" class="mfnav nav navbar-nav">
         @foreach (MobileFriendlyNavigationRootNode rootNode in Model)
         {
-            <li data-mfnav="menuItem" class="@(rootNode.HasSubMenu ? "has-submenu" : string.Empty)">
-                <a href="@rootNode.Url">@rootNode.Text</a>
-
+            <li data-mfnav="item" class="@(rootNode.HasSubMenu ? "has-sub-nav" : string.Empty)">
+                <a href="@rootNode.Url">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    @rootNode.Text
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+                
                 @if (rootNode.HasSubMenu)
                 {
-                    <ul data-mfnav="subMenu">
+                    <ul data-mfnav="subNav" class="sub-nav">
                         @foreach (MobileFriendlyNavigationChildNode childNode in rootNode.Children)
                         {
-                            <li data-mfnav="menuItem"
-                                data-mfnav-id="@childNode.Id"
-                                data-mfnav-has-submenu="@childNode.GetJsHasSubMenu()"
-                                class="@(childNode.HasSubMenu ? "has-submenu" : string.Empty)">
-                                <a href="@childNode.Url">@childNode.Name</a>
+                            <li data-mfnav="item" data-mfnav-id="@childNode.Id" data-mfnav-has-sub-nav="@childNode.GetJsHasSubMenu()" class="@(childNode.HasSubMenu ? "has-sub-nav" : string.Empty)">
+                                <a href="@childNode.Url">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                    @childNode.Name
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </a>
                             </li>
                         }
                     </ul>
@@ -32,10 +37,18 @@
 </div>
 
 <div data-mfnav="mobile" style="display: none">
-    <div data-mfnav="mobileHeader">
-        <a data-mfnav="mobileBack" href="#">Back</a>
-        <span></span>
-    </div>
+    <div data-mfnav="mobileHeader" class="mobile-header">
+        <div class="clearfix">
+            <div class="m-left">
+                <a data-mfnav="mobileBack" href="#">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+            </div>
 
-    <div data-mfnav="mobileCrumbs"></div>
+            <div data-mfnav="mobileTitle" class="m-center"></div>
+            <div class="m-right"></div>
+        </div>
+
+        <div data-mfnav="mobileCrumbs" class="mobile-crumbs"></div>
+    </div>
 </div>

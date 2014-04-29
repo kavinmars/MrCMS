@@ -6,8 +6,8 @@
         desktop,
         rootSelector = '[data-mfnav="root"]',
         navSelector = '[data-mfnav="nav"]',
-        subMenuSelector = '[data-mfnav="subMenu"]',
-        menuItemSelector = '[data-mfnav="menuItem"]';
+        subNavSelector = '[data-mfnav="subNav"]',
+        navItemSelector = '[data-mfnav="item"]';
 
     (function() {
         $(function() {
@@ -15,17 +15,12 @@
 
             mobile.init($root);
             desktop.init($root);
-            attachResponsiveHook($root);
             setMode($root);
 
             $(window).resize(function() {
                 setMode($root);
             });
         });
-
-        function attachResponsiveHook() {
-            $('<style>@media(max-width: 767px){' + rootSelector + '{width: 767px !important;}}</style>').appendTo('HEAD');
-        }
 
         function setMode($root) {
             var isReponsiveLayoutDesktop = $root.css('width') !== "767px";
@@ -48,39 +43,50 @@
     }());
 
     common = (function() {
-        function loadSubMenu($menuItem, callback) {
-            var url = $menuItem.closest(navSelector).data('mfnav-url'),
-                data = { parentId: $menuItem.data('mfnav-id') };
+        function loadSubNav($navItem, callback) {
+            var url = $navItem.closest(navSelector).data('mfnav-url'),
+                data = { parentId: $navItem.data('mfnav-id') };
 
             $.get(url, data, function(response) {
-                var $subMenu = appendSubMenuFromJson($menuItem, response);
+                var $subNav = appendNavFromJson($navItem, response);
 
                 if (typeof (callback) === 'function') {
-                    callback($subMenu);
+                    callback($subNav);
                 }
             });
         }
 
-        function appendSubMenuFromJson($menuItem, data) {
-            var $subMenu = $('<ul ' + subMenuSelector.replace('[', '').replace(']', '') + '>')
-                .data('mfnav-level', ($menuItem.parent().data('mfnav-level') || 1) + 1)
+        function appendNavFromJson($navItem, data) {
+            var level = ($navItem.parent().data('mfnav-level') || 1) + 1,
+                maxLevel = $navItem.closest(navSelector).data('mfnav-max-levels'),
+                $subNav,
+                $link;
+
+            $subNav = $('<ul ' + subNavSelector.replace('[', '').replace(']', '') + '>')
+                .addClass('sub-nav')
+                .data('mfnav-level', level)
                 .hide();
 
             $.each(data, function() {
-                $('<li ' + menuItemSelector.replace("[", "").replace("]", "") + '>')
-                    .html('<a href="{url}">{text}</a>'.supplant(this))
+                $link = $('<a href="{url}">{text}</a>'.supplant(this))
+                    .prepend('<span class="glyphicon glyphicon-chevron-left"></span>')
+                    .append('<span class="glyphicon glyphicon-chevron-right"></span>');
+
+                $('<li ' + navItemSelector.replace("[", "").replace("]", "") + '>')
+                    .append($link)
                     .data('mfnav-id', this.id)
-                    .data('mfnav-has-submenu', this.hasChildren)
-                    .appendTo($subMenu);
+                    .data('mfnav-has-sub-nav', this.hasChildren)
+                    .addClass((this.hasChildren && level < maxLevel) ? 'has-sub-nav' : '')
+                    .appendTo($subNav);
             });
 
-            $menuItem.append($subMenu);
+            $navItem.append($subNav);
 
-            return $subMenu;
+            return $subNav;
         }
 
         return {
-            loadSubMenu: loadSubMenu
+            loadSubNav: loadSubNav
         };
     }());
 
@@ -89,11 +95,11 @@
             var $nav = $root.children(navSelector);
 
             $nav
-                .on('mouseenter.mfnav', menuItemSelector, onMouseEnter)
-                .on('mouseleave.mfnav', menuItemSelector, onMouseLeave);
+                .on('mouseenter.mfnav', navItemSelector, onMouseEnter)
+                .on('mouseleave.mfnav', navItemSelector, onMouseLeave);
 
             $nav
-                .find(subMenuSelector)
+                .find(subNavSelector)
                 .addClass('dropdown-menu');
         }
 
@@ -109,64 +115,66 @@
         function resize($root) {
             var $nav = $root.children(navSelector);
 
-            $nav.children(menuItemSelector).has(subMenuSelector).each(function() {
-                var $menuItem = $(this),
-                    $subMenu = $menuItem.children(subMenuSelector),
-                    rightOffset = $(window).width() - ($menuItem.offset().left + $menuItem.outerWidth()),
-                    align = rightOffset < ($subMenu.outerWidth() * 3) ? 'left' : 'right';
+            $nav.children(navItemSelector).has(subNavSelector).each(function() {
+                var $navItem = $(this),
+                    $subNav = $navItem.children(subNavSelector),
+                    rightOffset = $(window).width() - ($navItem.offset().left + $navItem.outerWidth()),
+                    align = rightOffset < ($subNav.outerWidth() * 3) ? 'left' : 'right';
 
-                $subMenu
-                    .removeClass('submenu-align-left')
-                    .removeClass('submenu-align-right')
-                    .addClass('submenu-align-' + align);
+                $subNav
+                    .removeClass('sub-nav-left')
+                    .removeClass('sub-nav-right')
+                    .addClass('sub-nav-' + align);
             });
         }
 
         function onMouseEnter(event) {
-            var $menuItem = $(event.currentTarget),
-                $subMenu = $menuItem.children(subMenuSelector);
+            var $navItem = $(event.currentTarget),
+                $subNav = $navItem.children(subNavSelector);
 
-            if ($subMenu.length) {
-                showSubMenu($subMenu);
+            if ($subNav.length) {
+                showSubNav($subNav);
                 return;
             }
 
-            tryLoadSubMenu($menuItem);
+            tryLoadSubNav($navItem);
         }
 
         function onMouseLeave(event) {
-            var $menuItem = $(event.currentTarget),
-                $subMenu = $menuItem.children(subMenuSelector);
+            var $navItem = $(event.currentTarget),
+                $subNav = $navItem.children(subNavSelector);
 
-            if ($subMenu.length) {
-                hideSubMenu($subMenu);
+            if ($subNav.length) {
+                hideSubNav($subNav);
             }
         }
 
-        function showSubMenu($subMenu) {
-            $subMenu.show();
+        function showSubNav($subNav) {
+            $subNav
+                .height($subNav.parent().closest(subNavSelector).height())
+                .show();
         }
 
-        function hideSubMenu($subMenu) {
-            $subMenu.hide();
+        function hideSubNav($subNav) {
+            $subNav.hide();
         }
 
-        function tryLoadSubMenu($menuItem) {
-            var level = ($menuItem.parent().data('mfnav-level') || 1),
-                maxLevel = $menuItem.closest(navSelector).data('mfnav-max-levels'),
-                hasSubMenu = $menuItem.data('mfnav-has-submenu');
+        function tryLoadSubNav($navItem) {
+            var level = ($navItem.parent().data('mfnav-level') || 1),
+                maxLevel = $navItem.closest(navSelector).data('mfnav-max-levels'),
+                hasSubNav = $navItem.data('mfnav-has-sub-nav');
 
-            if (level < maxLevel && hasSubMenu) {
-                common.loadSubMenu($menuItem, onSubMenuLoaded);
+            if (level < maxLevel && hasSubNav) {
+                common.loadSubNav($navItem, onSubNavLoaded);
                 return true;
             }
 
             return false;
         }
 
-        function onSubMenuLoaded($subMenu) {
-            $subMenu.addClass('dropdown-menu');
-            showSubMenu($subMenu);
+        function onSubNavLoaded($subNav) {
+            $subNav.addClass('dropdown-menu');
+            showSubNav($subNav);
         }
 
         return {
@@ -185,26 +193,25 @@
         function init() {
             $().sidr({
                 name: sidrSelector.replace('#', ''),
-                source: '[data-mfnav="mobile"], ' + rootSelector
+                source: '[data-mfnav="mobile"], ' + rootSelector,
+                renaming: false
             });
 
             var $sidr = $(sidrSelector);
 
             $sidr
-                .on('click.mfnav', menuItemSelector + ' > A', onClickLink)
+                .data('mfnav-route', [])
+                .on('click.mfnav', navItemSelector + ' > A', onClickLink)
                 .on('click.mfnav', '[data-mfnav="mobileBack"]', onClickBack);
 
             $sidr
-                .find(headerSelector)
-                .hide();
-
-            $sidr
                 .find(navSelector)
-                .addClass('sidr-class-menu');
+                .removeClass('nav')
+                .removeClass('navbar-nav');
 
             $sidr
-                .find(subMenuSelector)
-                .addClass('sidr-class-submenu')
+                .find(subNavSelector)
+                .addClass('sub-nav')
                 .hide();
 
             $(document)
@@ -226,16 +233,16 @@
         }
 
         function onClickLink(event) {
-            var $menuItem = $(event.currentTarget).closest(menuItemSelector),
-                $subMenu = $menuItem.children(subMenuSelector);
+            var $navItem = $(event.currentTarget).closest(navItemSelector),
+                $subNav = $navItem.children(subNavSelector);
 
-            if ($subMenu.length) {
+            if ($subNav.length) {
                 event.preventDefault();
-                showSubMenu($subMenu);
+                showSubNav($subNav);
                 return;
             }
 
-            if (tryLoadSubMenu($menuItem)) {
+            if (tryLoadSubNav($navItem)) {
                 event.preventDefault();
             }
         }
@@ -245,77 +252,79 @@
 
             var $sidr = $(event.delegateTarget),
                 $crumbs = $sidr.find(crumbsSelector),
-                $lastCrumb = $crumbs.children().last(),
-                $subMenu = $lastCrumb.data('mfnav-submenu'),
-                $parentMenu = $subMenu.parents(subMenuSelector);
+                $subNav = $sidr.data('mfnav-route').pop(),
+                $parentNav = $subNav.parent().closest(subNavSelector);
 
-            $lastCrumb.remove();
-            updateHeader($sidr, $parentMenu);
+            $crumbs.children().last().remove();
+            updateHeader($sidr, $parentNav);
 
-            $subMenu.animate({ left: 260 }).promise().done(function() {
-                $subMenu.hide();
+            $subNav.animate({ left: 260 }).promise().done(function() {
+                $subNav.hide();
 
                 $sidr
                     .find(navSelector)
-                    .height($parentMenu.length ? $parentMenu.height() : '100%');
+                    .height($parentNav.length ? $parentNav.height() : '100%');
             });
         }
 
-        function showSubMenu($subMenu) {
-            var $nav = $subMenu.closest(navSelector),
-                $sidr = $nav.closest(sidrSelector);
+        function addCrumb($sidr, $subNav) {
+            var $crumbs = $sidr.find(crumbsSelector),
+                $link = $subNav.siblings('A').clone();
 
-            $nav.height($subMenu.height());
-            $subMenu.show().animate({ left: 0 });
-
-            $sidr
-                .find(crumbsSelector)
-                .append($('<div>')
-                    .data('mfnav-submenu', $subMenu)
-                    .html($subMenu.siblings('A').html()));
-
-            updateHeader($sidr, $subMenu);
+            $link.find('.glyphicon').remove();
+            $crumbs.append($('<div>').html($link));
         }
 
-        function updateHeader($sidr, $subMenu) {
-            var $header = $sidr.find(headerSelector);
+        function showSubNav($subNav) {
+            var $nav = $subNav.closest(navSelector),
+                $sidr = $nav.closest(sidrSelector);
 
-            if (!$subMenu.length) {
+            $sidr.data('mfnav-route').push($subNav);
+
+            $nav.height($subNav.height());
+            $subNav.show().animate({ left: 0 });
+
+            addCrumb($sidr, $subNav);
+            updateHeader($sidr, $subNav);
+        }
+
+        function updateHeader($sidr, $subNav) {
+            var $header = $sidr.find(headerSelector),
+                $headerLink;
+
+            if (!$subNav.length) {
                 $header.hide();
                 return;
             }
 
+            $headerLink = $subNav.siblings('A').clone();
+            $headerLink.find('span').remove();
+
             $header
                 .show()
-                .find('SPAN')
-                .html($subMenu.siblings('A').html());
+                .find('[data-mfnav="mobileTitle"]')
+                .html($headerLink);
         }
 
-        function tryLoadSubMenu($menuItem) {
-            var level = ($menuItem.parent().data('mfnav-level') || 1),
-                maxLevel = $menuItem.closest(navSelector).data('mfnav-max-levels'),
-                hasSubMenu = $menuItem.data('mfnav-has-submenu');
+        function tryLoadSubNav($navItem) {
+            var level,
+                maxLevel;
 
-            if (level < maxLevel && hasSubMenu) {
-                common.loadSubMenu($menuItem, onSubMenuLoaded);
-                return true;
+            if ($navItem.data('mfnav-has-sub-nav')) {
+                level = ($navItem.parent().data('mfnav-level') || 1);
+                maxLevel = $navItem.closest(navSelector).data('mfnav-max-levels');
+
+                if (level < maxLevel) {
+                    common.loadSubNav($navItem, onSubNavLoaded);
+                    return true;
+                }
             }
 
             return false;
         }
 
-        function onSubMenuLoaded($subMenu) {
-            $subMenu.addClass('sidr-class-submenu');
-
-            $subMenu.children(menuItemSelector).each(function() {
-                var $menuItem = $(this);
-
-                if ($menuItem.data('mfnav-has-submenu')) {
-                    $menuItem.addClass('sidr-class-has-submenu');
-                }
-            });
-
-            showSubMenu($subMenu);
+        function onSubNavLoaded($subNav) {
+            showSubNav($subNav);
         }
 
         return {

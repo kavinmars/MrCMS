@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MrCMS.Entities.Documents.Web;
-using MrCMS.Entities.Multisite;
 using MrCMS.Web.Apps.MobileFriendlyNavigation.Models.MobileFriendlyNavigation;
 using MrCMS.Website;
 using NHibernate;
@@ -13,12 +12,10 @@ namespace MrCMS.Web.Apps.MobileFriendlyNavigation.Services
     public class MobileFriendlyNavigationService : IMobileFriendlyNavigationService
     {
         private readonly ISession _session;
-        private readonly Site _site;
 
-        public MobileFriendlyNavigationService(ISession session, Site site)
+        public MobileFriendlyNavigationService(ISession session)
         {
             _session = session;
-            _site = site;
         }
 
         public IEnumerable<MobileFriendlyNavigationRootNode> GetRootNodes()

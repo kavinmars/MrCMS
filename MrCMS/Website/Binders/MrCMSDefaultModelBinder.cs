@@ -5,6 +5,7 @@ using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Helpers;
 using MrCMS.Website.Controllers;
+using MrCMS.Website.Routing;
 using NHibernate;
 using Ninject;
 
@@ -12,12 +13,8 @@ namespace MrCMS.Website.Binders
 {
     public class MrCMSDefaultModelBinder : DefaultModelBinder
     {
-        protected readonly IKernel Kernel;
+        protected IKernel Kernel;
 
-        public MrCMSDefaultModelBinder(IKernel kernel)
-        {
-            Kernel = kernel;
-        }
 
         protected ISession Session
         {
@@ -29,10 +26,10 @@ namespace MrCMS.Website.Binders
             return Kernel.Get<T>();
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public virtual object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             if (controllerContext.Controller is MrCMSAdminController &&
-                typeof (SystemEntity).IsAssignableFrom(bindingContext.ModelType) &&
+                typeof(SystemEntity).IsAssignableFrom(bindingContext.ModelType) &&
                 (CreateModel(controllerContext, bindingContext, bindingContext.ModelType) == null ||
                  ShouldReturnNull(controllerContext, bindingContext)))
                 return null;
@@ -53,6 +50,11 @@ namespace MrCMS.Website.Binders
                 }
             }
             return bindModel;
+        }
+        public sealed override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        {
+            Kernel = controllerContext.HttpContext.GetKernel();
+            return BindMrCMSModel(controllerContext, bindingContext);
         }
 
         protected virtual bool ShouldReturnNull(ControllerContext controllerContext, ModelBindingContext bindingContext)

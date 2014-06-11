@@ -13,12 +13,12 @@ namespace MrCMS.Website.Binders
     {
         private readonly IConfigurationProvider _configurationProvider;
 
-        public SiteSettingsModelBinder(IKernel kernel, IConfigurationProvider configurationProvider) : base(kernel)
+        public SiteSettingsModelBinder(IConfigurationProvider configurationProvider)
         {
             _configurationProvider = configurationProvider;
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var settingTypes = TypeHelper.GetAllConcreteTypesAssignableFrom<SiteSettingsBase>();
             // Uses Id because the settings are edited on the same page as the site itself
@@ -29,8 +29,7 @@ namespace MrCMS.Website.Binders
                                                       return
                                                           methodInfo.MakeGenericMethod(type)
                                                                     .Invoke(_configurationProvider,
-                                                                            new object[]
-                                                                                {});
+                                                                            new object[] { });
                                                   }).OfType<SiteSettingsBase>().Where(arg => arg.RenderInSettings).ToList();
 
             foreach (var settings in objects)
@@ -42,7 +41,7 @@ namespace MrCMS.Website.Binders
                                 info =>
                                 info.CanWrite &&
                                 info.Name != "Site" &&
-                                !info.GetCustomAttributes(typeof (ReadOnlyAttribute), true)
+                                !info.GetCustomAttributes(typeof(ReadOnlyAttribute), true)
                                     .Any(o => o.To<ReadOnlyAttribute>().IsReadOnly));
 
                 foreach (var propertyInfo in propertyInfos)
@@ -68,7 +67,7 @@ namespace MrCMS.Website.Binders
 
         protected virtual MethodInfo GetGetSettingsMethod()
         {
-            return typeof (ConfigurationProvider).GetMethodExt("GetSiteSettings");
+            return typeof(ConfigurationProvider).GetMethodExt("GetSiteSettings");
         }
     }
 }

@@ -11,7 +11,7 @@ namespace MrCMS.Services
         /// <summary>
         /// Added to allow this to be used with DI. If preferred, it can still be injected as an IEventContext 
         /// </summary>
-        public static IEventContext Instance { get { return MrCMSApplication.Get<IEventContext>(); } }
+        //public static IEventContext Instance { get { return MrCMSApplication.Get<IEventContext>(); } }
 
         private readonly IEnumerable<IEvent> _events;
 

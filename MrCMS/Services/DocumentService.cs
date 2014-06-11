@@ -30,13 +30,15 @@ namespace MrCMS.Services
         private readonly ISession _session;
         private readonly SiteSettings _siteSettings;
         private readonly Site _currentSite;
+        private readonly IEventContext _eventContext;
         private Dictionary<string, int> _counts;
 
-        public DocumentService(ISession session, SiteSettings siteSettings, Site currentSite)
+        public DocumentService(ISession session, SiteSettings siteSettings, Site currentSite,IEventContext eventContext)
         {
             _session = session;
             _siteSettings = siteSettings;
             _currentSite = currentSite;
+            _eventContext = eventContext;
         }
 
         public void AddDocument<T>(T document) where T : Document
@@ -48,7 +50,7 @@ namespace MrCMS.Services
                                       session.SaveOrUpdate(document);
 
                                   });
-            EventContext.Instance.Publish<IOnDocumentAdded, OnDocumentAddedEventArgs>(new OnDocumentAddedEventArgs(document));
+            _eventContext.Publish<IOnDocumentAdded, OnDocumentAddedEventArgs>(new OnDocumentAddedEventArgs(document));
         }
 
         private int GetMaxParentDisplayOrder(Document document)
@@ -94,7 +96,7 @@ namespace MrCMS.Services
                 document.OnSaving(session);
                 session.Update(document);
             });
-            EventContext.Instance.Publish<IOnDocumentUpdated, OnDocumentUpdatedEventArgs>(new OnDocumentUpdatedEventArgs(document, CurrentRequestData.CurrentUser));
+            _eventContext.Publish<IOnDocumentUpdated, OnDocumentUpdatedEventArgs>(new OnDocumentUpdatedEventArgs(document, CurrentRequestData.CurrentUser));
             return document;
         }
 
@@ -290,7 +292,7 @@ namespace MrCMS.Services
                     session.Delete(document);
                 });
 
-                EventContext.Instance.Publish<IOnDocumentDeleted, OnDocumentDeletedEventArgs>(new OnDocumentDeletedEventArgs(document));
+                _eventContext.Publish<IOnDocumentDeleted, OnDocumentDeletedEventArgs>(new OnDocumentDeletedEventArgs(document));
             }
         }
 
@@ -300,7 +302,7 @@ namespace MrCMS.Services
             {
                 document.PublishOn = CurrentRequestData.Now;
                 _session.Transact(session => session.Update(document));
-                EventContext.Instance.Publish<IOnWebpagePublished, OnWebpagePublishedEventArgs>(new OnWebpagePublishedEventArgs(document));
+                _eventContext.Publish<IOnWebpagePublished, OnWebpagePublishedEventArgs>(new OnWebpagePublishedEventArgs(document));
             }
         }
 
@@ -308,7 +310,7 @@ namespace MrCMS.Services
         {
             document.PublishOn = null;
             _session.Transact(session => session.Update(document));
-            EventContext.Instance.Publish<IOnWebpageUnpublished, OnWebpageUnpublishedEventArgs>(new OnWebpageUnpublishedEventArgs(document));
+            _eventContext.Publish<IOnWebpageUnpublished, OnWebpageUnpublishedEventArgs>(new OnWebpageUnpublishedEventArgs(document));
         }
 
         public void HideWidget(Webpage document, int widgetId)

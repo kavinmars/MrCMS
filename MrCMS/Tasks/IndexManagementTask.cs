@@ -60,9 +60,7 @@ namespace MrCMS.Tasks
         public IEnumerable<LuceneAction> GetActions()
         {
             var entity = GetObject();
-            return
-                IndexingHelper.IndexDefinitionTypes.SelectMany(
-                    definitionType => definitionType.GetAllActions(entity, Operation));
+            return IndexingHelper.GetIndexDefinitionTypes(_kernel).SelectMany(definitionType => definitionType.GetAllActions(entity, Operation));
         }
 
         protected abstract LuceneOperation Operation { get; }

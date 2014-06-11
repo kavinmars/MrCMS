@@ -6,6 +6,7 @@ using MrCMS.Entities.Documents.Metadata;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Services;
 using MrCMS.Website;
+using Ninject;
 
 namespace MrCMS.Helpers
 {
@@ -101,7 +102,7 @@ namespace MrCMS.Helpers
                 definition => !(!typeof (IUniquePage).IsAssignableFrom(definition.Type) ||
                                 (OverrideExistAny != null
                                     ? !OverrideExistAny(definition.Type)
-                                    : !MrCMSApplication.Get<IDocumentService>().ExistAny(definition.Type))));
+                                    : !KernelCreator.Kernel.Get<IDocumentService>().ExistAny(definition.Type))));
 
             return documentTypeDefinitions;
         }

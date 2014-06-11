@@ -45,7 +45,7 @@ namespace MrCMS.DbConfiguration.Caches.Azure
         /// <param name="serializationProvider"></param>
         public AzureCacheAdapter(string name)
         {
-            _serializationProvider = MrCMSApplication.Get<ISerializationProvider>();
+            _serializationProvider = new SerializationProvider();
             //validate the params
             if (String.IsNullOrEmpty(name))
             {

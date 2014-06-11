@@ -9,11 +9,11 @@ namespace MrCMS.Website.Binders
 {
     public class EditWebpageModelBinder : WebpageModelBinder
     {
-        public EditWebpageModelBinder(IKernel kernel, IDocumentService documentService) : base(kernel, documentService)
+        public EditWebpageModelBinder(IDocumentService documentService) : base(documentService)
         {
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var document = base.BindModel(controllerContext, bindingContext) as Document;
 

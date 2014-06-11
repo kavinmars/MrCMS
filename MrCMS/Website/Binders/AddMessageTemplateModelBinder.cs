@@ -11,11 +11,7 @@ namespace MrCMS.Website.Binders
 {
     public class AddMessageTemplateGetModelBinder : MessageTemplateModelBinder
     {
-        public AddMessageTemplateGetModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var model = CreateModel(controllerContext, bindingContext, bindingContext.ModelType);
             return model;
@@ -24,11 +20,7 @@ namespace MrCMS.Website.Binders
 
     public class AddMessageTemplateModelBinder : MessageTemplateModelBinder
     {
-        public AddMessageTemplateModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var type = GetTypeByName(controllerContext);
 

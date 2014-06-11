@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Web.Mvc;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
@@ -16,23 +17,23 @@ namespace MrCMS.Helpers
 {
     public static class DocumentExtensions
     {
-        public static bool CanDelete(this Document document)
+        public static bool CanDelete(this HtmlHelper helper, Document document)
         {
-            return !document.AnyChildren();
+            return !AnyChildren(helper, document);
         }
-        
-        public static bool AnyChildren(this Document document)
+
+        public static bool AnyChildren(this HtmlHelper helper, Document document)
         {
-            return MrCMSApplication.Get<ISession>()
+            return helper.Get<ISession>()
                 .QueryOver<Document>()
                 .Where(doc => doc.Parent != null && doc.Parent.Id == document.Id)
                 .Cacheable()
                 .Any();
         }
 
-        public static int FormPostingsCount(this Webpage webpage)
+        public static int FormPostingsCount(this HtmlHelper helper, Webpage webpage)
         {
-            return MrCMSApplication.Get<ISession>()
+            return helper.Get<ISession>()
                 .QueryOver<FormPosting>()
                 .Where(posting => posting.Webpage != null && posting.Webpage.Id == webpage.Id)
                 .Cacheable()

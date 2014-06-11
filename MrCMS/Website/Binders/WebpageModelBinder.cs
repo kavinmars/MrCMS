@@ -9,8 +9,7 @@ namespace MrCMS.Website.Binders
     {
         private readonly IDocumentService _documentService;
 
-        protected WebpageModelBinder(IKernel kernel, IDocumentService documentService)
-            : base(kernel)
+        protected WebpageModelBinder(IDocumentService documentService)
         {
             _documentService = documentService;
         }
@@ -20,7 +19,7 @@ namespace MrCMS.Website.Binders
             get { return _documentService; }
         }
 
-        public override object BindModel(System.Web.Mvc.ControllerContext controllerContext, System.Web.Mvc.ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(System.Web.Mvc.ControllerContext controllerContext, System.Web.Mvc.ModelBindingContext bindingContext)
         {
             var document = base.BindModel(controllerContext, bindingContext) as Document;
             var taglist = controllerContext.GetValueFromRequest("TagList") ?? string.Empty;

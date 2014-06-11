@@ -190,24 +190,6 @@ namespace MrCMS.Entities.Documents.Web
             return currentUser != null && currentUser.Roles.Intersect(FrontEndAllowedRoles).Any();
         }
 
-        /// <summary>
-        /// Method to page child items with default filter and ordering implementation
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="query"></param>
-        /// <param name="pageNum"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
-        public virtual IPagedList<T> PagedChildren<T>(QueryOver<T> query = null, int pageNum = 1, int pageSize = 10) where T : Webpage
-        {
-            query = query ??
-                    QueryOver.Of<T>()
-                             .Where(a => a.Parent == this && a.PublishOn != null && a.PublishOn <= CurrentRequestData.Now)
-                             .ThenBy(arg => arg.PublishOn)
-                             .Desc;
-
-            return MrCMSApplication.Get<ISession>().Paged(query, pageNum, pageSize);
-        }
 
         public virtual string GetPageTitle()
         {

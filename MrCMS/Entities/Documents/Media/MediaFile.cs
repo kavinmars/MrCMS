@@ -7,6 +7,7 @@ using MrCMS.Models;
 using MrCMS.Services;
 using MrCMS.Settings;
 using MrCMS.Website;
+using Ninject;
 
 namespace MrCMS.Entities.Documents.Media
 {
@@ -50,7 +51,7 @@ namespace MrCMS.Entities.Documents.Media
                     yield return new ImageSize("Original", Size);
                     foreach (
                         var imageSize in
-                            MrCMSApplication.Get<MediaSettings>().ImageSizes.Where(size => ImageProcessor.RequiresResize(Size, size.Size)))
+                            KernelCreator.GetNew().Get<MediaSettings>().ImageSizes.Where(size => ImageProcessor.RequiresResize(Size, size.Size)))
                     {
                         imageSize.ActualSize = ImageProcessor.CalculateDimensions(Size, imageSize.Size);
                         yield return imageSize;

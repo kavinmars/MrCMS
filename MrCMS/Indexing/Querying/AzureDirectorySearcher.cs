@@ -7,6 +7,7 @@ using MrCMS.Indexing.Management;
 using MrCMS.Services;
 using MrCMS.Settings;
 using NHibernate;
+using Ninject;
 
 namespace MrCMS.Indexing.Querying
 {
@@ -17,9 +18,8 @@ namespace MrCMS.Indexing.Querying
         private AzureDirectory _directory;
         private readonly IAzureFileSystem _azureFileSystem;
 
-        public AzureDirectorySearcher(Site currentSite, ISession session, TDefinition definition,
-                                      IAzureFileSystem azureFileSystem, SiteSettings siteSettings)
-            : base(currentSite, definition, siteSettings)
+        public AzureDirectorySearcher(Site currentSite, TDefinition definition, IAzureFileSystem azureFileSystem, SiteSettings siteSettings, IKernel kernel)
+            : base(currentSite, definition, siteSettings, kernel)
         {
             _azureFileSystem = azureFileSystem;
         }

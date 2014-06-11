@@ -10,7 +10,7 @@ namespace MrCMS.Web.Areas.Admin.Helpers
         public static MvcHtmlString RenderDashboardArea(this HtmlHelper htmlHelper, DashboardArea dashboardArea)
         {
             var actionMethodsWithAttribute =
-                MrCMSControllerFactory.GetActionMethodsWithAttribute<DashboardAreaAction>()
+                MrCMSControllerTypes.GetActionMethodsWithAttribute<DashboardAreaAction>()
                     .Where(info => info.Attribute.DashboardArea == dashboardArea);
 
             return actionMethodsWithAttribute.OrderBy(info => info.Attribute.Order)

@@ -28,9 +28,9 @@ namespace MrCMS.Indexing.Management
                 service.Optimise(index.TypeName);
             }
         }
-        public static void EnsureIndexExists<T1,T2>() where T1 :SystemEntity  where T2 : IndexDefinition<T1>
+        public static void EnsureIndexExists<T1,T2>(IKernel kernel) where T1 :SystemEntity  where T2 : IndexDefinition<T1>
         {
-            var service = MrCMSApplication.Get<IIndexService>();
+            var service = kernel.Get<IIndexService>();
             var indexManagerBase = service.GetIndexManagerBase(typeof (T2));
             if (!indexManagerBase.IndexExists)
             {

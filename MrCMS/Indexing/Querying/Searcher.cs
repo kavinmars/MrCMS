@@ -9,6 +9,7 @@ using MrCMS.Indexing.Management;
 using MrCMS.Paging;
 using MrCMS.Services;
 using MrCMS.Settings;
+using Ninject;
 
 namespace MrCMS.Indexing.Querying
 {
@@ -21,12 +22,12 @@ namespace MrCMS.Indexing.Querying
         private readonly SiteSettings _siteSettings;
         private IndexSearcher _indexSearcher;
 
-        protected Searcher(Site site, TDefinition definition, SiteSettings siteSettings)
+        protected Searcher(Site site, TDefinition definition, SiteSettings siteSettings,IKernel kernel)
         {
             _site = site;
             _definition = definition;
             _siteSettings = siteSettings;
-            IndexManager.EnsureIndexExists<TEntity, TDefinition>();
+            IndexManager.EnsureIndexExists<TEntity, TDefinition>(kernel);
         }
 
         protected abstract Directory GetDirectory(Site site);

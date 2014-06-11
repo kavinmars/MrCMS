@@ -7,6 +7,7 @@ using MrCMS.Entities.Indexes;
 using MrCMS.Helpers;
 using MrCMS.Tasks;
 using MrCMS.Website;
+using Ninject;
 
 namespace MrCMS.Indexing.Management
 {
@@ -18,11 +19,11 @@ namespace MrCMS.Indexing.Management
         }
         public static string GetFieldName<T>() where T : IFieldDefinitionInfo
         {
-            return MrCMSApplication.Get<T>().Name;
+            return KernelCreator.Kernel.Get<T>().Name;
         }
         public static string GetDisplayName(string definitionTypeName)
         {
-            var fieldName = MrCMSApplication.Get(TypeHelper.GetTypeByName(definitionTypeName)) as IFieldDefinitionInfo;
+            var fieldName = KernelCreator.Kernel.Get(TypeHelper.GetTypeByName(definitionTypeName)) as IFieldDefinitionInfo;
             return fieldName == null ? definitionTypeName : fieldName.DisplayName;
         }
 

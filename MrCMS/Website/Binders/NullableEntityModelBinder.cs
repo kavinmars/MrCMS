@@ -7,11 +7,6 @@ namespace MrCMS.Website.Binders
 {
     public class NullableEntityModelBinder : MrCMSDefaultModelBinder
     {
-        public NullableEntityModelBinder(IKernel kernel)
-            : base(kernel)
-        {
-        }
-
         protected override bool ShouldReturnNull(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             const string baseId = "Id";

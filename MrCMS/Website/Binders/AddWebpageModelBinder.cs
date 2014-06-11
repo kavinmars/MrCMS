@@ -11,12 +11,12 @@ namespace MrCMS.Website.Binders
 {
     public class AddWebpageModelBinder : WebpageModelBinder
     {
-        public AddWebpageModelBinder(IKernel kernel, IDocumentService documentService)
-            : base(kernel, documentService)
+        public AddWebpageModelBinder(IDocumentService documentService)
+            : base(documentService)
         {
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var type = GetTypeByName(controllerContext);
             bindingContext.ModelMetadata =

@@ -9,6 +9,7 @@ using Elmah;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Settings;
 using MrCMS.Tasks;
@@ -39,7 +40,7 @@ namespace MrCMS.Website
             get
             {
                 return (Site) CurrentContext.Items["current.site"] ??
-                       (CurrentSite = MrCMSApplication.Get<ICurrentSiteLocator>().GetCurrentSite());
+                       (CurrentSite = CurrentContext.Get<ICurrentSiteLocator>().GetCurrentSite());
             }
             set
             {
@@ -177,7 +178,7 @@ namespace MrCMS.Website
 
         private static void SetSiteFilter(Site value)
         {
-            var session = MrCMSApplication.Get<ISession>();
+            var session = CurrentContext.Get<ISession>();
             if (value != null)
             {
                 session.EnableFilter("SiteFilter").SetParameter("site", value.Id);

@@ -5,6 +5,7 @@ using MrCMS.DbConfiguration;
 using MrCMS.Services;
 using MrCMS.Website;
 using NHibernate;
+using Ninject;
 
 namespace MrCMS.Helpers
 {
@@ -12,12 +13,12 @@ namespace MrCMS.Helpers
     {
         public static MvcHtmlString RenderImage(this HtmlHelper helper, string imageUrl, string alt = null, string title = null, object attributes = null)
         {
-            using (new SiteFilterDisabler(MrCMSApplication.Get<ISession>()))
+            using (new SiteFilterDisabler(helper.Get<ISession>()))
             {
                 if (String.IsNullOrWhiteSpace(imageUrl))
                     return MvcHtmlString.Empty;
 
-                var image = MrCMSApplication.Get<IImageProcessor>().GetImage(imageUrl);
+                var image = helper.Get<IImageProcessor>().GetImage(imageUrl);
                 var tagBuilder = new TagBuilder("img");
                 if (image == null)
                     return MvcHtmlString.Empty;
@@ -39,13 +40,13 @@ namespace MrCMS.Helpers
 
         public static MvcHtmlString RenderImage(this HtmlHelper helper, string imageUrl, Size targetSize, string alt = null, string title = null, object attributes = null)
         {
-            using (new SiteFilterDisabler(MrCMSApplication.Get<ISession>()))
+            using (new SiteFilterDisabler(helper.Get<ISession>()))
             {
                 if (String.IsNullOrWhiteSpace(imageUrl))
                     return MvcHtmlString.Empty;
 
-                var imageProcessor = MrCMSApplication.Get<IImageProcessor>();
-                var fileService = MrCMSApplication.Get<IFileService>();
+                var imageProcessor = helper.Get<IImageProcessor>();
+                var fileService = helper.Get<IFileService>();
                 var image = imageProcessor.GetImage(imageUrl);
 
                 if (image == null || targetSize == Size.Empty)

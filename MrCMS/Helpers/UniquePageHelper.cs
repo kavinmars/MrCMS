@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Web.Mvc;
 using System.Web.Routing;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Services;
@@ -7,21 +8,21 @@ using MrCMS.Website;
 
 namespace MrCMS.Helpers
 {
-    public class UniquePageHelper
+    public static class UniquePageHelper
     {
-        public static string GetUrl<T>(object queryString = null) where T : Webpage, IUniquePage
+        public static string GetUrl<T>(this HtmlHelper helper, object queryString = null) where T : Webpage, IUniquePage
         {
-            return Get<T>(queryString, arg => "/" + arg.LiveUrlSegment);
+            return Get<T>(helper, queryString, arg => "/" + arg.LiveUrlSegment);
         }
 
-        public static string GetAbsoluteUrl<T>(object queryString = null) where T : Webpage, IUniquePage
+        public static string GetAbsoluteUrl<T>(this HtmlHelper helper, object queryString = null) where T : Webpage, IUniquePage
         {
-            return Get<T>(queryString, arg => arg.AbsoluteUrl);
+            return Get<T>(helper, queryString, arg => arg.AbsoluteUrl);
         }
 
-        private static string Get<T>(object queryString, Func<T, string> selector) where T : Webpage, IUniquePage
+        private static string Get<T>(HtmlHelper helper, object queryString, Func<T, string> selector) where T : Webpage, IUniquePage
         {
-            var service = MrCMSApplication.Get<IUniquePageService>();
+            var service = helper.Get<IUniquePageService>();
 
             var processPage = service.GetUniquePage<T>();
             string url = processPage != null ? selector(processPage) : "/";

@@ -7,14 +7,18 @@ using MrCMS.Indexing.Management;
 using MrCMS.Tasks;
 using MrCMS.Website;
 using NHibernate.Mapping;
+using Ninject;
 
 namespace MrCMS.Indexing.Definitions
 {
     public class UrlSegmentFieldDefinition : StringFieldDefinition<AdminWebpageIndexDefinition, Webpage>
     {
-        public UrlSegmentFieldDefinition(ILuceneSettingsService luceneSettingsService)
+        private readonly IKernel _kernel;
+
+        public UrlSegmentFieldDefinition(ILuceneSettingsService luceneSettingsService, IKernel kernel)
             : base(luceneSettingsService, "urlsegment")
         {
+            _kernel = kernel;
         }
 
         protected override IEnumerable<string> GetValues(Webpage obj)
@@ -42,7 +46,7 @@ namespace MrCMS.Indexing.Definitions
                                               {
                                                   Entity = (entity as UrlHistory).Webpage,
                                                   Operation = LuceneOperation.Update,
-                                                  IndexDefinition = IndexingHelper.Get<AdminWebpageIndexDefinition>()
+                                                  IndexDefinition = IndexingHelper.Get<AdminWebpageIndexDefinition>(_kernel)
                                               }
                                           };
                                }

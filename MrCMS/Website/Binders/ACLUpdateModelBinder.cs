@@ -7,12 +7,7 @@ namespace MrCMS.Website.Binders
 {
     public class ACLUpdateModelBinder : MrCMSDefaultModelBinder
     {
-        public ACLUpdateModelBinder(IKernel kernel)
-            : base(kernel)
-        {
-        }
-
-        public override object BindModel(System.Web.Mvc.ControllerContext controllerContext, System.Web.Mvc.ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(System.Web.Mvc.ControllerContext controllerContext, System.Web.Mvc.ModelBindingContext bindingContext)
         {
             var nameValueCollection = controllerContext.HttpContext.Request.Form;
 

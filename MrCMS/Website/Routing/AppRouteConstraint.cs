@@ -37,8 +37,8 @@ namespace MrCMS.Website.Routing
             }
 
             var controllers = isAdmin
-                ? MrCMSControllerFactory.AppAdminControllers
-                : MrCMSControllerFactory.AppUiControllers;
+                ? MrCMSControllerTypes.AppAdminControllers
+                : MrCMSControllerTypes.AppUiControllers;
 
             Type controllerType =
                 controllers[_appName].FirstOrDefault(
@@ -48,7 +48,7 @@ namespace MrCMS.Website.Routing
                 return false;
 
             // get controller's methods
-            return MrCMSControllerFactory.GetActionMethods(controllerType)
+            return MrCMSControllerTypes.GetActionMethods(controllerType)
                               .Any(info => info.Name.Equals(actionName, StringComparison.OrdinalIgnoreCase));
 
         }

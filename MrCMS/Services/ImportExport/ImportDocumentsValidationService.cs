@@ -12,10 +12,12 @@ namespace MrCMS.Services.ImportExport
     public class ImportDocumentsValidationService : IImportDocumentsValidationService
     {
         private readonly IDocumentService _documentService;
+        private readonly IEnumerable<IDocumentImportValidationRule> _rules;
 
-        public ImportDocumentsValidationService(IDocumentService documentService)
+        public ImportDocumentsValidationService(IDocumentService documentService,IEnumerable<IDocumentImportValidationRule> rules)
         {
             _documentService = documentService;
+            _rules = rules;
         }
 
         /// <summary>
@@ -26,12 +28,11 @@ namespace MrCMS.Services.ImportExport
         public Dictionary<string, List<string>> ValidateBusinessLogic(IEnumerable<DocumentImportDTO> items)
         {
             var errors = new Dictionary<string, List<string>>();
-            var itemRules = MrCMSApplication.GetAll<IDocumentImportValidationRule>();
 
             var documentImportDataTransferObjects = items as IList<DocumentImportDTO> ?? items.ToList();
             foreach (var item in documentImportDataTransferObjects)
             {
-                var validationErrors = itemRules.SelectMany(rule => rule.GetErrors(item, documentImportDataTransferObjects)).ToList();
+                var validationErrors = _rules.SelectMany(rule => rule.GetErrors(item, documentImportDataTransferObjects)).ToList();
                 if (validationErrors.Any())
                     errors.Add(item.UrlSegment, validationErrors);
             }

@@ -8,7 +8,7 @@ namespace MrCMS.Helpers
     {
         public static MvcHtmlString Honeypot(this HtmlHelper html)
         {
-            var siteSettings = MrCMSApplication.Get<SiteSettings>();
+            var siteSettings = html.Get<SiteSettings>();
 
             return siteSettings.HasHoneyPot
                        ? MvcHtmlString.Create(siteSettings.GetHoneypot().ToString())

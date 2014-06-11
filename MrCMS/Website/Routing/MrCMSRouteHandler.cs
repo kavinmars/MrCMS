@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.SessionState;
 using MrCMS.Entities.Documents.Web;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Settings;
 using NHibernate;
@@ -16,7 +17,7 @@ namespace MrCMS.Website.Routing
         {
             if (CurrentRequestData.DatabaseIsInstalled)
             {
-                var mrCMSHttpHandler = MrCMSApplication.Get<MrCMSAspxHttpHandler>();
+                var mrCMSHttpHandler = requestContext.HttpContext.Get<MrCMSAspxHttpHandler>();
                 mrCMSHttpHandler.SetRequestContext(requestContext);
                 return mrCMSHttpHandler;
             }
@@ -78,7 +79,7 @@ namespace MrCMS.Website.Routing
         {
             if (CurrentRequestData.DatabaseIsInstalled)
             {
-                var mrCMSHttpHandler = MrCMSApplication.Get<MrCMSHttpHandler>();
+                var mrCMSHttpHandler = requestContext.HttpContext.Get<MrCMSHttpHandler>();
                 mrCMSHttpHandler.SetRequestContext(requestContext);
                 return mrCMSHttpHandler;
             }

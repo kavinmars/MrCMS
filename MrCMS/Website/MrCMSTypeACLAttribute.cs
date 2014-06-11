@@ -1,5 +1,6 @@
 ﻿using System;
 using MrCMS.ACL;
+using MrCMS.Helpers;
 using NHibernate;
 
 namespace MrCMS.Website
@@ -25,7 +26,7 @@ namespace MrCMS.Website
                 int id;
                 if (int.TryParse(Convert.ToString(idVal), out id))
                 {
-                    var o = MrCMSApplication.Get<ISession>().Get(_type, id);
+                    var o = httpContext.Get<ISession>().Get(_type, id);
 
                     return new TypeACLRule().CanAccess(CurrentRequestData.CurrentUser, _operation, o.GetType().FullName);
                 }

@@ -152,6 +152,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject.Extensions.ChildKernel">
+      <HintPath>..\packages\Ninject.Extensions.ChildKernel.3.2.0.0\lib\net45-full\Ninject.Extensions.ChildKernel.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject.Extensions.Conventions, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ninject.extensions.conventions.3.2.0.0\lib\net45-full\Ninject.Extensions.Conventions.dll</HintPath>
@@ -358,8 +361,8 @@
     <Compile Include="Helpers\HoneypotHtmlHelper.cs" />
     <Compile Include="Helpers\HtmlFormExtensions.cs" />
     <Compile Include="Helpers\ImageRenderingExtensions.cs" />
+    <Compile Include="Helpers\IoCExtensions.cs" />
     <Compile Include="Helpers\ModelBinderExtensions.cs" />
-    <Compile Include="Helpers\MrCMSResources.cs" />
     <Compile Include="Helpers\OptimisationExtensions.cs" />
     <Compile Include="Helpers\PropertyRenderingExtensions.cs" />
     <Compile Include="Helpers\ReturnUrlExtensions.cs" />
@@ -520,7 +523,6 @@
     <Compile Include="Membership\Internals\IRoleProvider.cs" />
     <Compile Include="Membership\Internals\RoleProvider.cs" />
     <Compile Include="Membership\MrCmsMembershipProvider.cs" />
-    <Compile Include="Membership\MrCmsRoleProvider.cs" />
     <Compile Include="Models\ACLAvailableModel.cs" />
     <Compile Include="Models\ACLGroup.cs" />
     <Compile Include="Models\ACLModel.cs" />
@@ -721,9 +723,11 @@
     <Compile Include="Website\Filters\ForceImmediateLuceneUpdateAttribute.cs" />
     <Compile Include="Website\Filters\HoneypotFilterAttribute.cs" />
     <Compile Include="Website\Filters\ReturnUrlHandlerAttribute.cs" />
+    <Compile Include="Website\KernelCreator.cs" />
     <Compile Include="Website\MrCMSACLRuleAttribute.cs" />
     <Compile Include="Website\MrCMSAssemblyAttribute.cs" />
     <Compile Include="Website\MrCMSBaseAuthorizationAttribute.cs" />
+    <Compile Include="Website\MrCMSControllerTypes.cs" />
     <Compile Include="Website\MrCMSMetadataProvider.cs" />
     <Compile Include="Website\MrCMSTypeACLAttribute.cs" />
     <Compile Include="Website\Optimization\AsIsBundleOrderer.cs" />
@@ -755,6 +759,7 @@
     <Compile Include="Website\Routing\MrCMSHttpHandler.cs" />
     <Compile Include="Website\Routing\MrCMSRouteHandler.cs" />
     <Compile Include="Website\MrCMSPage.cs" />
+    <Compile Include="Website\SiteLocator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

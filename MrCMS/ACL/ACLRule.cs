@@ -4,6 +4,7 @@ using MrCMS.Entities.People;
 using System.Linq;
 using MrCMS.Models;
 using MrCMS.Website;
+using Ninject;
 
 namespace MrCMS.ACL
 {
@@ -29,7 +30,7 @@ namespace MrCMS.ACL
 
         private bool CanAccessLogic(UserRole userRole, string operation, string typeName = null)
         {
-            if (!MrCMSApplication.Get<ACLSettings>().ACLEnabled)
+            if (!KernelCreator.GetNew().Get<ACLSettings>().ACLEnabled)
                 return false;
             var aclRoles = userRole.ACLRoles;
             var b = GetKey(operation, typeName);

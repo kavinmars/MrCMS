@@ -8,16 +8,12 @@ namespace MrCMS.Website.Binders
 {
     public class AddWidgetModelBinder : MrCMSDefaultModelBinder
     {
-        public AddWidgetModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
         private static Type GetTypeByName(ControllerContext controllerContext)
         {
             return WidgetHelper.GetTypeByName(GetValueFromContext(controllerContext, "WidgetType"));
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var type = GetTypeByName(controllerContext);
 

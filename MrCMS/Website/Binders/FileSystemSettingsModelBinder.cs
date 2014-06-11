@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
 using MrCMS.Settings;
-using Ninject;
 
 namespace MrCMS.Website.Binders
 {
@@ -9,7 +8,7 @@ namespace MrCMS.Website.Binders
     {
         private readonly FileSystemSettings _fileSystemSettings;
 
-        public FileSystemSettingsModelBinder(IKernel kernel, FileSystemSettings fileSystemSettings) : base(kernel)
+        public FileSystemSettingsModelBinder(FileSystemSettings fileSystemSettings) 
         {
             _fileSystemSettings = fileSystemSettings;
         }

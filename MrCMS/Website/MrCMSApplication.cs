@@ -26,17 +26,12 @@ using Ninject;
 using Ninject.Web.Common;
 using WebActivatorEx;
 
-[assembly: WebActivatorEx.PreApplicationStartMethod(typeof (MrCMSApplication), "Start", Order = 1)]
-[assembly: ApplicationShutdownMethod(typeof (MrCMSApplication), "Stop")]
-
 namespace MrCMS.Website
 {
     public abstract class MrCMSApplication : HttpApplication
     {
         public const string AssemblyVersion = "0.4.1.0";
         public const string AssemblyFileVersion = "0.4.1.0";
-        private static readonly Bootstrapper bootstrapper = new Bootstrapper();
-        private static IKernel _kernel;
 
         protected static IEnumerable<string> WebExtensions
         {
@@ -58,11 +53,6 @@ namespace MrCMS.Website
             }
         }
 
-        private static IKernel Kernel
-        {
-            get { return _kernel ?? bootstrapper.Kernel; }
-        }
-
         protected void Application_Start()
         {
             MrCMSApp.RegisterAllApps();
@@ -70,10 +60,14 @@ namespace MrCMS.Website
 
             RegisterRoutes(RouteTable.Routes);
 
-            RegisterServices(bootstrapper.Kernel);
-            MrCMSApp.RegisterAllServices(bootstrapper.Kernel);
+            RegisterServices(KernelCreator.Kernel);
+            MrCMSApp.RegisterAllServices(KernelCreator.Kernel);
 
-            SetModelBinders();
+
+            ModelBinders.Binders.DefaultBinder = new MrCMSDefaultModelBinder(Kernel);
+            ModelBinders.Binders.Add(typeof(DateTime), new CultureAwareDateBinder());
+            ModelBinders.Binders.Add(typeof(DateTime?), new NullableCultureAwareDateBinder());
+
 
             ViewEngines.Engines.Clear();
             ViewEngines.Engines.Insert(0, new MrCMSRazorViewEngine());
@@ -85,12 +79,6 @@ namespace MrCMS.Website
             ModelMetadataProviders.Current = new MrCMSMetadataProvider(Kernel);
         }
 
-        private static void SetModelBinders()
-        {
-            ModelBinders.Binders.DefaultBinder = new MrCMSDefaultModelBinder(Kernel);
-            ModelBinders.Binders.Add(typeof (DateTime), new CultureAwareDateBinder());
-            ModelBinders.Binders.Add(typeof (DateTime?), new NullableCultureAwareDateBinder());
-        }
 
         private static bool IsFileRequest(Uri uri)
         {
@@ -108,12 +96,14 @@ namespace MrCMS.Website
             {
                 BeginRequest += (sender, args) =>
                 {
+
                     if (!IsFileRequest(Request.Url))
                     {
+                        IKernel kernel = Context.GetKernel();
                         CurrentRequestData.ErrorSignal = ErrorSignal.FromCurrentContext();
-                        CurrentRequestData.CurrentSite = Get<ICurrentSiteLocator>().GetCurrentSite();
-                        CurrentRequestData.SiteSettings = Get<SiteSettings>();
-                        CurrentRequestData.HomePage = Get<IDocumentService>().GetHomePage();
+                        CurrentRequestData.CurrentSite = kernel.Get<ICurrentSiteLocator>().GetCurrentSite();
+                        CurrentRequestData.SiteSettings = kernel.Get<SiteSettings>();
+                        CurrentRequestData.HomePage = kernel.Get<IDocumentService>().GetHomePage();
                         Thread.CurrentThread.CurrentCulture = CurrentRequestData.SiteSettings.CultureInfo;
                         Thread.CurrentThread.CurrentUICulture = CurrentRequestData.SiteSettings.CultureInfo;
                     }
@@ -124,10 +114,11 @@ namespace MrCMS.Website
                     {
                         if (CurrentRequestData.CurrentContext.User != null)
                         {
-                            User currentUser = Get<IUserService>().GetCurrentUser(CurrentRequestData.CurrentContext);
+                            IKernel kernel = Context.GetKernel();
+                            User currentUser = kernel.Get<IUserService>().GetCurrentUser(CurrentRequestData.CurrentContext);
                             if (!Request.Url.AbsolutePath.StartsWith("/signalr/") && currentUser == null ||
                                 !currentUser.IsActive)
-                                Get<IAuthorisationService>().Logout();
+                                kernel.Get<IAuthorisationService>().Logout();
                             else
                                 CurrentRequestData.CurrentUser = currentUser;
                         }
@@ -135,9 +126,10 @@ namespace MrCMS.Website
                 };
                 EndRequest += (sender, args) =>
                 {
+                    IKernel kernel = Context.GetKernel();
                     if (CurrentRequestData.QueuedTasks.Any())
                     {
-                        Kernel.Get<ISession>()
+                        kernel.Get<ISession>()
                             .Transact(session =>
                             {
                                 foreach (QueuedTask queuedTask in CurrentRequestData.QueuedTasks)
@@ -145,7 +137,7 @@ namespace MrCMS.Website
                             });
                     }
                     foreach (var action in CurrentRequestData.OnEndRequest)
-                        action(Kernel);
+                        action(kernel);
                 };
             }
             else
@@ -153,7 +145,7 @@ namespace MrCMS.Website
                 EndRequest += (sender, args) =>
                 {
                     foreach (var action in CurrentRequestData.OnEndRequest)
-                        action(Kernel);
+                        action(Context.GetKernel());
                 };
             }
         }
@@ -163,62 +155,30 @@ namespace MrCMS.Website
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             routes.IgnoreRoute("favicon.ico");
 
-            routes.MapRoute("InstallerRoute", "install", new {controller = "Install", action = "Setup"});
+            routes.MapRoute("InstallerRoute", "install", new { controller = "Install", action = "Setup" });
             routes.MapRoute("Task Execution", "execute-pending-tasks",
-                new {controller = "TaskExecution", action = "Execute"});
-            routes.MapRoute("Sitemap", "sitemap.xml", new {controller = "SEO", action = "Sitemap"});
-            routes.MapRoute("robots.txt", "robots.txt", new {controller = "SEO", action = "Robots"});
+                new { controller = "TaskExecution", action = "Execute" });
+            routes.MapRoute("Sitemap", "sitemap.xml", new { controller = "SEO", action = "Sitemap" });
+            routes.MapRoute("robots.txt", "robots.txt", new { controller = "SEO", action = "Robots" });
             routes.MapRoute("ckeditor Config", "Areas/Admin/Content/Editors/ckeditor/config.js",
-                new {controller = "CKEditor", action = "Config"});
+                new { controller = "CKEditor", action = "Config" });
 
-            routes.MapRoute("Logout", "logout", new {controller = "Login", action = "Logout"},
-                new[] {RootNamespace});
+            routes.MapRoute("Logout", "logout", new { controller = "Login", action = "Logout" },
+                new[] { RootNamespace });
 
-            routes.MapRoute("zones", "render-widget", new {controller = "Widget", action = "Show"},
-                new[] {RootNamespace});
+            routes.MapRoute("zones", "render-widget", new { controller = "Widget", action = "Show" },
+                new[] { RootNamespace });
 
             routes.MapRoute("ajax content save", "admintools/savebodycontent",
-                new {controller = "AdminTools", action = "SaveBodyContent"});
+                new { controller = "AdminTools", action = "SaveBodyContent" });
 
-            routes.MapRoute("form save", "save-form/{id}", new {controller = "Form", action = "Save"});
+            routes.MapRoute("form save", "save-form/{id}", new { controller = "Form", action = "Save" });
 
             routes.Add(new Route("{*data}", new RouteValueDictionary(),
-                new RouteValueDictionary(new {data = @".*\.aspx"}),
+                new RouteValueDictionary(new { data = @".*\.aspx" }),
                 new MrCMSAspxRouteHandler()));
             routes.Add(new Route("{*data}", new RouteValueDictionary(), new RouteValueDictionary(),
                 new MrCMSRouteHandler()));
-        }
-
-        /// <summary>
-        ///     Starts the application
-        /// </summary>
-        public static void Start()
-        {
-            DynamicModuleUtility.RegisterModule(typeof (OnePerRequestHttpModule));
-            DynamicModuleUtility.RegisterModule(typeof (NinjectHttpModule));
-            bootstrapper.Initialize(CreateKernel);
-        }
-
-        /// <summary>
-        ///     Stops the application.
-        /// </summary>
-        public static void Stop()
-        {
-            bootstrapper.ShutDown();
-        }
-
-        /// <summary>
-        ///     Creates the kernel that will manage your application.
-        /// </summary>
-        /// <returns>The created kernel.</returns>
-        private static IKernel CreateKernel()
-        {
-            var kernel = new StandardKernel(new ServiceModule(),
-                new NHibernateModule(DatabaseType.Auto, InDevelopment));
-            kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
-            kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
-
-            return kernel;
         }
 
         /// <summary>
@@ -227,24 +187,24 @@ namespace MrCMS.Website
         /// <param name="kernel">The kernel.</param>
         protected abstract void RegisterServices(IKernel kernel);
 
-        public static IEnumerable<T> GetAll<T>()
-        {
-            return Kernel.GetAll<T>();
-        }
+        //public static IEnumerable<T> GetAll<T>()
+        //{
+        //    return Kernel.GetAll<T>();
+        //}
 
-        public static void OverrideKernel(IKernel kernel)
-        {
-            _kernel = kernel;
-        }
+        //public static void OverrideKernel(IKernel kernel)
+        //{
+        //    _kernel = kernel;
+        //}
 
-        public static T Get<T>()
-        {
-            return Kernel.Get<T>();
-        }
+        //public static T Get<T>()
+        //{
+        //    return Kernel.Get<T>();
+        //}
 
-        public static object Get(Type type)
-        {
-            return Kernel.Get(type);
-        }
+        //public static object Get(Type type)
+        //{
+        //    return Kernel.Get(type);
+        //}
     }
 }

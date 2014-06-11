@@ -24,7 +24,6 @@ namespace MrCMS.Settings
 
         public ConfigurationProvider(Site site)
         {
-            //_settingService = settingService;
             _site = site;
         }
 

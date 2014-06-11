@@ -5,6 +5,7 @@ using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Tasks;
 using MrCMS.Website;
+using Ninject;
 
 namespace MrCMS.Indexing
 {
@@ -14,12 +15,12 @@ namespace MrCMS.Indexing
         //{
         //    return GetDefinitionTypes<T>().Any();
         //}
-        public static bool AnyIndexes(object obj, LuceneOperation operation)
+        public static bool AnyIndexes(IKernel kernel, object obj, LuceneOperation operation)
         {
             if (obj == null)
                 return false;
             return
-                IndexDefinitionTypes.Any(
+                GetIndexDefinitionTypes(kernel).Any(
                     definition => definition.GetUpdateTypes(operation).Any(type => type.IsAssignableFrom(obj.GetType())));
         }
         //public static List<IndexDefinition> GetDefinitionTypes<T>()
@@ -35,20 +36,17 @@ namespace MrCMS.Indexing
         //    return definitionTypes;
         //}
 
-        public static List<IndexDefinition> IndexDefinitionTypes
+        public static List<IndexDefinition> GetIndexDefinitionTypes(IKernel kernel)
         {
-            get
-            {
                 return
                     TypeHelper.GetAllConcreteTypesAssignableFrom(typeof(IndexDefinition<>))
-                        .Select(type => MrCMSApplication.Get(type) as IndexDefinition)
+                        .Select(type => kernel.Get(type) as IndexDefinition)
                         .ToList();
-            }
         }
 
-        public static IndexDefinition Get<T>() where T :IndexDefinition
+        public static IndexDefinition Get<T>(IKernel kernel) where T :IndexDefinition
         {
-            return IndexDefinitionTypes.OfType<T>().FirstOrDefault();
+            return GetIndexDefinitionTypes(kernel).OfType<T>().FirstOrDefault();
         }
     }
 }

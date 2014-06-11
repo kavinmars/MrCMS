@@ -1,5 +1,6 @@
 using System;
 using System.Web.Mvc;
+using Ninject;
 
 namespace MrCMS.Website.Binders
 {
@@ -21,12 +22,12 @@ namespace MrCMS.Website.Binders
         }
 
         private Type BinderType { get; set; }
-
+        
         public override IModelBinder GetBinder()
         {
             try
             {
-                return MrCMSApplication.Get(BinderType) as IModelBinder;
+                return KernelCreator.GetNew().Get(BinderType) as IModelBinder;
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@ using System.Web.Mvc;
 using System.Web.WebPages;
 using MrCMS.Website;
 using MrCMS.Website.Optimization;
+using Ninject;
 
 namespace MrCMS.Helpers
 {
@@ -11,24 +12,24 @@ namespace MrCMS.Helpers
         {
             var webPage = helper.ViewDataContainer as WebPageBase;
             var virtualPath = webPage == null ? string.Empty : webPage.VirtualPath;
-            MrCMSApplication.Get<IResourceBundler>().AddScript(virtualPath, url);
+            helper.Get<IResourceBundler>().AddScript(virtualPath, url);
         }
 
         public static MvcHtmlString RenderScripts(this HtmlHelper helper)
         {
-            return MrCMSApplication.Get<IResourceBundler>().GetScripts();
+            return helper.Get<IResourceBundler>().GetScripts();
         }
 
         public static void IncludeCss(this HtmlHelper helper, string url)
         {
             var webPage = helper.ViewDataContainer as WebPageBase;
             var virtualPath = webPage == null ? string.Empty : webPage.VirtualPath;
-            MrCMSApplication.Get<IResourceBundler>().AddCss(virtualPath, url);
+            helper.Get<IResourceBundler>().AddCss(virtualPath, url);
         }
 
         public static MvcHtmlString RenderCss(this HtmlHelper helper)
         {
-            return MrCMSApplication.Get<IResourceBundler>().GetCss();
+            return helper.Get<IResourceBundler>().GetCss();
         }
     }
 }

@@ -11,10 +11,6 @@ namespace MrCMS.Website.Binders
 {
     public class AddFormPropertyModelBinder : MrCMSDefaultModelBinder
     {
-        public AddFormPropertyModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
         private static Type GetTypeByName(ControllerContext controllerContext)
         {
             return
@@ -22,7 +18,7 @@ namespace MrCMS.Website.Binders
                           .FirstOrDefault(type => type.Name == GetValueFromContext(controllerContext, "type"));
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var type = GetTypeByName(controllerContext);
 

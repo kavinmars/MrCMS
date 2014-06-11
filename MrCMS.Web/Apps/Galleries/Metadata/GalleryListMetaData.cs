@@ -24,6 +24,11 @@ namespace MrCMS.Web.Apps.Galleries.Metadata
         {
             get { yield return typeof(Pages.Gallery); }
         }
+
+        public override string WebGetController
+        {
+            get { return "GalleryList"; }
+        }
     }
 }
 

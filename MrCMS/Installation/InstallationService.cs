@@ -52,7 +52,7 @@ namespace MrCMS.Installation
 
             if (result.Success)
             {
-                var kernel = MrCMSApplication.Get<IKernel>();
+                var kernel = _context.GetKernel();
                 IEnumerable<IBinding> bindings = new List<IBinding>();
                 try
                 {
@@ -62,7 +62,7 @@ namespace MrCMS.Installation
                     var connectionString = CreateDatabase(model);
 
                     //save settings
-                    SetUpInitialData(model, connectionString, model.DatabaseType);
+                    SetUpInitialData(model, connectionString, model.DatabaseType, kernel);
 
                     CurrentRequestData.OnEndRequest.Add(k =>
                                                             {
@@ -353,7 +353,7 @@ namespace MrCMS.Installation
             }
         }
 
-        private void SetUpInitialData(InstallModel model, string connectionString, DatabaseType databaseType)
+        private void SetUpInitialData(InstallModel model, string connectionString, DatabaseType databaseType, IKernel kernel)
         {
             IPersistenceConfigurer connection;
             switch (databaseType)
@@ -378,7 +378,7 @@ namespace MrCMS.Installation
 
             ISessionFactory sessionFactory = configurator.CreateSessionFactory();
             ISession session = sessionFactory.OpenFilteredSession();
-            MrCMSApplication.Get<IKernel>().Rebind<ISession>().ToMethod(context => session);
+            kernel.Rebind<ISession>().ToMethod(context => session);
             var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
             session.Transact(s => s.Save(site));
 

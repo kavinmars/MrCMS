@@ -1,5 +1,6 @@
 ﻿@using System.Drawing
 @using MrCMS.Helpers
+@using MrCMS.Paging
 @using MrCMS.Web.Apps.Galleries.Pages
 @using MrCMS.Website
 @using NHibernate.Criterion
@@ -8,14 +9,7 @@
 @Editable(Model, p=>p.BodyContent, true)
 
 @{
-    var category = Request["Category"];
-
-    var query = QueryOver.Of<Gallery>()
-                                     .Where(gallery => gallery.Parent == Model && gallery.PublishOn != null && gallery.PublishOn <= CurrentRequestData.Now)
-                                     .ThenBy(gallery => gallery.DisplayOrder)
-                                     .Desc;
-
-    var pagedList = Model.PagedChildren(pageNum: Request["p"].GetIntValue(1), query: query, pageSize: Model.PageSize);
+    var pagedList = ViewData["galleries"] as IPagedList<Gallery>??PagedList<Gallery>.Empty;
 }
 
 

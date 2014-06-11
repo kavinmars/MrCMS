@@ -10,7 +10,7 @@ namespace MrCMS.Helpers
     {
         public static IHtmlString ParseShortcodes(this HtmlHelper htmlHelper, string content)
         {
-            var shortcodeParsers = MrCMSApplication.GetAll<IShortcodeParser>();
+            var shortcodeParsers = htmlHelper.GetAll<IShortcodeParser>();
 
             content = shortcodeParsers.Aggregate(content, (current, shortcodeParser) => shortcodeParser.Parse(htmlHelper, current));
 

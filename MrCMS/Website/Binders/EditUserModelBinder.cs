@@ -10,8 +10,11 @@ namespace MrCMS.Website.Binders
 {
     public class EditUserModelBinder : MrCMSDefaultModelBinder
     {
-        public EditUserModelBinder(IKernel kernel) : base(kernel)
+        private readonly IRoleService _roleService;
+
+        public EditUserModelBinder(IRoleService roleService)
         {
+            _roleService = roleService;
         }
 
         protected override object CreateModel(ControllerContext controllerContext, ModelBindingContext bindingContext, Type modelType)
@@ -19,7 +22,7 @@ namespace MrCMS.Website.Binders
             return Session.Get<User>(Convert.ToInt32(controllerContext.HttpContext.Request["Id"]));
         }
 
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var user = base.BindModel(controllerContext, bindingContext) as User;
 
@@ -32,7 +35,7 @@ namespace MrCMS.Website.Binders
                 var id = Convert.ToInt32(value.Split('-')[1]);
 
                 var role = Session.Get<UserRole>(id);
-                if (MrCMSApplication.Get<IRoleService>().IsOnlyAdmin(user) && role.IsAdmin)
+                if (_roleService.IsOnlyAdmin(user) && role.IsAdmin)
                     continue;
 
                 if (roleSelected && !user.Roles.Contains(role))

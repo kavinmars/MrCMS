@@ -36,8 +36,8 @@ namespace MrCMS.Website
 
             if (CurrentRequestData.DatabaseIsInstalled)
             {
-                _configurationProvider = MrCMSApplication.Get<IConfigurationProvider>();
-                _stringResourceProvider = MrCMSApplication.Get<IStringResourceProvider>();
+                _configurationProvider = Context.Get<IConfigurationProvider>();
+                _stringResourceProvider = Context.Get<IStringResourceProvider>();
             }
         }
 

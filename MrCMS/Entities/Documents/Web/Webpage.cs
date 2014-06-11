@@ -78,7 +78,7 @@ namespace MrCMS.Entities.Documents.Web
 
         public virtual Layout.Layout CurrentLayout
         {
-            get { return _layout ?? (_layout = Layout ?? MrCMSApplication.Get<IDocumentService>().GetDefaultLayout(this)); }
+            get { return _layout ?? (_layout = Layout ?? KernelCreator.GetNew().Get<IDocumentService>().GetDefaultLayout(this)); }
         }
 
         public virtual Iesi.Collections.Generic.ISet<Widget.Widget> ShownWidgets { get; set; }

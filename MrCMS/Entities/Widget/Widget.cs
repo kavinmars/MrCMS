@@ -6,6 +6,7 @@ using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
 using NHibernate;
 using MrCMS.Helpers;
+using Ninject;
 
 namespace MrCMS.Entities.Widget
 {
@@ -35,7 +36,7 @@ namespace MrCMS.Entities.Widget
 
         public virtual IList<PageWidgetSort> PageWidgetSorts { get; set; }
 	
-        public virtual object GetModel(ISession session)
+        public virtual object GetModel(IKernel kernel)
         {
             return this;
         }

@@ -1,9 +1,13 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Owin;
 using MrCMS.Entities.Widget;
 using MrCMS.Services;
 using MrCMS.Tests.Stubs;
+using MrCMS.Website;
 using NHibernate;
+using Ninject;
+using Ninject.MockingKernel;
 using Xunit;
 using MrCMS.Helpers;
 
@@ -50,9 +54,12 @@ namespace MrCMS.Tests.Services
         {
             var widget = A.Fake<Widget>();
 
-            _widgetService.GetModel(widget);
+            var owinContext = A.Fake<IOwinContext>();
+            var mockingKernel = new MockingKernel();
+            A.CallTo(() => owinContext.Get<IKernel>(KernelCreator.ContextKey)).Returns(mockingKernel);
+            _widgetService.GetModel(widget, owinContext);
 
-            A.CallTo(() => widget.GetModel(Session)).MustHaveHappened();
+            A.CallTo(() => widget.GetModel(mockingKernel)).MustHaveHappened();
         }
 
         [Fact]

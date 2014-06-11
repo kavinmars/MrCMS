@@ -72,14 +72,6 @@ namespace MrCMS.Tests.DbConfiguration
             get { return _testListener; }
         }
 
-        protected override void RegisterServices(IKernel kernel)
-        {
-        }
-
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
-        {
-        }
-
         protected override void AppendConfiguration(Configuration configuration)
         {
             TestListener.Reset();

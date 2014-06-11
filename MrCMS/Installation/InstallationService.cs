@@ -12,6 +12,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Hosting;
 using FluentNHibernate.Cfg.Db;
+using Microsoft.Owin;
 using MrCMS.Apps;
 using MrCMS.DbConfiguration;
 using MrCMS.DbConfiguration.Configuration;
@@ -382,7 +383,7 @@ namespace MrCMS.Installation
             var site = new Site { Name = model.SiteName, BaseUrl = model.SiteUrl };
             session.Transact(s => s.Save(site));
 
-            MrCMSApp.InstallApps(session, model, site);
+            MrCMSApp.InstallApps(session, model, site, kernel.Get<IOwinContext>());
 
             SetupInitialTemplates(session);
         }

@@ -9,11 +9,7 @@ namespace MrCMS.Web.Apps.Articles.ModelBinders
 {
     public class ArticleListModelBinder : MrCMSDefaultModelBinder
     {
-        public ArticleListModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             int page;
             int.TryParse(GetValueFromContext(controllerContext, "page"), out page);

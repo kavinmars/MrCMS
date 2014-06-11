@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Microsoft.Owin;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Indexes;
@@ -21,29 +22,32 @@ namespace MrCMS.Web.Areas.Admin.Services
         private readonly IDocumentService _documentService;
         private readonly ISession _session;
         private readonly Site _site;
+        private readonly IOwinContext _owinContext;
 
-        public AdminWebpageSearchService(ISearcher<Webpage, AdminWebpageIndexDefinition> documentSearcher, IDocumentService documentService, ISession session, Site site)
+        public AdminWebpageSearchService(ISearcher<Webpage, AdminWebpageIndexDefinition> documentSearcher, IDocumentService documentService, ISession session, Site site, IOwinContext owinContext)
         {
             _documentSearcher = documentSearcher;
             _documentService = documentService;
             _session = session;
             _site = site;
+            _owinContext = owinContext;
         }
 
         public IPagedList<Webpage> Search(AdminWebpageSearchQuery model)
         {
-            return _documentSearcher.Search(model.GetQuery(), model.Page);
+            return _documentSearcher.Search(model.GetQuery(_owinContext), model.Page);
         }
 
         public IEnumerable<QuickSearchResults> QuickSearch(AdminWebpageSearchQuery model)
         {
-            return _documentSearcher.Search(model.GetQuery(), model.Page, 10).Select(x => new QuickSearchResults
-                                                                                          {
-                                                                                              Id = x.Id,
-                                                                                              Name = x.Name,
-                                                                                              CreatedOn = x.CreatedOn.ToShortDateString().ToString(),
-                                                                                              Type = x.GetType().Name.ToString()
-                                                                                          });
+            return _documentSearcher.Search(model.GetQuery(_owinContext), model.Page, 10)
+                .Select(x => new QuickSearchResults
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    CreatedOn = x.CreatedOn.ToShortDateString().ToString(),
+                    Type = x.GetType().Name.ToString()
+                });
         }
 
         public IEnumerable<Document> GetBreadCrumb(int? parentId)

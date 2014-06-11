@@ -18,7 +18,6 @@ namespace MrCMS.Web.Tests
         {
             var mockingKernel = new MockingKernel();
             mockingKernel.Load(new TestContextModule());
-            MrCMSApplication.OverrideKernel(mockingKernel);
             CurrentRequestData.SiteSettings = new SiteSettings();
         }
 

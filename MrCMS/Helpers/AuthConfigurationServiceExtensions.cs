@@ -10,14 +10,14 @@ namespace MrCMS.Helpers
 
         public static void ConfigureAuth(this IAppBuilder app)
         {
-            IKernel kernel = KernelCreator.Kernel;
-            var standardAuthConfigurationService = kernel.Get<IStandardAuthConfigurationService>();
-            standardAuthConfigurationService.ConfigureAuth(app);
-            if (CurrentRequestData.DatabaseIsInstalled)
-            {
-                var authConfigurationService = kernel.Get<IAuthConfigurationService>();
-                authConfigurationService.ConfigureAuth(app);
-            }
+            //IKernel kernel = KernelCreator.Kernel;
+            //var standardAuthConfigurationService = kernel.Get<IStandardAuthConfigurationService>();
+            //standardAuthConfigurationService.ConfigureAuth(app);
+            //if (CurrentRequestData.DatabaseIsInstalled)
+            //{
+            //    var authConfigurationService = kernel.Get<IAuthConfigurationService>();
+            //    authConfigurationService.ConfigureAuth(app);
+            //}
         }
     }
 }

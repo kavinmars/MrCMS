@@ -32,6 +32,7 @@ namespace MrCMS.Services
                                                     {
                                                         AppId = _thirdPartyAuthSettings.FacebookAppId,
                                                         AppSecret = _thirdPartyAuthSettings.FacebookAppSecret,
+                                                        
                                                     };
                 facebookAuthenticationOptions.Scope.Add("email");
                 app.UseFacebookAuthentication(facebookAuthenticationOptions);

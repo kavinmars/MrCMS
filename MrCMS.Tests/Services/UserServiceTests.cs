@@ -4,6 +4,7 @@ using System.Security.Principal;
 using System.Web;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Owin;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
@@ -20,19 +21,21 @@ namespace MrCMS.Tests.Services
         private UserService _userService;
         private ISession _session;
         private readonly SiteSettings _siteSettings;
+        private IOwinContext _owinContext;
 
         public UserServiceTests()
         {
             _session = Session;
             _siteSettings = new SiteSettings();
-            _userService = new UserService(_session,_siteSettings);
+            _owinContext = A.Fake<IOwinContext>();
+            _userService = new UserService(_session, _siteSettings, _owinContext);
         }
 
         [Fact]
         public void UserService_AddUser_SavesAUserToSession()
         {
             _session = A.Fake<ISession>();
-            _userService = new UserService(_session, _siteSettings);
+            _userService = new UserService(_session, _siteSettings, _owinContext);
             var user = new User();
 
             _userService.AddUser(user);
@@ -44,7 +47,7 @@ namespace MrCMS.Tests.Services
         public void UserService_SaveUser_UpdatesAUser()
         {
             _session = A.Fake<ISession>();
-            _userService = new UserService(_session, _siteSettings);
+            _userService = new UserService(_session, _siteSettings, _owinContext);
             var user = new User();
 
             _userService.SaveUser(user);
@@ -186,7 +189,7 @@ namespace MrCMS.Tests.Services
         {
             var user = A.Fake<User>();
             _session = A.Fake<ISession>();
-            _userService = new UserService(_session, _siteSettings);
+            _userService = new UserService(_session, _siteSettings, _owinContext);
 
             _userService.DeleteUser(user);
 
@@ -202,16 +205,16 @@ namespace MrCMS.Tests.Services
         [Fact]
         public void UserService_IsUniqueEmail_ShouldReturnFalseIfThereIsAnotherUserWithTheSameEmail()
         {
-            Session.Transact(session => session.Save(new User {Email = "test@example.com"}));
+            Session.Transact(session => session.Save(new User { Email = "test@example.com" }));
             _userService.IsUniqueEmail("test@example.com").Should().BeFalse();
         }
 
         [Fact]
         public void UserService_IsUniqueEmail_ShouldReturnTrueIfTheIdPassedAlongWithTheSavedEmailIsThatOfTheSameUser()
         {
-            var user = new User {Email = "test@example.com"};
+            var user = new User { Email = "test@example.com" };
             Session.Transact(session => session.Save(user));
-            _userService.IsUniqueEmail("test@example.com",user.Id).Should().BeTrue();
+            _userService.IsUniqueEmail("test@example.com", user.Id).Should().BeTrue();
         }
     }
 }

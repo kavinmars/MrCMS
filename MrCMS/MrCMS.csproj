@@ -170,6 +170,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.Security.Providers.1.3\lib\net45\Owin.Security.Providers.dll</HintPath>
     </Reference>
+    <Reference Include="OwinRequestScopeContext">
+      <HintPath>..\packages\OwinRequestScopeContext.1.0.1\lib\NET45\OwinRequestScopeContext.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -357,6 +360,7 @@
     <Compile Include="Helpers\AdminMessagingExtensions.cs" />
     <Compile Include="Helpers\AuthConfigurationServiceExtensions.cs" />
     <Compile Include="Helpers\DocumentVersionRenderingExtensions.cs" />
+    <Compile Include="Helpers\EventContextExtensions.cs" />
     <Compile Include="Helpers\FormContextEnsurer.cs" />
     <Compile Include="Helpers\HoneypotHtmlHelper.cs" />
     <Compile Include="Helpers\HtmlFormExtensions.cs" />

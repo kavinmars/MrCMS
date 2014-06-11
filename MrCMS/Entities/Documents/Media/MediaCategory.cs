@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using MrCMS.Services;
 using MrCMS.Website;
 using NHibernate;
+using Ninject;
 
 namespace MrCMS.Entities.Documents.Media
 {
@@ -36,7 +37,7 @@ namespace MrCMS.Entities.Documents.Media
             
             var mediaFiles = Files.ToList();
 
-            var fileService = MrCMSApplication.Get<IFileService>();
+            var fileService = KernelCreator.GetNew().Get<IFileService>();
             foreach (var mediaFile in mediaFiles)
                 fileService.DeleteFile(mediaFile);
             fileService.RemoveFolder(this);

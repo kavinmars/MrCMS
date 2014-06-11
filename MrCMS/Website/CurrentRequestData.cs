@@ -6,6 +6,7 @@ using System.IO;
 using System.Web;
 using System.Web.Hosting;
 using Elmah;
+using Microsoft.Owin;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
 using MrCMS.Entities.People;
@@ -15,6 +16,7 @@ using MrCMS.Settings;
 using MrCMS.Tasks;
 using NHibernate;
 using Ninject;
+using Owin;
 
 namespace MrCMS.Website
 {
@@ -25,56 +27,59 @@ namespace MrCMS.Website
 
         public static ErrorSignal ErrorSignal
         {
-            get { return (ErrorSignal) CurrentContext.Items["current.errorsignal"]; }
-            set { CurrentContext.Items["current.errorsignal"] = value; }
+            get { return (ErrorSignal)CurrentContext.Get<ErrorSignal>("current.errorsignal"); }
+            set { CurrentContext.Set("current.errorsignal", value); }
         }
 
         public static User CurrentUser
         {
-            get { return (User) CurrentContext.Items["current.user"]; }
-            set { CurrentContext.Items["current.user"] = value; }
+            get { return CurrentContext.Get<User>("current.user"); }
+            set { CurrentContext.Set("current.user", value); }
         }
 
         public static Site CurrentSite
         {
             get
             {
-                return (Site) CurrentContext.Items["current.site"] ??
-                       (CurrentSite = CurrentContext.Get<ICurrentSiteLocator>().GetCurrentSite());
+                return CurrentContext.Get<Site>("current.site") ??
+                       (CurrentSite = CurrentContext.GetKernel().Get<ICurrentSiteLocator>().GetCurrentSite());
             }
             set
             {
-                CurrentContext.Items["current.site"] = value;
+                CurrentContext.Set("current.site", value);
                 SetSiteFilter(value);
             }
         }
 
         public static Webpage CurrentPage
         {
-            get { return (Webpage) CurrentContext.Items["current.webpage"]; }
-            set { CurrentContext.Items["current.webpage"] = value; }
+            get { return CurrentContext.Get<Webpage>("current.webpage"); }
+            set { CurrentContext.Set("current.webpage", value); }
         }
 
         public static SiteSettings SiteSettings
         {
-            get { return (SiteSettings) CurrentContext.Items["current.sitesettings"]; }
-            set { CurrentContext.Items["current.sitesettings"] = value; }
+            get { return CurrentContext.Get<SiteSettings>("current.sitesettings"); }
+            set { CurrentContext.Set("current.sitesettings", value); }
         }
 
         public static Webpage HomePage
         {
-            get { return (Webpage) CurrentContext.Items["current.homepage"]; }
-            set { CurrentContext.Items["current.homepage"] = value; }
+            get { return CurrentContext.Get<Webpage>("current.homepage"); }
+            set { CurrentContext.Set("current.homepage", value); }
         }
 
         public static CultureInfo CultureInfo
         {
             get
             {
-                return SiteSettings != null
-                           ? CurrentContext.Items["current.cultureinfo"] as CultureInfo ??
-                             (CurrentContext.Items["current.cultureinfo"] = SiteSettings.CultureInfo) as CultureInfo
-                           : CultureInfo.CurrentCulture;
+                if (SiteSettings != null)
+                {
+                    if (CurrentContext.Get<CultureInfo>("current.cultureinfo") == null)
+                        CurrentContext.Set("current.cultureinfo", SiteSettings.CultureInfo);
+                    return CurrentContext.Get<CultureInfo>("current.cultureinfo");
+                }
+                return CultureInfo.CurrentCulture;
             }
         }
 
@@ -84,8 +89,8 @@ namespace MrCMS.Website
             {
                 //return TimeZoneInfo.Local;
                 return SiteSettings != null
-                           ? (SiteSettings.TimeZoneInfo ?? TimeZoneInfo.Local)
-                           : TimeZoneInfo.Local;
+                    ? (SiteSettings.TimeZoneInfo ?? TimeZoneInfo.Local)
+                    : TimeZoneInfo.Local;
             }
         }
 
@@ -94,9 +99,9 @@ namespace MrCMS.Website
             get { return TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo); }
         }
 
-        public static HttpContextBase CurrentContext
+        public static IOwinContext CurrentContext
         {
-            get { return MrCMSApplication.Get<HttpContextBase>(); }
+            get { return new OwinContext(OwinRequestScopeContext.Current.Environment); }
         }
 
         public static bool CurrentUserIsAdmin
@@ -130,8 +135,8 @@ namespace MrCMS.Website
 
         private static Guid? UserGuidOverride
         {
-            get { return CurrentContext.Items[UserSessionId] as Guid?; }
-            set { CurrentContext.Items[UserSessionId] = value; }
+            get { return CurrentContext.Get<Guid?>(UserSessionId); }
+            set { CurrentContext.Set(UserSessionId, value); }
         }
 
         public static Guid UserGuid
@@ -141,9 +146,7 @@ namespace MrCMS.Website
                 if (UserGuidOverride.HasValue)
                     return UserGuidOverride.Value;
                 if (CurrentUser != null) return CurrentUser.Guid;
-                string o = CurrentContext.Request.Cookies[UserSessionId] != null
-                               ? CurrentContext.Request.Cookies[UserSessionId].Value
-                               : null;
+                string o = CurrentContext.Request.Cookies[UserSessionId];
                 Guid result;
                 if (o == null || !Guid.TryParse(o, out result))
                 {
@@ -159,26 +162,27 @@ namespace MrCMS.Website
         {
             get
             {
-                return (HashSet<Action<IKernel>>) (CurrentContext.Items["current.on-end-request"] ??
-                                                   (CurrentContext.Items["current.on-end-request"] =
-                                                    new HashSet<Action<IKernel>>()));
+                if (CurrentContext.Get<HashSet<Action<IKernel>>>("current.on-end-request") == null)
+                    CurrentContext.Set("current.on-end-request", new HashSet<Action<IKernel>>());
+                return CurrentContext.Get<HashSet<Action<IKernel>>>("current.on-end-request");
             }
-            set { CurrentContext.Items["current.on-end-request"] = value; }
+            set { CurrentContext.Set("current.on-end-request", value); }
         }
 
         public static HashSet<QueuedTask> QueuedTasks
         {
             get
             {
-                return (HashSet<QueuedTask>) (CurrentContext.Items["current.queued-tasks"] ??
-                                              (CurrentContext.Items["current.queued-tasks"] = new HashSet<QueuedTask>()));
+                if (CurrentContext.Get<HashSet<QueuedTask>>("current.queued-tasks") == null)
+                    CurrentContext.Set("current.queued-tasks", new HashSet<QueuedTask>());
+                return CurrentContext.Get<HashSet<QueuedTask>>("current.queued-tasks");
             }
-            set { CurrentContext.Items["current.queued-tasks"] = value; }
+            set { CurrentContext.Set("current.queued-tasks", value); }
         }
 
         private static void SetSiteFilter(Site value)
         {
-            var session = CurrentContext.Get<ISession>();
+            var session = CurrentContext.GetKernel().Get<ISession>();
             if (value != null)
             {
                 session.EnableFilter("SiteFilter").SetParameter("site", value.Id);
@@ -195,12 +199,7 @@ namespace MrCMS.Website
 
         private static void AddCookieToResponse(string key, string value, DateTime expiry)
         {
-            var userGuidCookie = new HttpCookie(key)
-                {
-                    Value = value,
-                    Expires = expiry
-                };
-            CurrentContext.Response.Cookies.Add(userGuidCookie);
+            CurrentContext.Response.Cookies.Append(key, value, new CookieOptions {Expires = expiry});
         }
     }
 }

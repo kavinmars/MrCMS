@@ -29,15 +29,13 @@ namespace MrCMS.Tests.Shortcodes.Forms
         public DefaultFormRendererTests()
         {
             _formCollection = new FormCollection();
-            var mockingKernel = new MockingKernel();
-            MrCMSApplication.OverrideKernel(mockingKernel);
             _elementRendererManager = A.Fake<IElementRendererManager>();
-            _labelRenderer= A.Fake<ILabelRenderer>();
-            _validationMessageRenderer= A.Fake<IValidationMessaageRenderer>();
+            _labelRenderer = A.Fake<ILabelRenderer>();
+            _validationMessageRenderer = A.Fake<IValidationMessaageRenderer>();
             _submittedMessageRenderer = A.Fake<ISubmittedMessageRenderer>();
             _siteSettings = new SiteSettings();
             _defaultFormRenderer = new DefaultFormRenderer(_elementRendererManager, _labelRenderer,
-                                                           _validationMessageRenderer,_submittedMessageRenderer, _siteSettings);
+                                                           _validationMessageRenderer, _submittedMessageRenderer, _siteSettings);
         }
 
         [Fact]

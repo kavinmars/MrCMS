@@ -8,6 +8,7 @@ using MrCMS.Web.Apps.Core.Models;
 using MrCMS.Web.Apps.Core.Models.Navigation;
 using MrCMS.Website;
 using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Core.Widgets
 {
@@ -16,8 +17,9 @@ namespace MrCMS.Web.Apps.Core.Widgets
         [DisplayName("Show Name As Title")]
         public virtual bool ShowNameAsTitle { get; set; }
 
-        public override object GetModel(ISession session)
+        public override object GetModel(IKernel kernel)
         {
+            var session = kernel.Get<ISession>();
             var webpages =
                 GetPublishedChildWebpages(session, CurrentRequestData.CurrentPage.Id);
             var navigationRecords =

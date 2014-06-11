@@ -107,15 +107,5 @@ namespace MrCMS.Tests.Helpers
         {
             get { return "0.1"; }
         }
-
-        protected override void RegisterServices(IKernel kernel)
-        {
-            
-        }
-
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

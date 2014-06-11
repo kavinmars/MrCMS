@@ -64,7 +64,7 @@ namespace MrCMS.Website
             MrCMSApp.RegisterAllServices(KernelCreator.Kernel);
 
 
-            ModelBinders.Binders.DefaultBinder = new MrCMSDefaultModelBinder(Kernel);
+            ModelBinders.Binders.DefaultBinder = new MrCMSDefaultModelBinder();
             ModelBinders.Binders.Add(typeof(DateTime), new CultureAwareDateBinder());
             ModelBinders.Binders.Add(typeof(DateTime?), new NullableCultureAwareDateBinder());
 
@@ -76,7 +76,7 @@ namespace MrCMS.Website
 
             GlobalFilters.Filters.Add(new HoneypotFilterAttribute());
 
-            ModelMetadataProviders.Current = new MrCMSMetadataProvider(Kernel);
+            ModelMetadataProviders.Current = new MrCMSMetadataProvider(KernelCreator.Kernel);
         }
 
 
@@ -94,20 +94,13 @@ namespace MrCMS.Website
         {
             if (CurrentRequestData.DatabaseIsInstalled)
             {
-                BeginRequest += (sender, args) =>
-                {
+                //BeginRequest += (sender, args) =>
+                //{
 
-                    if (!IsFileRequest(Request.Url))
-                    {
-                        IKernel kernel = Context.GetKernel();
-                        CurrentRequestData.ErrorSignal = ErrorSignal.FromCurrentContext();
-                        CurrentRequestData.CurrentSite = kernel.Get<ICurrentSiteLocator>().GetCurrentSite();
-                        CurrentRequestData.SiteSettings = kernel.Get<SiteSettings>();
-                        CurrentRequestData.HomePage = kernel.Get<IDocumentService>().GetHomePage();
-                        Thread.CurrentThread.CurrentCulture = CurrentRequestData.SiteSettings.CultureInfo;
-                        Thread.CurrentThread.CurrentUICulture = CurrentRequestData.SiteSettings.CultureInfo;
-                    }
-                };
+                //    if (!IsFileRequest(Request.Url))
+                //    {
+                //    }
+                //};
                 AuthenticateRequest += (sender, args) =>
                 {
                     if (!IsFileRequest(Request.Url))

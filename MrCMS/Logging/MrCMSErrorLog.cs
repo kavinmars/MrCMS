@@ -26,7 +26,10 @@ namespace MrCMS.Logging
         public MrCMSErrorLog(IDictionary config)
         {
             if (CurrentRequestData.DatabaseIsInstalled)
-                _session = KernelCreator.GetNew().Get<ISessionFactory>().OpenFilteredSession();
+            {
+                _getNew = KernelCreator.GetNew();
+                _session = _getNew.Get<ISessionFactory>().OpenFilteredSession();
+            }
         }
 
         public override string Log(Error error)
@@ -41,7 +44,7 @@ namespace MrCMS.Logging
                                   Guid = newGuid,
                                   Message = error.Message,
                                   Detail = error.Detail,
-                                  Site = _session.Get<Site>(CurrentRequestData.CurrentSite.Id)
+                                  Site = _getNew.Get<Site>()
                               };
                 _session.Transact(session => session.Save(log));
             }
@@ -90,6 +93,8 @@ namespace MrCMS.Logging
         }
 
         private bool _disposed;
+        private IKernel _getNew;
+
         public void Dispose()
         {
             Dispose(true);

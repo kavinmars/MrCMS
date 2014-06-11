@@ -7,6 +7,7 @@ using System.Web;
 using Iesi.Collections.Generic;
 using Lucene.Net.Documents;
 using Microsoft.AspNet.Identity;
+using Microsoft.Owin;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
 using MrCMS.Entities.Documents.Web;
@@ -29,7 +30,7 @@ namespace MrCMS.Web.Apps.Core
 {
     public class CoreAppInstallation
     {
-        public static void Install(ISession session, InstallModel model, Site site)
+        public static void Install(ISession session, InstallModel model, Site site, IOwinContext owinContext)
         {
             //settings
             session.Transact(sess => sess.Save(site));
@@ -54,7 +55,7 @@ namespace MrCMS.Web.Apps.Core
 
             CurrentRequestData.SiteSettings = siteSettings;
 
-            var documentService = new DocumentService(session, siteSettings, site);
+            var documentService = new DocumentService(session, siteSettings, site, owinContext);
             var layoutAreaService = new LayoutAreaService(session);
             var widgetService = new WidgetService(session);
             var fileSystem = new FileSystem();
@@ -69,12 +70,12 @@ namespace MrCMS.Web.Apps.Core
             var hashAlgorithms = new List<IHashAlgorithm> { new SHA512HashAlgorithm() };
             var hashAlgorithmProvider = new HashAlgorithmProvider(hashAlgorithms);
             var passwordEncryptionManager = new PasswordEncryptionManager(hashAlgorithmProvider,
-                                                                          new UserService(session, siteSettings));
+                new UserService(session, siteSettings, owinContext));
             var passwordManagementService = new PasswordManagementService(passwordEncryptionManager);
 
             passwordManagementService.ValidatePassword(model.AdminPassword, model.ConfirmPassword);
             passwordManagementService.SetPassword(user, model.AdminPassword, model.ConfirmPassword);
-            var userService = new UserService(session, siteSettings);
+            var userService = new UserService(session, siteSettings, owinContext);
 
             userService.AddUser(user);
             CurrentRequestData.CurrentUser = user;

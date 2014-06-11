@@ -1,4 +1,5 @@
-﻿using MrCMS.Apps;
+﻿using Microsoft.Owin;
+using MrCMS.Apps;
 using MrCMS.Entities.Multisite;
 using MrCMS.Installation;
 using MrCMS.Website;
@@ -29,9 +30,9 @@ namespace MrCMS.Web.Apps.Core
 
         }
 
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
+        protected override void OnInstallation(ISession session, InstallModel model, Site site, IOwinContext owinContext)
         {
-            CoreAppInstallation.Install(session, model, site);
+            CoreAppInstallation.Install(session, model, site, owinContext);
         }
 
         protected override void RegisterApp(MrCMSAppRegistrationContext context)

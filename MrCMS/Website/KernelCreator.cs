@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Owin;
 using MrCMS.DbConfiguration.Configuration;
+using MrCMS.Entities.Multisite;
 using MrCMS.Events;
 using MrCMS.IoC;
 using MrCMS.Services;
@@ -27,6 +28,7 @@ namespace MrCMS.Website
 
         }
         public const string ContextKey = "current.ninject.kernel";
+        public const string EventContextKey = "event.context";
 
         public KernelCreator(OwinMiddleware next)
             : base(next)
@@ -41,9 +43,10 @@ namespace MrCMS.Website
             {
                 childKernel.Bind<IOwinContext>().ToConstant(context).InSingletonScope();
                 childKernel.Rebind<IKernel>().ToConstant(childKernel).InSingletonScope();
-                var eventContext = new EventContext(childKernel.GetAll<IEvent>());
-                childKernel.Rebind<IEventContext>().ToConstant(eventContext);
+                childKernel.Bind<Site>().ToConstant(childKernel.Get<ICurrentSiteLocator>().GetCurrentSite());
+
                 context.Set(ContextKey, childKernel);
+                context.Set(EventContextKey, childKernel.Get<IEventContext>());
                 await Next.Invoke(context);
             }
         }

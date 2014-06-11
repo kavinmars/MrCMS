@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using Microsoft.Owin;
 using MrCMS.Entities.Multisite;
 using NHibernate;
 
@@ -15,12 +16,12 @@ namespace MrCMS.Services
     public class CurrentSiteLocator : ICurrentSiteLocator
     {
         private readonly ISession _session;
-        private readonly HttpRequestBase _requestBase;
+        private readonly IOwinContext _owinContext;
         private Site _currentSite;
-        public CurrentSiteLocator(ISession session, HttpRequestBase requestBase)
+        public CurrentSiteLocator(ISession session, IOwinContext owinContext)
         {
             _session = session;
-            _requestBase = requestBase;
+            _owinContext = owinContext;
         }
 
         public Site GetCurrentSite()
@@ -38,7 +39,7 @@ namespace MrCMS.Services
 
         private Site GetSiteFromRequest()
         {
-            var authority = _requestBase.Url.Authority;
+            var authority = _owinContext.Request.Uri.Authority;
 
             var allSites = _session.QueryOver<Site>().Fetch(s => s.RedirectedDomains).Eager.Cacheable().List();
             var redirectedDomains = allSites.SelectMany(s => s.RedirectedDomains).ToList();

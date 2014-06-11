@@ -9,11 +9,7 @@ namespace MrCMS.Web.Apps.Core.ModelBinders
 {
     public class LoginModelModelBinder : MrCMSDefaultModelBinder
     {
-        public LoginModelModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var bindModel = base.BindModel(controllerContext, bindingContext);
             if (bindModel is LoginModel)

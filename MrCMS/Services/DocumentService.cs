@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Microsoft.Owin;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Media;
@@ -30,15 +31,15 @@ namespace MrCMS.Services
         private readonly ISession _session;
         private readonly SiteSettings _siteSettings;
         private readonly Site _currentSite;
-        private readonly IEventContext _eventContext;
+        private readonly IOwinContext _owinContext;
         private Dictionary<string, int> _counts;
 
-        public DocumentService(ISession session, SiteSettings siteSettings, Site currentSite,IEventContext eventContext)
+        public DocumentService(ISession session, SiteSettings siteSettings, Site currentSite, IOwinContext owinContext)
         {
             _session = session;
             _siteSettings = siteSettings;
             _currentSite = currentSite;
-            _eventContext = eventContext;
+            _owinContext = owinContext;
         }
 
         public void AddDocument<T>(T document) where T : Document
@@ -50,7 +51,7 @@ namespace MrCMS.Services
                                       session.SaveOrUpdate(document);
 
                                   });
-            _eventContext.Publish<IOnDocumentAdded, OnDocumentAddedEventArgs>(new OnDocumentAddedEventArgs(document));
+            _owinContext.EventContext().Publish<IOnDocumentAdded, OnDocumentAddedEventArgs>(new OnDocumentAddedEventArgs(document));
         }
 
         private int GetMaxParentDisplayOrder(Document document)
@@ -96,7 +97,7 @@ namespace MrCMS.Services
                 document.OnSaving(session);
                 session.Update(document);
             });
-            _eventContext.Publish<IOnDocumentUpdated, OnDocumentUpdatedEventArgs>(new OnDocumentUpdatedEventArgs(document, CurrentRequestData.CurrentUser));
+            _owinContext.EventContext().Publish<IOnDocumentUpdated, OnDocumentUpdatedEventArgs>(new OnDocumentUpdatedEventArgs(document, CurrentRequestData.CurrentUser));
             return document;
         }
 
@@ -292,7 +293,8 @@ namespace MrCMS.Services
                     session.Delete(document);
                 });
 
-                _eventContext.Publish<IOnDocumentDeleted, OnDocumentDeletedEventArgs>(new OnDocumentDeletedEventArgs(document));
+                _owinContext.EventContext()
+                    .Publish<IOnDocumentDeleted, OnDocumentDeletedEventArgs>(new OnDocumentDeletedEventArgs(document));
             }
         }
 
@@ -302,7 +304,8 @@ namespace MrCMS.Services
             {
                 document.PublishOn = CurrentRequestData.Now;
                 _session.Transact(session => session.Update(document));
-                _eventContext.Publish<IOnWebpagePublished, OnWebpagePublishedEventArgs>(new OnWebpagePublishedEventArgs(document));
+                _owinContext.EventContext()
+                    .Publish<IOnWebpagePublished, OnWebpagePublishedEventArgs>(new OnWebpagePublishedEventArgs(document));
             }
         }
 
@@ -310,7 +313,9 @@ namespace MrCMS.Services
         {
             document.PublishOn = null;
             _session.Transact(session => session.Update(document));
-            _eventContext.Publish<IOnWebpageUnpublished, OnWebpageUnpublishedEventArgs>(new OnWebpageUnpublishedEventArgs(document));
+            _owinContext.EventContext()
+                .Publish<IOnWebpageUnpublished, OnWebpageUnpublishedEventArgs>(
+                    new OnWebpageUnpublishedEventArgs(document));
         }
 
         public void HideWidget(Webpage document, int widgetId)

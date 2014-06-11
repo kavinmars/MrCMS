@@ -66,7 +66,7 @@ namespace MrCMS.DbConfiguration.Configuration
 
         public static void QueueTask(Type type, SiteEntity siteEntity, LuceneOperation operation)
         {
-            if (IndexingHelper.AnyIndexes(siteEntity, operation))
+            if (IndexingHelper.AnyIndexes(KernelCreator.Kernel, siteEntity, operation))
             {
                 var queuedTask = new QueuedTask
                                      {

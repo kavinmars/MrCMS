@@ -1,3 +1,5 @@
+using System.Web;
+using Microsoft.Owin;
 using MrCMS.Entities.Widget;
 using MrCMS.Helpers;
 using NHibernate;
@@ -23,9 +25,9 @@ namespace MrCMS.Services
             _session.Transact(session => session.SaveOrUpdate(widget));
         }
 
-        public object GetModel(Widget widget)
+        public object GetModel(Widget widget, IOwinContext context)
         {
-            return widget.GetModel(_session);
+            return widget.GetModel(context.GetKernel());
         }
 
         public void DeleteWidget(Widget widget)

@@ -1,4 +1,5 @@
-﻿using MrCMS.Apps;
+﻿using Microsoft.Owin;
+using MrCMS.Apps;
 using MrCMS.Entities.Multisite;
 using MrCMS.Installation;
 using NHibernate;
@@ -23,7 +24,7 @@ namespace MrCMS.Web.Apps.Galleries
             
         }
 
-        protected override void OnInstallation(ISession session, InstallModel model, Site site)
+        protected override void OnInstallation(ISession session, InstallModel model, Site site, IOwinContext owinContext)
         {
         }
 

@@ -5,6 +5,8 @@ using MrCMS.Services;
 using MrCMS.Web.Apps.Articles.Pages;
 using MrCMS.Website;
 using MrCMS.Helpers;
+using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Articles.Widgets
 {
@@ -13,12 +15,13 @@ namespace MrCMS.Web.Apps.Articles.Widgets
         public virtual int NumberOfArticles { get; set; }
         public virtual ArticleList RelatedNewsList { get; set; }
 
-        public override object GetModel(NHibernate.ISession session)
+        public override object GetModel(IKernel kernel)
         {
             if (RelatedNewsList == null)
                 return null;
 
 
+            var session = kernel.Get<ISession>();
             return new LatestXArticlesViewModel
                        {
                            Articles = session.QueryOver<Article>()

@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Owin;
 using MrCMS.Entities.People;
+using MrCMS.Helpers;
 using MrCMS.Services;
 using MrCMS.Web.Apps.Core.Models;
 using MrCMS.Web.Apps.Core.Models.RegisterAndLogin;
@@ -18,12 +20,15 @@ namespace MrCMS.Web.Apps.Core.Services
         private readonly IUserService _userService;
         private readonly IAuthorisationService _authorisationService;
         private readonly IPasswordManagementService _passwordManagementService;
+        private readonly IOwinContext _owinContext;
 
-        public LoginService(IUserService userService, IAuthorisationService authorisationService, IPasswordManagementService passwordManagementService)
+        public LoginService(IUserService userService, IAuthorisationService authorisationService, IPasswordManagementService passwordManagementService,
+            IOwinContext owinContext)
         {
             _userService = userService;
             _authorisationService = authorisationService;
             _passwordManagementService = passwordManagementService;
+            _owinContext = owinContext;
         }
 
         public async Task<LoginResult> AuthenticateUser(LoginModel loginModel)
@@ -39,7 +44,7 @@ namespace MrCMS.Web.Apps.Core.Services
                     var guid = CurrentRequestData.UserGuid;
                     await _authorisationService.SetAuthCookie(user, loginModel.RememberMe);
                     CurrentRequestData.CurrentUser = user;
-                    EventContext.Instance.Publish<IOnUserLoggedIn, UserLoggedInEventArgs>(
+                    _owinContext.EventContext().Publish<IOnUserLoggedIn, UserLoggedInEventArgs>(
                         new UserLoggedInEventArgs(user, guid));
                     return user.IsAdmin
                                ? new LoginResult { Success = true, RedirectUrl = loginModel.ReturnUrl ?? "~/admin" }

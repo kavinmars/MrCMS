@@ -4,6 +4,7 @@ using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
+using Microsoft.Owin;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Indexes;
 using MrCMS.Indexing;
@@ -28,7 +29,7 @@ namespace MrCMS.Web.Areas.Admin.Models.Search
         [DisplayName("Created On To")]
         public DateTime? CreatedOnTo { get; set; }
 
-        public Query GetQuery()
+        public Query GetQuery(IOwinContext context)
         {
             if (String.IsNullOrWhiteSpace(Term) && String.IsNullOrWhiteSpace(Type) && !CreatedOnTo.HasValue && !CreatedOnFrom.HasValue && Parent == null)
                 return new MatchAllDocsQuery();
@@ -36,7 +37,7 @@ namespace MrCMS.Web.Areas.Admin.Models.Search
             var booleanQuery = new BooleanQuery();
             if (!String.IsNullOrWhiteSpace(Term))
             {
-                var indexDefinition = IndexingHelper.Get<AdminWebpageIndexDefinition>();
+                var indexDefinition = IndexingHelper.Get<AdminWebpageIndexDefinition>(context);
                 var analyser = indexDefinition.GetAnalyser();
                 var parser = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30, indexDefinition.SearchableFieldNames, analyser);
                 Query query = Term.SafeGetSearchQuery(parser, analyser);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Owin;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Indexes;
@@ -13,12 +14,12 @@ namespace MrCMS.Indexing.Definitions
 {
     public class UrlSegmentFieldDefinition : StringFieldDefinition<AdminWebpageIndexDefinition, Webpage>
     {
-        private readonly IKernel _kernel;
+        private readonly IOwinContext _owinContext;
 
-        public UrlSegmentFieldDefinition(ILuceneSettingsService luceneSettingsService, IKernel kernel)
+        public UrlSegmentFieldDefinition(ILuceneSettingsService luceneSettingsService, IOwinContext owinContext)
             : base(luceneSettingsService, "urlsegment")
         {
-            _kernel = kernel;
+            _owinContext = owinContext;
         }
 
         protected override IEnumerable<string> GetValues(Webpage obj)
@@ -46,7 +47,7 @@ namespace MrCMS.Indexing.Definitions
                                               {
                                                   Entity = (entity as UrlHistory).Webpage,
                                                   Operation = LuceneOperation.Update,
-                                                  IndexDefinition = IndexingHelper.Get<AdminWebpageIndexDefinition>(_kernel)
+                                                  IndexDefinition = IndexingHelper.Get<AdminWebpageIndexDefinition>(_owinContext)
                                               }
                                           };
                                }

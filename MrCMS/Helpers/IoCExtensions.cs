@@ -26,7 +26,7 @@ namespace MrCMS.Helpers
             {
                 IOwinContext owinContext = httpContext.GetOwinContext();
                 if (owinContext != null)
-                    return owinContext.Get<IKernel>(KernelCreator.ContextKey);
+                    return GetKernel(owinContext);
             }
             return GetNewChildKernel();
         }
@@ -47,9 +47,14 @@ namespace MrCMS.Helpers
             {
                 IOwinContext owinContext = httpContext.GetOwinContext();
                 if (owinContext != null)
-                    return owinContext.Get<IKernel>(KernelCreator.ContextKey);
+                    return GetKernel(owinContext);
             }
             return GetNewChildKernel();
+        }
+
+        public static IKernel GetKernel(this IOwinContext owinContext)
+        {
+            return owinContext.Get<IKernel>(KernelCreator.ContextKey);
         }
 
         public static IKernel GetKernel(this HtmlHelper htmlHelper)

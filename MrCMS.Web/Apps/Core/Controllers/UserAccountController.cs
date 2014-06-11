@@ -33,7 +33,7 @@ namespace MrCMS.Web.Apps.Core.Controllers
                 return View(page);
             }
 
-            return Redirect(UniquePageHelper.GetUrl<LoginPage>());
+            return Redirect(HttpContext.GetUrl<LoginPage>());
         }
 
         [HttpGet]
@@ -48,7 +48,7 @@ namespace MrCMS.Web.Apps.Core.Controllers
                 ModelState.Clear();
                 return View(model);
             }
-            return Redirect(UniquePageHelper.GetUrl<LoginPage>());
+            return Redirect(HttpContext.GetUrl<LoginPage>());
         }
 
         [HttpPost]
@@ -66,10 +66,10 @@ namespace MrCMS.Web.Apps.Core.Controllers
                     _userService.SaveUser(user);
                     await _authorisationService.SetAuthCookie(user, false);
 
-                    return Redirect(UniquePageHelper.GetUrl<UserAccountPage>());
+                    return Redirect(HttpContext.GetUrl<UserAccountPage>());
                 }
             }
-            return Redirect(UniquePageHelper.GetUrl<UserAccountPage>());
+            return Redirect(HttpContext.GetUrl<UserAccountPage>());
         }
 
         public JsonResult IsUniqueEmail(string email)
@@ -104,7 +104,7 @@ namespace MrCMS.Web.Apps.Core.Controllers
             }
 
             TempData["message"] = model.Message;
-            return Redirect(UniquePageHelper.GetUrl<UserAccountPage>());
+            return Redirect(HttpContext.GetUrl<UserAccountPage>());
         }
     }
 }

@@ -7,12 +7,7 @@ namespace MrCMS.Web.Apps.Core.ModelBinders
 {
     public class WebpageSearchQueryModelBinder : MrCMSDefaultModelBinder
     {
-        public WebpageSearchQueryModelBinder(IKernel kernel)
-            : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             int page;
             int.TryParse(GetValueFromContext(controllerContext, "page"), out page);

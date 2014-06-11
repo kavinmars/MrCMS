@@ -7,6 +7,7 @@ using MrCMS.Web.Apps.Articles.Pages;
 using MrCMS.Web.Apps.Articles.Services;
 using MrCMS.Website;
 using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Articles.Widgets
 {
@@ -17,9 +18,9 @@ namespace MrCMS.Web.Apps.Articles.Widgets
         [DisplayName("Show Name As Title")]
         public virtual bool ShowNameAsTitle { get; set; }
 
-        public override object GetModel(ISession session)
+        public override object GetModel(IKernel kernel)
         {
-            var articleService = MrCMSApplication.Get<IArticleService>();
+            var articleService = kernel.Get<IArticleService>();
             var model = new ArticleArchiveModel
             {
                 ArticleYearsAndMonths = articleService.GetMonthsAndYears(ArticleList),

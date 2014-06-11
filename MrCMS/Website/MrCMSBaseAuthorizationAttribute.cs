@@ -29,7 +29,7 @@ namespace MrCMS.Website
                 {
                     if (filterContext.HttpContext.User.Identity.IsAuthenticated)
                     {
-                        var mrCMSHttpHandler = MrCMSApplication.Get<MrCMSHttpHandler>();
+                        var mrCMSHttpHandler = filterContext.HttpContext.Get<MrCMSHttpHandler>();
                         var routeData = filterContext.RouteData;
                         routeData.Route = RouteTable.Routes.Last();
                         routeData.DataTokens.Remove("area");

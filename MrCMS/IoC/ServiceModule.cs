@@ -51,9 +51,6 @@ namespace MrCMS.IoC
             Kernel.Bind<Cache>().ToMethod(context => CurrentRequestData.CurrentContext.Cache);
             Kernel.Bind(typeof(ITokenProvider<>)).To(typeof(PropertyTokenProvider<>)).InSingletonScope();
             Kernel.Bind(typeof(IMessageParser<,>)).To(typeof(MessageParser<,>)).InSingletonScope();
-            Kernel.Rebind<Site>()
-                  .ToMethod(context => CurrentRequestData.CurrentSite)
-                  .InSingletonScope();
             Kernel.Bind<IEnumerable<IHashAlgorithm>>()
                   .ToMethod(context => context.Kernel.GetAll<IHashAlgorithm>())
                   .InSingletonScope();

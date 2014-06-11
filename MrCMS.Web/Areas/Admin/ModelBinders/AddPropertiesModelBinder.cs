@@ -10,11 +10,7 @@ namespace MrCMS.Web.Areas.Admin.ModelBinders
 {
     public class AddPropertiesModelBinder : MrCMSDefaultModelBinder
     {
-        public AddPropertiesModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var typeName = GetValueFromContext(controllerContext, "type");
             var entityType = TypeHelper.MappedClasses.FirstOrDefault(type => type.FullName == typeName);

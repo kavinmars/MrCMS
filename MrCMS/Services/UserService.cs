@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Web;
+using Microsoft.Owin;
 using MrCMS.Entities;
 using MrCMS.Entities.People;
 using MrCMS.Helpers;
@@ -19,11 +20,13 @@ namespace MrCMS.Services
     {
         private readonly ISession _session;
         private readonly SiteSettings _siteSettings;
+        private readonly IOwinContext _context;
 
-        public UserService(ISession session, SiteSettings siteSettings)
+        public UserService(ISession session, SiteSettings siteSettings, IOwinContext context)
         {
             _session = session;
             _siteSettings = siteSettings;
+            _context = context;
         }
 
         public void AddUser(User user)
@@ -32,7 +35,7 @@ namespace MrCMS.Services
                                   {
                                       session.Save(user);
                                   });
-            EventContext.Instance.Publish<IOnUserAdded, OnUserAddedEventArgs>(new OnUserAddedEventArgs(user));
+            _context.EventContext().Publish<IOnUserAdded, OnUserAddedEventArgs>(new OnUserAddedEventArgs(user));
         }
 
         public void SaveUser(User user)

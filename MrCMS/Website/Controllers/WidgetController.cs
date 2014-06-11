@@ -1,3 +1,4 @@
+using System.Web;
 using System.Web.Mvc;
 using MrCMS.Apps;
 using MrCMS.Entities.Widget;
@@ -21,7 +22,7 @@ namespace MrCMS.Website.Controllers
                 RouteData.DataTokens["app"] = MrCMSApp.AppWidgets[widget.Unproxy().GetType()];
             return PartialView(
                 !string.IsNullOrWhiteSpace(widget.CustomLayout) ? widget.CustomLayout : widget.WidgetType,
-                _widgetService.GetModel(widget));
+                _widgetService.GetModel(widget, HttpContext.GetOwinContext()));
         }
     }
 }

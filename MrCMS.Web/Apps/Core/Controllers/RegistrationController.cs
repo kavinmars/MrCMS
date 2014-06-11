@@ -42,7 +42,7 @@ namespace MrCMS.Web.Apps.Core.Controllers
             if (CurrentRequestData.CurrentUser != null)
             {
                 TempData["already-logged-in"] = "You are already logged in. Please logout to create a new account.";
-                return Redirect(UniquePageHelper.GetUrl<RegisterPage>());
+                return Redirect(HttpContext.GetUrl<RegisterPage>());
             }
 
             if (model != null && ModelState.IsValid && _registrationService.CheckEmailIsNotRegistered(model.Email))
@@ -53,7 +53,7 @@ namespace MrCMS.Web.Apps.Core.Controllers
                            ? Redirect("~/" + model.ReturnUrl)
                            : Redirect("~/");
             }
-            return Redirect(UniquePageHelper.GetUrl<RegisterPage>());
+            return Redirect(HttpContext.GetUrl<RegisterPage>());
         }
 
         public JsonResult CheckEmailIsNotRegistered(string email)

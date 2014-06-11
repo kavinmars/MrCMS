@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Owin;
 using MrCMS.Helpers;
 using MrCMS.Indexing.Management;
 using MrCMS.Tasks;
@@ -38,15 +39,15 @@ namespace MrCMS.Indexing
 
         public static List<IndexDefinition> GetIndexDefinitionTypes(IKernel kernel)
         {
-                return
-                    TypeHelper.GetAllConcreteTypesAssignableFrom(typeof(IndexDefinition<>))
-                        .Select(type => kernel.Get(type) as IndexDefinition)
-                        .ToList();
+            return
+                TypeHelper.GetAllConcreteTypesAssignableFrom(typeof(IndexDefinition<>))
+                    .Select(type => kernel.Get(type) as IndexDefinition)
+                    .ToList();
         }
 
-        public static IndexDefinition Get<T>(IKernel kernel) where T :IndexDefinition
+        public static IndexDefinition Get<T>(IOwinContext context) where T : IndexDefinition
         {
-            return GetIndexDefinitionTypes(kernel).OfType<T>().FirstOrDefault();
+            return GetIndexDefinitionTypes(context.GetKernel()).OfType<T>().FirstOrDefault();
         }
     }
 }

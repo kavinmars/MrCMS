@@ -6,6 +6,7 @@ using MrCMS.Settings;
 using MrCMS.Website;
 using NHibernate;
 using NHibernate.Criterion;
+using Ninject;
 
 namespace MrCMS.Helpers
 {
@@ -47,7 +48,7 @@ namespace MrCMS.Helpers
         public static IPagedList<T> Paged<T>(this ISession session, QueryOver<T> query, int pageNumber, int? pageSize = null)
             where T : SystemEntity
         {
-            var size = pageSize ?? MrCMSApplication.Get<SiteSettings>().DefaultPageSize;
+            var size = pageSize ?? KernelCreator.GetNew().Get<SiteSettings>().DefaultPageSize;
             IEnumerable<T> values = query.GetExecutableQueryOver(session).Skip((pageNumber - 1) * size).Take(size).Cacheable().List<T>();
 
             var rowCount = query.GetExecutableQueryOver(session).ToRowCountQuery().SingleOrDefault<int>();
@@ -58,7 +59,7 @@ namespace MrCMS.Helpers
         public static IPagedList<TResult> Paged<TResult>(this IQueryOver<TResult, TResult> queryBase, int pageNumber, int? pageSize = null)
             where TResult : SystemEntity
         {
-            var size = pageSize ?? MrCMSApplication.Get<SiteSettings>().DefaultPageSize;
+            var size = pageSize ?? KernelCreator.GetNew().Get<SiteSettings>().DefaultPageSize;
             IEnumerable<TResult> results = queryBase.Skip((pageNumber - 1) * size).Take(size).Cacheable().List();
 
             int rowCount = queryBase.Cacheable().RowCount();

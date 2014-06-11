@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Routing;
+using Microsoft.Owin;
 using MrCMS.Entities;
 using MrCMS.Entities.Documents.Web;
 using MrCMS.Entities.Multisite;
@@ -109,9 +110,10 @@ namespace MrCMS.Apps
             AllApps.ForEach(app => app.RegisterServices(kernel));
         }
 
-        public static void InstallApps(ISession session, InstallModel model, Site site)
+        public static void InstallApps(ISession session, InstallModel model, Site site, IOwinContext owinContext)
         {
-            AllApps.OrderBy(app => app.InstallOrder).ForEach(app => app.OnInstallation(session, model, site));
+            AllApps.OrderBy(app => app.InstallOrder)
+                .ForEach(app => app.OnInstallation(session, model, site, owinContext));
         }
 
         private static List<MrCMSApp> AllApps
@@ -135,8 +137,8 @@ namespace MrCMS.Apps
         public static IEnumerable<string> AppNames { get { return AllApps.Select(app => app.AppName); } }
 
 
-        protected abstract void RegisterServices(IKernel kernel);
+        protected virtual void RegisterServices(IKernel kernel) { }
 
-        protected abstract void OnInstallation(ISession session, InstallModel model, Site site);
+        protected virtual void OnInstallation(ISession session, InstallModel model, Site site, IOwinContext owinContext) { }
     }
 }

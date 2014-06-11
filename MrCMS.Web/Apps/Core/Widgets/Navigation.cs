@@ -9,6 +9,7 @@ using MrCMS.Web.Apps.Core.Models;
 using MrCMS.Web.Apps.Core.Models.Navigation;
 using MrCMS.Website;
 using NHibernate;
+using Ninject;
 
 namespace MrCMS.Web.Apps.Core.Widgets
 {
@@ -16,8 +17,9 @@ namespace MrCMS.Web.Apps.Core.Widgets
     {
         public virtual bool IncludeChildren { get; set; }
 
-        public override object GetModel(ISession session)
+        public override object GetModel(IKernel kernel)
         {
+            ISession session = kernel.Get<ISession>();
             var navigationRecords =
                 GetPages(session, null).Where(webpage => webpage.Published).OrderBy(webpage => webpage.DisplayOrder)
                        .Select(webpage => new NavigationRecord

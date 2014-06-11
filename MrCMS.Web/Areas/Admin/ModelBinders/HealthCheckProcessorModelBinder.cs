@@ -7,11 +7,7 @@ namespace MrCMS.Web.Areas.Admin.ModelBinders
 {
     public class HealthCheckProcessorModelBinder : MrCMSDefaultModelBinder
     {
-        public HealthCheckProcessorModelBinder(IKernel kernel) : base(kernel)
-        {
-        }
-
-        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        public override object BindMrCMSModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             string typeName = GetValueFromContext(controllerContext, "typeName");
             var typeByName = TypeHelper.GetTypeByName(typeName);

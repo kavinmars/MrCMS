@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Owin;
 using MrCMS.Entities.Notifications;
 using MrCMS.Helpers;
 using MrCMS.Website;
@@ -9,10 +10,12 @@ namespace MrCMS.Services.Notifications
     public class NotificationPublisher : INotificationPublisher
     {
         private readonly ISession _session;
+        private readonly IOwinContext _context;
 
-        public NotificationPublisher(ISession session)
+        public NotificationPublisher(ISession session,IOwinContext context)
         {
             _session = session;
+            _context = context;
         }
 
         public void PublishNotification(string message, PublishType publishType = PublishType.Both, NotificationType notificationType = NotificationType.All)
@@ -43,13 +46,13 @@ namespace MrCMS.Services.Notifications
         private void SaveNotification(Notification notification)
         {
             _session.Transact(session => session.Save(notification));
-            EventContext.Instance.Publish<IOnPersistentNotificationPublished, OnPersistentNotificationPublishedEventArgs>(
+            _context.EventContext().Publish<IOnPersistentNotificationPublished, OnPersistentNotificationPublishedEventArgs>(
                             new OnPersistentNotificationPublishedEventArgs(notification));
         }
 
         private void PushNotification(Notification notification)
         {
-            EventContext.Instance.Publish<IOnTransientNotificationPublished, OnTransientNotificationPublishedEventArgs>(
+            _context.EventContext().Publish<IOnTransientNotificationPublished, OnTransientNotificationPublishedEventArgs>(
                             new OnTransientNotificationPublishedEventArgs(notification));
         }
     }

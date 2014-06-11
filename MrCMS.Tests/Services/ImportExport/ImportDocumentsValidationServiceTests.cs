@@ -24,11 +24,13 @@ namespace MrCMS.Tests.Services.ImportExport
     {
         private readonly IDocumentService _documentService;
         private readonly ImportDocumentsValidationService _importDocumentsValidationService;
+        private IEnumerable<IDocumentImportValidationRule> _documentImportValidationRules;
 
         public ImportDocumentsValidationServiceTests()
         {
             _documentService = A.Fake<IDocumentService>();
-            _importDocumentsValidationService = new ImportDocumentsValidationService(_documentService);
+            _documentImportValidationRules = A.Fake<IEnumerable<IDocumentImportValidationRule>>();
+            _importDocumentsValidationService = new ImportDocumentsValidationService(_documentService, _documentImportValidationRules);
         }
 
         [Fact]
@@ -39,7 +41,6 @@ namespace MrCMS.Tests.Services.ImportExport
                 Enumerable.Range(1, 10).Select(i => A.Fake<IDocumentImportValidationRule>()).ToList();
             documentImportValidationRules.ForEach(rule => mockingKernel.Bind<IDocumentImportValidationRule>()
                                                                       .ToMethod(context => rule));
-            MrCMSApplication.OverrideKernel(mockingKernel);
 
             var documents = Enumerable.Range(1, 10).Select(i => new DocumentImportDTO()).ToList();
 
@@ -123,11 +124,11 @@ namespace MrCMS.Tests.Services.ImportExport
                     PublishOn = currentTime
                 };
             document.Tags.Add(new Tag { Id = 1, Name = "Test" });
-            document.Urls.Add(new UrlHistory {UrlSegment = "test-url-old"});
+            document.Urls.Add(new UrlHistory { UrlSegment = "test-url-old" });
             var items = new List<Webpage> { document };
 
             var exportExcelPackage = new ExportDocumentsService().GetExportExcelPackage(items);
-            
+
             return exportExcelPackage;
         }
     }

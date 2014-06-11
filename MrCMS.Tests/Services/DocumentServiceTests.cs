@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using FakeItEasy;
 using Iesi.Collections.Generic;
+using Microsoft.Owin;
 using MrCMS.Entities.Documents;
 using MrCMS.Entities.Documents.Layout;
 using MrCMS.Entities.Documents.Web;
@@ -23,7 +25,7 @@ namespace MrCMS.Tests.Services
 
         public DocumentServiceTests()
         {
-            _documentService = new DocumentService(Session,  _siteSettings, CurrentSite);
+            _documentService = new DocumentService(Session,  _siteSettings, CurrentSite,A.Fake<IOwinContext>());
             _siteSettings = new SiteSettings();
         }
 

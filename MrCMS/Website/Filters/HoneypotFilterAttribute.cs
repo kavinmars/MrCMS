@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using MrCMS.Helpers;
 using MrCMS.Settings;
 
 namespace MrCMS.Website.Filters
@@ -10,7 +11,7 @@ namespace MrCMS.Website.Filters
             if (CurrentRequestData.DatabaseIsInstalled)
             {
                 if (!string.IsNullOrWhiteSpace(
-                    filterContext.HttpContext.Request[MrCMSApplication.Get<SiteSettings>().HoneypotFieldName]))
+                    filterContext.HttpContext.Request[filterContext.HttpContext.Get<SiteSettings>().HoneypotFieldName]))
                 {
                     filterContext.Result = new EmptyResult();
                 }

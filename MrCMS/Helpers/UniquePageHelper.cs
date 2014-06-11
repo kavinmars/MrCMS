@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using MrCMS.Entities.Documents.Web;
@@ -10,17 +11,26 @@ namespace MrCMS.Helpers
 {
     public static class UniquePageHelper
     {
+        public static string GetUrl<T>(this HttpContextBase context, object queryString = null) where T : Webpage, IUniquePage
+        {
+            return Get<T>(context, queryString, arg => "/" + arg.LiveUrlSegment);
+        }
+
+        public static string GetAbsoluteUrl<T>(this HttpContextBase context, object queryString = null) where T : Webpage, IUniquePage
+        {
+            return Get<T>(context, queryString, arg => arg.AbsoluteUrl);
+        }
         public static string GetUrl<T>(this HtmlHelper helper, object queryString = null) where T : Webpage, IUniquePage
         {
-            return Get<T>(helper, queryString, arg => "/" + arg.LiveUrlSegment);
+            return Get<T>(helper.ViewContext.HttpContext, queryString, arg => "/" + arg.LiveUrlSegment);
         }
 
         public static string GetAbsoluteUrl<T>(this HtmlHelper helper, object queryString = null) where T : Webpage, IUniquePage
         {
-            return Get<T>(helper, queryString, arg => arg.AbsoluteUrl);
+            return Get<T>(helper.ViewContext.HttpContext, queryString, arg => arg.AbsoluteUrl);
         }
 
-        private static string Get<T>(HtmlHelper helper, object queryString, Func<T, string> selector) where T : Webpage, IUniquePage
+        private static string Get<T>(HttpContextBase helper, object queryString, Func<T, string> selector) where T : Webpage, IUniquePage
         {
             var service = helper.Get<IUniquePageService>();
 
